@@ -1,0 +1,1767 @@
+<title>By the Stem</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: an open spiral sketchbook on the shop table. Left page is the hand-lettered price list (the shelf),
+   right page is the wrapping paper with the total written underneath. The book has a largest size and sits centred.
+   One light look on purpose: ink on paper. */
+:root{
+  --ink:#394038;
+  --muted:#7A8077;
+  --table:#F2F0EA;
+  --page:#FFFDF7;
+  --twine:#B4593F;
+  --print:#F4C9A6;
+  --f-hand:"Nanum Pen Script","Bradley Hand","Segoe Print",cursive;
+  --f-ui:"Patrick Hand","Comic Neue","Segoe Print",cursive;
+  --wobc:52% 48% 55% 45%/47% 53% 46% 54%;
+}
+html,body{height:100%}
+body{margin:0;background:var(--table);color:var(--ink);font-family:var(--f-ui);font-size:18px;line-height:1.3;display:flex;align-items:center;justify-content:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.book{box-sizing:border-box;width:min(calc(100% - 40px),1180px);height:min(calc(100% - 36px),760px);
+  display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);filter:drop-shadow(0 2px 0 rgba(57,64,56,.05))}
+.page{position:relative;background:var(--page);min-width:0;min-height:0;box-sizing:border-box;padding:min(4.5vh,38px) 40px min(3.5vh,28px)}
+.page::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500' preserveAspectRatio='none'%3E%3Cpath d='M2 3 C120 1.5 280 4 398 2.5 C399 160 397.5 340 398.5 497 C280 498.5 120 496.5 2.5 498 C1.2 340 2.6 160 2 3 Z' fill='none' stroke='%23394038' stroke-width='1.3' vector-effect='non-scaling-stroke' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+/* nothing framed but the paper: stems are loose studies on open white, labels written beside them like notes */
+body{background:var(--page)}
+.book{filter:none;grid-template-columns:minmax(0,1fr) min(6vw,84px) minmax(0,.95fr)}
+.rings{visibility:hidden}
+.page{background:transparent;padding-inline:4px}
+.page::before{display:none}
+.rings{position:relative;display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding-block:18px}
+.rings svg{width:44px;height:16px;overflow:visible}
+.rings path{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linecap:round}
+
+/* left page: the price list */
+.left-page{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:6px}
+.sign h1{font:400 clamp(44px,5vw,64px)/.85 var(--f-hand);margin:0;position:relative;display:inline-block}
+.sign h1::after{content:"";position:absolute;left:2%;right:-4%;bottom:-6px;height:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C60 3 120 8 190 5 S270 3 298 6' fill='none' stroke='%23B4593F' stroke-width='1.6' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.sign .mark{display:inline-block;width:.5em;height:.86em;vertical-align:-.04em;margin-left:.08em;transform:rotate(10deg)}
+.sign .mark svg{width:100%;height:100%;overflow:visible}
+.tagline{margin:10px 0 0;font-size:18px}
+.sign{position:relative}
+/* a rubber stamp beside the name: the shop isn't open yet, so the ending later is an echo, not a twist */
+.soon{position:absolute;top:-10px;left:100%;margin-left:12px;display:grid;place-items:center;width:74px;height:74px;box-sizing:border-box;
+  font:400 19px/.85 var(--f-hand);text-align:center;color:var(--twine);transform:rotate(9deg);opacity:.85;
+  border:1.6px solid var(--twine);border-radius:52% 48% 55% 45%/47% 53% 46% 54%;box-shadow:inset 0 0 0 3px var(--page),inset 0 0 0 4.2px rgba(180,89,63,.55)}
+.today{margin:min(2.2vh,18px) 0 0;font:400 25px/1.05 var(--f-hand)}
+.today b{font-weight:400;color:var(--twine)}
+.stems{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-content:space-evenly;gap:min(2.6vh,24px) 14px;padding-inline:4px;min-height:0;transition:opacity .17s ease,transform .17s ease}
+.stems.out{opacity:0;transform:translateX(calc(var(--dir,1) * -14px))}
+.stems.in{opacity:0;transform:translateX(calc(var(--dir,1) * 14px));transition:none}
+.item{display:grid;justify-items:center;gap:2px;min-width:0}
+.pick{appearance:none;width:100%;min-width:0;background:none;border:0;padding:0;margin:0;color:var(--ink);font:inherit;cursor:grab;
+  display:grid;justify-items:center;gap:4px;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.pick svg{width:auto;max-width:100%;height:min(17vh,150px);aspect-ratio:200/340;overflow:visible;transform-origin:50% 97%;transition:transform .45s cubic-bezier(.3,1.6,.5,1)}
+.item:hover .pick svg{transform:translateY(-5px) rotate(-3deg)}
+.item:nth-child(even):hover .pick svg{transform:translateY(-5px) rotate(3deg)}
+.pick .row{display:grid;justify-items:center;gap:2px;width:100%}
+.pick .row .dots{display:none}
+.pick .nm{font-size:17px;line-height:1;padding-bottom:1px;white-space:nowrap}
+.pick .dots{flex:1;min-width:6px;height:6px;margin-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Ccircle cx='3' cy='3' r='1.05' fill='%23394038'/%3E%3C/svg%3E") repeat-x 0 0/9px 6px;opacity:.7}
+.pick .pr{font:400 16px/1 var(--f-ui);color:var(--muted)}
+.item:hover .pick .nm{background:linear-gradient(transparent 62%,rgba(244,201,166,.8) 62%,rgba(244,201,166,.8) 92%,transparent 92%)}
+.item.out .pick{cursor:not-allowed;opacity:.35}
+.pick:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.meta{display:flex;align-items:center;justify-content:center;gap:8px;min-height:18px}
+.item .left{font:400 20px/1 var(--f-hand);color:var(--twine);white-space:nowrap}
+.swatches{display:flex;gap:4px}
+.sw{appearance:none;width:15px;height:15px;border-radius:var(--wobc);border:1.2px solid var(--ink);padding:0;cursor:pointer;box-shadow:inset 0 0 0 2px var(--page)}
+.sw[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--page),0 0 0 1.5px var(--twine)}
+.sw:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.pager{display:flex;align-items:center;justify-content:space-between;font:400 24px/1 var(--f-hand)}
+.pg{appearance:none;background:none;border:0;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:6px;font:400 24px/1 var(--f-hand);padding:4px 2px}
+.pg svg{width:34px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+#pgPrev svg{transform:scaleX(-1)}
+#pgNext:hover:not(:disabled) svg{transform:translateX(4px)}
+#pgPrev:hover:not(:disabled) svg{transform:scaleX(-1) translateX(4px)}
+.pg:disabled{opacity:.2;cursor:default}
+.pg:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+#pgNum{color:var(--muted)}
+.howto{display:none}
+
+/* right page: paper + total */
+.right-page{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:10px}
+.note-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.papers{display:flex;align-items:center;gap:4px;justify-content:flex-start}
+.papers .ph{font:400 24px/1 var(--f-hand);margin:0 4px 0 0}
+.pp{appearance:none;background:none;border:0;padding:0;cursor:pointer;display:grid;justify-items:center;gap:0;color:var(--ink);font:400 15px/1 var(--f-ui)}
+.pp svg{width:50px;height:36px;overflow:visible}
+.pp .loop{fill:none;stroke:var(--twine);stroke-width:1.6;stroke-linecap:round;opacity:0;stroke-dasharray:200;stroke-dashoffset:200;transition:stroke-dashoffset .5s ease,opacity .1s}
+.pp[aria-pressed="true"] .loop{opacity:1;stroke-dashoffset:0}
+.pp .sheet{transition:transform .2s}
+.pp:hover .sheet{transform:translateY(-2px)}
+.pp:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.paperwrap{position:relative;min-height:0}
+#paper{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;overflow:visible}
+.note{display:grid;gap:8px}
+.tally{margin:0;display:flex;justify-content:space-between;align-items:flex-end;font-size:21px;padding-top:12px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3 C50 2 100 4.4 150 2.8 S190 3.4 199 3' fill='none' stroke='%23394038' stroke-dasharray='3 4' stroke-width='1.1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 6px}
+.tally .dots{height:6px;margin-bottom:7px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Ccircle cx='3' cy='3' r='1.05' fill='%23394038'/%3E%3C/svg%3E") repeat-x 0 0/9px 6px;opacity:.7}
+.tally #total{font:400 38px/.9 var(--f-hand)}
+.actions{display:flex;align-items:center;justify-content:flex-end;gap:14px}
+.primary{position:relative;isolation:isolate;color:var(--ink);border:0;cursor:pointer;font:400 21px/1 var(--f-ui);padding:12px 22px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 44' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C50 2.6 110 5.6 159 3.6 M155.5 .8 C157.4 16 156.2 30 156.8 43.4 M159 40.2 C110 42.2 50 40.4 1.2 41.4 M4.6 43.6 C2.8 30 4.2 16 5.6 .6' fill='none' stroke='%23394038' stroke-width='1.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center/100% 100%}
+.primary::before{content:"";position:absolute;inset:4px 5px;z-index:-1;border-radius:3px 6px 4px 5px;background:var(--print);transform:translate(5px,-4px) rotate(-.8deg);transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.primary:hover:not(:disabled)::before{transform:none}
+.primary:disabled{color:#A9ADA5;opacity:.6;cursor:default}
+.primary:disabled::before{background:#EFEFEA}
+.link{appearance:none;border:0;cursor:pointer;color:var(--ink);font:400 19px/1 var(--f-ui);padding:8px 4px 10px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='4' viewBox='0 0 12 4'%3E%3Cpath d='M0 2.2 Q3 .4 6 2.2 T12 2.2' fill='none' stroke='%23394038' stroke-width='1.1'/%3E%3C/svg%3E") repeat-x 0 calc(100% - 4px)/12px 4px}
+.link:hover{background-position-x:6px}
+.primary:focus-visible,.link:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.msg{margin:0;font-size:16px;color:var(--muted);min-height:1.3em}
+.pp span{font-size:14px}
+.pp svg{width:42px;height:30px}
+
+/* paper scene */
+#paper .hit{fill:transparent;pointer-events:all;cursor:grab}
+#paper .pl{pointer-events:none}
+#paper.locked .hit{pointer-events:none}
+#paper .ghosted{opacity:.36}
+#paper .pop{animation:pop .5s cubic-bezier(.3,1.5,.5,1) both;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes pop{from{opacity:.25;transform:translateY(-14px)}}
+#ring{fill:none;stroke:#B6AA92;stroke-width:1.2;stroke-dasharray:3 4;transition:stroke .2s}
+#paper.hot #ring{stroke:var(--ink);stroke-dasharray:none}
+#hintText{font:400 30px var(--f-hand);fill:#A39A86}
+#tag{opacity:0;transform-box:fill-box;transform-origin:20% 0%}
+#tag.on{animation:tag 1.1s cubic-bezier(.25,1.3,.45,1) forwards}
+@keyframes tag{0%{opacity:0;transform:translateY(-46px) rotate(-22deg)}35%{opacity:1}60%{transform:translateY(0) rotate(9deg)}80%{transform:rotate(-4deg)}100%{opacity:1;transform:rotate(0)}}
+#tagText{font-family:var(--f-hand);font-size:31px;fill:var(--ink)}
+#paper .under path{fill:#FAF6EE}
+
+.float{position:fixed;left:0;top:0;pointer-events:none;z-index:50;transition:opacity .12s}
+.float svg{display:block;width:100%;height:100%;overflow:visible}
+body.dragging,body.dragging *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
+
+/* weight: the paper is the centre of the page; today's stems are a compact block beside it */
+.book{grid-template-columns:minmax(0,.8fr) min(5vw,72px) minmax(0,1.2fr)}
+.left-page{grid-template-rows:auto auto auto auto;align-content:start;gap:12px;padding-top:min(4vh,36px)}
+.stems{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:clamp(10px,1.6vw,22px);row-gap:min(2.2vh,18px);align-content:start;padding:0;margin-top:min(1.5vh,12px)}
+.pick svg{height:min(19.5vh,170px)}
+.pick .nm{font:400 22px/1 var(--f-hand)}
+.pick .pr{font:400 14px/1 var(--f-ui)}
+.pager{margin-top:min(1.5vh,12px)}
+
+/* under the paper: things on the table, not a form row.
+   left: a small fan of paper samples (the chosen one pulled out); right: the total written by hand, then the buttons */
+.note{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:4px 10px 0 18px;background:none;position:relative}
+/* paper choice: says what it is, shows every option by name, circles the chosen one */
+.note .papers{position:relative;display:flex;align-items:flex-end;gap:6px;padding:26px 0 0 0}
+.note .papers .ph{position:absolute;top:0;left:2px;margin:0;font:400 25px/1 var(--f-hand);transform:rotate(-2deg)}
+.note .pp{display:grid;justify-items:center;gap:1px;cursor:pointer;transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.note .pp svg{width:50px;height:36px}
+.note .pp span{display:block;font:400 15px/1 var(--f-ui);color:var(--muted)}
+.note .pp[aria-pressed="true"] span{color:var(--ink)}
+.note .pp:nth-of-type(odd) svg{transform:rotate(-3deg)}
+.note .pp:nth-of-type(even) svg{transform:rotate(3deg)}
+.note .pp:hover{transform:translateY(-4px)}
+.note .pp .sheet{transition:none}
+.note .pp:hover .sheet{transform:none}
+.sum{display:grid;justify-items:end;gap:8px}
+.note .tally{background:none;padding:0;margin:0;display:flex;align-items:baseline;gap:6px;transform:rotate(-2deg);font:400 30px/1 var(--f-hand)}
+.note .tally .comma{margin-left:-4px}
+.note .tally #total{font:400 38px/1 var(--f-hand);color:var(--twine)}
+.note .actions{gap:10px}
+.note .msg{position:absolute;right:10px;top:100%;margin-top:6px;font-size:15px;text-align:right}
+
+/* left column views: the shop (stems), checkout, and the booked order. Only one shows at a time. */
+.view-shop{display:contents}
+.view-shop[hidden]{display:none}
+.view-checkout,.view-done{display:grid;gap:12px;align-content:start;margin-top:min(2vh,18px)}
+.view-checkout[hidden],.view-done[hidden]{display:none}
+.co-h{margin:0;font:400 34px/1 var(--f-hand)}
+.co-f{border:0;margin:0;padding:0;display:grid;gap:8px}
+.co-f legend{padding:0;margin-bottom:6px;font-size:16px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;border:0;cursor:pointer;color:var(--ink);font:400 17px/1 var(--f-ui);padding:8px 13px;border-radius:var(--wobc);background:transparent;box-shadow:inset 0 0 0 1.2px var(--ink)}
+.chip[aria-pressed="true"]{background:var(--print)}
+.chip:hover{background:rgba(244,201,166,.4)}
+.chip:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.co-l{display:grid;gap:4px;font-size:16px}
+.co-l span em{font-style:normal;color:var(--muted);font-size:14px;margin-left:4px}
+.co-l input,.co-l textarea{font:400 24px/1.25 var(--f-hand);color:var(--ink);background:transparent;border:0;outline:none;padding:2px 0 4px;resize:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3 C50 2 100 4.4 150 2.8 S190 3.4 199 3' fill='none' stroke='%23394038' stroke-width='1.1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 100%/100% 6px}
+.co-l textarea{height:2.5em}
+.co-l input:focus-visible,.co-l textarea:focus-visible{background-color:rgba(244,201,166,.25)}
+.co-l input[aria-invalid="true"]{background-color:rgba(180,89,63,.12)}
+.co-err{margin:0;min-height:1.2em;color:var(--twine);font-size:15px}
+.done-lede{margin:0;font-size:17px;max-width:34ch}
+.done-dl{margin:6px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:17px}
+.done-dl dt{color:var(--muted)}
+.done-dl dd{margin:0}
+.done-dl dd.big{font:400 26px/1 var(--f-hand)}
+/* the concept page shown after Buy: a page of its own, not a pop-up over the bench */
+.concept{position:fixed;inset:0;padding-bottom:56px!important;z-index:65;background:var(--page);display:grid;place-items:center;overflow:auto;
+  padding:max(20px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.concept[hidden]{display:none}
+.concept:not([hidden]) .cbox{animation:fadeUp .45s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}}
+.cbox{width:min(1040px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:min(6vw,72px);align-items:center}
+.c-art{height:min(70vh,560px)}
+.c-art svg{width:100%;height:100%;display:block;overflow:visible}
+.c-art{display:grid;place-items:center}
+.c-left{display:grid;justify-items:center;gap:10px}
+.c-left .c-art{height:min(64vh,520px)}
+.c-shuffle{font-size:16px}
+.c-act button{white-space:nowrap}
+.c-art img{height:100%;width:auto;max-width:100%;object-fit:contain;transform:rotate(-1.5deg);filter:drop-shadow(0 12px 22px rgba(57,64,56,.18))}
+.c-art .under path{fill:#FAF6EE}
+.c-art text{font-family:var(--f-hand);font-size:31px;fill:var(--ink)}
+.c-text{display:grid;gap:14px;align-content:center;max-width:44ch}
+/* the sign hangs from a nail on a loop of twine and sways once as the page opens */
+.c-sign{margin:0;width:min(300px,80%);justify-self:start}
+.c-board{width:100%;height:auto;display:block;overflow:visible;transform-origin:50% 4%;animation:sway 2.4s cubic-bezier(.3,1.2,.4,1) both}
+@keyframes sway{0%{transform:rotate(-7deg)}35%{transform:rotate(4deg)}65%{transform:rotate(-1.6deg)}100%{transform:rotate(-1deg)}}
+.c-board .tw{fill:none;stroke:var(--twine);stroke-width:2;stroke-linecap:round}
+.c-board .nail{fill:var(--page);stroke:var(--ink);stroke-width:1.6}
+.c-board .bd-fill{fill:#E2CBA4}
+.c-board .bd{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.c-board text{font:400 46px var(--f-hand);fill:var(--ink)}
+/* the florist's note: a scrap of paper, taped, written by hand */
+.c-note{position:relative;background:#FBF6EC;padding:20px 24px 16px;transform:rotate(.8deg);box-shadow:0 1px 0 rgba(57,64,56,.06);
+  border:1.3px solid var(--ink);border-radius:3px 9px 4px 7px/7px 3px 9px 4px}
+.c-note::before{content:"";position:absolute;top:-12px;left:50%;width:84px;height:22px;margin-left:-42px;background:rgba(244,201,166,.8);transform:rotate(-3deg)}
+.c-text .c-note p{font:400 30px/1.05 var(--f-hand)}
+.c-text .c-note .c-from{margin-top:8px;text-align:right;font-size:26px;color:var(--muted)}
+.c-colophon{position:absolute;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom,0px));margin:0;text-align:center;font-size:14px;color:var(--muted);padding-inline:20px}
+.c-text p{margin:0;font-size:18px}
+.c-sum{color:var(--muted)}
+.c-act{display:flex;gap:16px;align-items:center;margin-top:6px}
+.c-new{justify-self:start;font-size:16px}
+@media (max-width:860px){.cbox{grid-template-columns:minmax(0,1fr)}.c-art{height:46vh}.concept{padding-bottom:20px!important}.c-colophon{position:static;margin-top:28px}}
+.c-sign:focus{outline:none}
+
+/* save a picture of the bunch: a small icon on the paper's corner */
+.dl{position:absolute;top:2px;right:2px;z-index:3;appearance:none;border:0;background:transparent;cursor:pointer;color:var(--ink);padding:6px;border-radius:50%;display:grid;place-items:center}
+.dl svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dl:hover{background:rgba(244,201,166,.45)}
+.dl:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.dl[hidden]{display:none}
+.dlpop{position:fixed;inset:0;z-index:70;background:rgba(252,252,250,.92);display:grid;place-items:center;padding:20px}
+.dlpop[hidden]{display:none}
+.dlbox{position:relative;display:grid;gap:8px;justify-items:center;max-height:100%}
+.dlbox img{max-width:min(520px,90vw);max-height:78vh;height:auto;box-shadow:0 10px 30px -16px rgba(57,64,56,.45)}
+.dlbox p{margin:0;color:var(--muted);font-size:15px}
+.dlx{position:absolute;top:-10px;right:-10px;appearance:none;border:0;background:var(--page);box-shadow:inset 0 0 0 1.2px var(--ink);border-radius:50%;width:34px;height:34px;font:400 20px/1 var(--f-ui);cursor:pointer;color:var(--ink)}
+
+/* the postcard sheet */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(252,252,250,.94);display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal[hidden]{display:none}
+body.modal-open{overflow:hidden}
+.msheet{width:min(1040px,100%);max-height:100%;overflow:auto;display:grid;gap:14px;justify-items:center;padding:8px 4px 12px}
+.mtitle{margin:0;font:400 44px/1 var(--f-hand);text-align:center}
+.msub{margin:0;max-width:62ch;text-align:center;color:var(--muted);font-size:17px}
+.cards{display:grid;width:min(780px,100%);margin:6px 0 14px}
+.pc-one{transform:rotate(-1deg);display:grid;grid-template-columns:52% 48%;grid-template-rows:minmax(0,1fr) auto;aspect-ratio:4/3}
+/* in-place, not a pop-up: the page itself becomes the card */
+.modal{background:var(--page)}
+.modal:not([hidden]) .pc-one{animation:becomeCard .7s cubic-bezier(.25,1.2,.4,1) both}
+.modal:not([hidden]) .mtitle,.modal:not([hidden]) .msub,.modal:not([hidden]) .mactions{animation:fadeUp .5s .35s ease both}
+@keyframes becomeCard{from{opacity:0;transform:translate(16%,-4%) scale(.7) rotate(4deg)}to{opacity:1;transform:rotate(-1deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}
+/* the tear-off stub: receipt on the left, pickup ticket on the right */
+.pc-stub{grid-column:1/-1;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:12px 7% 14px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3 C80 2.2 220 3.8 299 3' fill='none' stroke='%23394038' stroke-dasharray='4 5' stroke-width='1.2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 6px}
+.pc-stub p{margin:0;display:grid;gap:2px;font-size:14px;color:var(--muted);line-height:1.25}
+.pc-stub b{font:400 21px/1 var(--f-hand);color:var(--ink)}
+.stub-r{text-align:right;padding-right:64px}
+.stamp-o{position:absolute;right:5%;top:50%;transform:translateY(-50%) rotate(-12deg);width:52px;height:52px;border-radius:var(--wobc);border:1.6px solid var(--twine);color:var(--twine);
+  display:grid;place-items:center;font:400 20px/1 var(--f-hand)}
+@media (prefers-reduced-motion:reduce){.modal .pc-one,.modal .mtitle,.modal .msub,.modal .mactions{animation:none!important}}
+.pc-right{display:grid;grid-template-rows:auto minmax(0,1fr);padding:7% 8% 3% 2%;min-width:0}
+.pc-brand{margin:0;display:grid;justify-items:end;gap:2px}
+.pc-brand b{font:400 clamp(26px,3vw,36px)/.9 var(--f-hand);border-bottom:1.5px solid var(--twine);padding-bottom:4px}
+.pc-brand span{color:var(--muted);font-size:14px}
+.pc-one .pc-write{border:0;margin:0;padding:10% 0 4%;align-content:center}
+.pc-foot{margin:0;text-align:right;font:400 21px/1 var(--f-hand)}
+.pc{margin:0;aspect-ratio:3/2;position:relative;background:var(--page);box-shadow:0 2px 0 rgba(57,64,56,.06),0 10px 24px -14px rgba(57,64,56,.35)}
+.pc::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' preserveAspectRatio='none'%3E%3Cpath d='M2 2.5 C90 1.4 210 3.4 298 2 C299 70 297.8 130 298.4 198 C210 199 90 197.6 2.4 198.4 C1.4 130 2.6 70 2 2.5 Z' fill='none' stroke='%23394038' stroke-width='1.3' vector-effect='non-scaling-stroke' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.pc-front{transform:rotate(-1.4deg);display:grid;grid-template-columns:62% 38%}
+.pc-back{transform:rotate(1.2deg);display:grid;grid-template-columns:57% 43%}
+.pc-art{position:relative;padding:4%}
+.pc-art svg{width:100%;height:100%;display:block;overflow:visible}
+.pc-svg .under path{fill:#FAF6EE}
+.pc-svg text{font-family:var(--f-hand);font-size:31px;fill:var(--ink)}
+.pc-side{display:grid;align-content:space-between;padding:12% 10% 10% 0}
+.pc-side b{font:400 clamp(26px,3.2vw,40px)/.9 var(--f-hand)}
+.pc-side span{color:var(--muted);font-size:15px;margin-top:6px}
+.pc-side i{font:400 22px/1.05 var(--f-hand);font-style:normal}
+.pc-write{display:grid;align-content:start;gap:6px;padding:9% 6% 7% 8%;border-right:1.3px solid var(--ink);margin-block:7%}
+.pc-write input,.pc-write textarea{font:400 24px/1.35 var(--f-hand);color:var(--ink);background:transparent;border:0;outline:none;padding:0;width:100%;min-width:0;resize:none;
+  background-image:linear-gradient(transparent calc(100% - 1px),rgba(57,64,56,.18) calc(100% - 1px));background-size:100% 1.35em}
+.pc-write input{width:auto;flex:1}
+.pc-to,.pc-from{display:flex;align-items:baseline;gap:6px;font:400 24px/1.35 var(--f-hand)}
+.pc-write textarea{height:calc(1.35em * 4)}
+.pc-write ::placeholder{color:#B5B9B1}
+.pc-write :focus-visible{background-color:rgba(244,201,166,.25)}
+.pc-addr{display:grid;align-content:start;gap:16px;padding:9% 9% 8% 9%}
+.stamp{justify-self:end;width:30%;aspect-ratio:3/4;border:1.3px dashed var(--ink);display:grid;place-items:center;padding:4px}
+.stamp svg{width:70%;height:90%}
+.pc-addr i{display:block;height:1.3px;background:rgba(57,64,56,.45)}
+.pc-addr small{margin-top:auto;color:var(--muted);font-size:13px}
+.slip{width:min(520px,100%);padding:12px 18px 14px;background:#FFFDF7;position:relative}
+.slip::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' preserveAspectRatio='none'%3E%3Cpath d='M2 2.5 C90 1.4 210 3.4 298 2 C299 70 297.8 130 298.4 198 C210 199 90 197.6 2.4 198.4 C1.4 130 2.6 70 2 2.5 Z' fill='none' stroke='%23394038' stroke-width='1.2' stroke-dasharray='5 4' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.slip-h{margin:0 0 6px;font:400 26px/1 var(--f-hand);color:var(--twine)}
+.slip ul{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:17px}
+.slip li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.slip li em{font-style:normal;color:var(--muted)}
+.slip li.tot{border-top:1px dashed rgba(57,64,56,.4);padding-top:4px;margin-top:2px;font:400 24px/1.1 var(--f-hand)}
+.slip-n{margin:8px 0 0;font-size:15px;color:var(--muted)}
+.pc-out{display:grid;gap:6px;justify-items:center;width:100%}
+.pc-out img{width:100%;max-width:760px;height:auto;display:block}
+.pc-out p{margin:0;color:var(--muted);font-size:15px}
+.mactions{display:flex;gap:16px;align-items:center;justify-content:center;margin-top:4px;width:min(760px,100%)}
+.mactions .mgrow{flex:1}
+.secondary{position:relative;color:var(--ink);border:0;cursor:pointer;font:400 19px/1 var(--f-ui);padding:11px 18px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 44' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C50 2.6 110 5.6 159 3.6 M155.5 .8 C157.4 16 156.2 30 156.8 43.4 M159 40.2 C110 42.2 50 40.4 1.2 41.4 M4.6 43.6 C2.8 30 4.2 16 5.6 .6' fill='none' stroke='%23394038' stroke-width='1.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center/100% 100%}
+.secondary:hover:not(:disabled){background-color:rgba(244,201,166,.3)}
+.secondary:disabled{opacity:.6;cursor:default}
+.secondary:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.primary.big{font-size:23px;padding:15px 28px}
+
+@media (max-width:860px){
+  .pc-one{grid-template-columns:minmax(0,1fr);aspect-ratio:auto}
+  .pc-art{height:52vw}
+  .pc-write input,.pc-write textarea,.pc-to,.pc-from{font-size:20px}
+}
+@media (max-width:860px){
+  body{display:block}
+  .book{width:auto;height:auto;margin:12px;display:flex;flex-direction:column}
+  .rings{flex-direction:row;padding:0 18px;height:26px}
+  .rings svg{transform:rotate(90deg);width:20px}
+  .right-page{order:-1;height:72vh}
+  .left-page{order:2}
+  .rings{order:1}
+  .stems{grid-auto-rows:auto;gap:10px}
+  .pick svg{height:50px}
+  .meta{min-width:0}
+  .howto{display:block;font-size:14px;color:var(--muted);margin:4px 0 0}
+}
+@media (prefers-reduced-motion:reduce){
+  .pick svg,.primary::before,.pg svg,.stems{transition:none}
+  .c-board{animation:none;transform:rotate(-1deg)}
+  #paper .pop,#tag.on{animation-duration:.01s}
+}
+.item.ghost{visibility:hidden;pointer-events:none}
+.pick .nm.long{white-space:normal;line-height:.92;text-align:center;max-width:6.5em}
+/* the empty sheet: a dashed flower sways gently over the drop point; the arrow nods toward the shelf */
+#hintArt{animation:hintIn .6s ease both}
+#ghostFlower{fill:none;stroke:#9C917B;stroke-width:1.8;stroke-dasharray:5 6;stroke-linecap:round;stroke-linejoin:round;
+  transform-box:view-box;transform-origin:330px 455px;animation:gsway 3.6s ease-in-out infinite alternate}
+#ghostFlower circle{stroke-dasharray:3 4}
+#hintText{fill:#8C8370;font-size:28px}
+#hintSub{font:400 21px var(--f-ui);fill:#9C9380}
+#hintArrow{fill:none;stroke:#9C917B;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;animation:nod 1.8s ease-in-out infinite}
+@keyframes gsway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+@keyframes nod{0%,100%{transform:translateX(0)}50%{transform:translateX(-7px)}}
+@keyframes hintIn{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){#ghostFlower,#hintArrow,#hintArt{animation:none}}
+/* a little more air: the pager sits further below the stems; the paper's note sits a touch lower */
+/* fit every screen: the bench takes its natural height and sits centred; the paper's size follows the window height
+   (smaller on a laptop, capped on a big monitor) so the paper choice and Wrap button always stay on screen */
+@media (min-width:861px){
+  .book{height:auto;align-items:center}
+  .left-page{padding-top:0}
+  .right-page{grid-template-rows:auto auto;align-content:center}
+  .paperwrap{height:clamp(280px,calc(100vh - 310px),520px)}
+  /* real air above and below the bench, growing with the window */
+  .book{margin-block:clamp(20px,7vh,80px)}
+  .pick svg{height:min(16.5vh,165px)}
+  .stems{row-gap:min(3vh,26px)}
+  /* the strip under the paper is as wide as the paper, so they read as one group */
+  .note{justify-self:center;max-width:100%;width:max(480px,calc(clamp(280px,calc(100vh - 310px),520px) * .92 + 60px))}
+}
+.pager{margin-top:min(2.6vh,22px)}
+/* the pager is one centred group right under the stems: an arrow either side of the page number (an arrow is hidden at either end) */
+.pager{justify-content:center;gap:20px}
+.pg{gap:0;padding:6px}
+.pg svg{width:32px;height:18px}
+#pgNum{min-width:3.4em;text-align:center;color:var(--ink);font-size:25px}
+.note{margin-top:min(2.6vh,22px)}
+.pg:disabled{visibility:hidden}
+@media (min-width:861px){
+  body{position:relative}
+  .left-page{position:static;padding-top:0;align-content:center}
+  #shelf,.pager{position:relative;top:min(3.6vh,32px)}
+  .sign{position:absolute;top:clamp(20px,4.5vh,44px);left:clamp(24px,3.2vw,52px);z-index:5}
+  .sign h1{font-size:40px}
+  .sign .tagline{font-size:16px;margin-top:8px}
+  .book{width:min(calc(100% - 80px),960px);grid-template-columns:minmax(0,.9fr) min(1.5vw,20px) minmax(0,1.1fr);margin-block:clamp(56px,12vh,130px)}
+  .paperwrap{height:clamp(260px,calc(100vh - 340px),480px)}
+  .note{width:max(480px,calc(clamp(260px,calc(100vh - 340px),480px) * .92 + 60px))}
+  .note .actions button{white-space:nowrap}
+  .pick svg{height:min(14vh,140px)}
+  .stems{column-gap:clamp(8px,1.1vw,16px);row-gap:min(2.6vh,22px)}
+}
+@media (min-width:861px){
+  .note{justify-self:start;margin-left:var(--noteX,0px)}
+  .right-page{position:relative;left:var(--shift,0px)}
+  #shelf,.pager{left:var(--shift,0px)}
+}
+/* the florist's voice: handwriting under the strip, fading in */
+.note .msg{left:0;right:0;top:100%;margin-top:12px;text-align:center;font:400 23px/1.1 var(--f-hand);color:var(--ink)}
+.note .msg.in{animation:msgIn .45s ease both}
+@keyframes msgIn{from{opacity:0;transform:translateY(-4px)}}
+#tag.on{cursor:pointer}
+#tag.on:hover #tagBody path,#tag.on:focus-visible #tagBody path{fill:#FFF3DC}
+#tag:focus{outline:none}
+#tagInput{position:absolute;z-index:6;width:250px;box-sizing:border-box;font:400 26px/1 var(--f-hand);color:var(--ink);background:#F4ECDC;
+  border:1.3px solid var(--ink);border-radius:4px 9px 5px 8px/8px 4px 9px 5px;padding:7px 12px;box-shadow:0 8px 20px rgba(57,64,56,.16);transform:rotate(4deg)}
+#tagInput:focus{outline:2px dashed var(--twine);outline-offset:3px}
+#tagInput[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.note .msg.in{animation:none}}
+/* the shopkeeper: hovers gently, flutters, and talks when there's something to say */
+.florist{position:absolute;width:102px;z-index:7;pointer-events:none}
+.florist svg{display:block;width:100%;height:auto;overflow:visible;animation:hover 2.8s ease-in-out infinite}
+@keyframes hover{0%,70%,100%{transform:translateY(0) rotate(-5deg)}78%{transform:translateY(-6px) rotate(-5deg)}86%{transform:translateY(0) rotate(-5deg)}}
+.florist .fz{mix-blend-mode:multiply}
+.florist .wing{transform-box:fill-box;transform-origin:20% 50%;animation:flap 1.6s ease-in-out infinite}
+.florist svg.peek{animation:tilt 4.2s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes tilt{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(-3deg)}}
+.florist .wl{transform-box:fill-box;transform-origin:100% 50%;animation:flapx .34s ease-in-out infinite alternate}
+.florist .wr{transform-box:fill-box;transform-origin:0 50%;animation:flapx .34s ease-in-out infinite alternate}
+@keyframes flap{0%,80%,100%{transform:none}88%{transform:rotate(-14deg)}}
+@keyframes flapx{to{transform:scaleX(.72)}}
+.florist .m-open{opacity:0}
+.florist.talk .m-open{animation:mouth .32s steps(1) infinite}
+.florist.talk .m-smile{animation:mouth .32s steps(1) infinite reverse}
+@keyframes mouth{0%{opacity:1}50%{opacity:0}}
+.fl-bubble{position:absolute;left:98px;top:8px;width:max-content;max-width:210px;box-sizing:border-box;
+  padding:10px 14px 9px;background:#FFFDF7;border:1.4px solid var(--ink);border-radius:18px 22px 16px 20px/20px 16px 22px 18px;
+  font:400 22px/1.05 var(--f-hand);color:var(--ink);opacity:0;transform:translateY(6px) scale(.92);transform-origin:0 0;
+  transition:opacity .22s ease,transform .3s cubic-bezier(.3,1.5,.5,1);box-shadow:0 6px 16px rgba(57,64,56,.10)}
+.fl-bubble::after{content:"";position:absolute;left:-9px;top:12px;width:14px;height:14px;background:#FFFDF7;
+  border-left:1.4px solid var(--ink);border-bottom:1.4px solid var(--ink);transform:skewY(30deg) rotate(15deg);border-radius:0 0 0 4px}
+.florist.flip .fl-bubble{left:auto;right:-6px;top:86px;max-width:180px;transform-origin:80% 0}
+.florist.flip .fl-bubble::after{left:auto;right:30px;top:-9px;border:0;border-left:1.4px solid var(--ink);border-top:1.4px solid var(--ink);transform:rotate(45deg);border-radius:4px 0 0 0}
+.florist.speaking .fl-bubble{opacity:1;transform:none}
+.florist .legA,.florist .legB{transform-box:fill-box;transform-origin:50% 0;animation:step 3.6s ease-in-out infinite}
+.florist .legB{animation-delay:-.3s;animation-direction:reverse}
+@keyframes step{0%,70%,100%{transform:none}78%{transform:rotate(10deg)}86%{transform:rotate(-6deg)}}
+.florist .sprig{transform-box:fill-box;transform-origin:10% 100%;animation:sprig 3.2s ease-in-out infinite}
+@keyframes sprig{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+.florist.talk .sprig{animation:sprig .5s ease-in-out infinite}
+.florist .wave{transform-box:fill-box;transform-origin:0% 100%;animation:wave 3.4s ease-in-out infinite}
+@keyframes wave{0%,60%,100%{transform:none}68%{transform:rotate(-14deg)}76%{transform:rotate(6deg)}84%{transform:rotate(-10deg)}}
+.florist.talk .wave{animation:wave .9s ease-in-out infinite}
+@media (min-width:861px){.note .msg{display:none}}
+@media (max-width:860px){.florist{display:none}}
+@media (prefers-reduced-motion:reduce){.florist .wave,.florist .legA,.florist .legB,.florist .sprig,.florist svg,.florist .wing,.florist .wl,.florist .wr,.florist.talk .m-open,.florist.talk .m-smile{animation:none}.fl-bubble{transition:none}}
+.florist[data-b] .fl-bubble{box-shadow:none;border:0;border-radius:0;background:none;transition:opacity .25s ease,transform .3s ease}
+.florist[data-b] .fl-bubble::after{display:none}
+/* a: just handwriting, with three ink strokes at the beak */
+.florist[data-b="a"] .fl-bubble{padding:0 0 0 30px;font-size:24px;line-height:1.08;max-width:200px;left:92px;top:12px;transform:translateX(-6px)}
+.florist[data-b="a"] .fl-bubble::before{content:"";position:absolute;left:4px;top:2px;width:18px;height:22px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 24'%3E%3Cpath d='M3 4 L9 8 M2 12 L10 12 M3 20 L9 16' fill='none' stroke='%23394038' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+/* not enough room on the right: the words sit on the bird's left, same height, talk marks mirrored, never below it */
+.florist[data-b="a"].flip .fl-bubble{left:auto;right:calc(100% - 4px);top:-14px;padding:0 30px 0 0;text-align:right;transform:translateX(6px)}
+.florist[data-b="a"].flip .fl-bubble::before{left:auto;right:4px;transform:scaleX(-1)}
+.florist[data-b="a"].flip.speaking .fl-bubble{transform:none}
+/* b: a pen-drawn wobbly outline */
+.florist[data-b="b"] .fl-bubble{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'%3E%3Cpath d='M14 6 C60 2 140 4 186 7 C196 9 197 20 196 50 C195 80 196 92 184 94 C130 97 70 96 16 93 C5 92 4 82 4 50 C4 20 3 9 14 6Z' fill='%23FFFDF7' stroke='%23394038' stroke-width='1.4' vector-effect='non-scaling-stroke' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%;padding:12px 16px 11px;transform:rotate(-1.5deg) translateY(4px)}
+.florist[data-b="b"].speaking .fl-bubble{transform:rotate(-1.5deg)}
+/* c: a scrap of paper taped up, like the florist's note at the end */
+.florist[data-b="c"] .fl-bubble{background:#FBF6EC;border:1.3px solid var(--ink);border-radius:3px 9px 4px 7px/7px 3px 9px 4px;padding:13px 16px 10px;transform:rotate(1.5deg) translateY(4px)}
+.florist[data-b="c"] .fl-bubble::before{content:"";position:absolute;top:-10px;left:50%;width:58px;height:18px;margin-left:-29px;background:rgba(244,201,166,.8);transform:rotate(-3deg)}
+.florist[data-b="c"].speaking .fl-bubble{transform:rotate(1.5deg)}
+/* flying: the body (.fl-fly) travels; the shadow stays on the ground and fades as it rises */
+.florist .fw{opacity:0}
+.florist .fl-fly{position:relative}
+.florist.leaving .fl-fly{animation:flyoff 1s linear forwards}
+.florist.landing .fl-fly{animation:flyin 1.05s linear both}
+.florist.away{visibility:hidden}
+.florist.leaving svg,.florist.landing svg{animation:bob .26s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(1.5px)}to{transform:translateY(-2.5px)}}
+/* three-frame flap: up, level, down, level */
+.florist.leaving .fwu,.florist.landing .fwu{animation:wU .28s steps(1) infinite}
+.florist.leaving .fwm,.florist.landing .fwm{animation:wM .28s steps(1) infinite}
+.florist.leaving .fwd,.florist.landing .fwd{animation:wD .28s steps(1) infinite}
+.florist.landing .fwu,.florist.landing .fwm,.florist.landing .fwd{animation-duration:.38s}
+.florist.leaving .fl-fly .fw{animation-delay:.2s}
+@keyframes wU{0%{opacity:1}25%{opacity:0}}
+@keyframes wM{0%{opacity:0}25%{opacity:1}50%{opacity:0}75%{opacity:1}}
+@keyframes wD{0%{opacity:0}50%{opacity:1}75%{opacity:0}}
+@keyframes flyoff{0%{transform:none;animation-timing-function:ease-out}7%{transform:rotate(-9deg);animation-timing-function:ease-in}15%{transform:translateY(3px) scale(1.04,.84)}22%{transform:translate(2px,-14px) scale(.96,1.08) rotate(-8deg)}30.7%{transform:translate(6.3px,-22.2px) rotate(-13.1deg) scale(0.96);opacity:1.00}39.3%{transform:translate(15.0px,-36.4px) rotate(-12.2deg) scale(0.91);opacity:1.00}48.0%{transform:translate(28.8px,-55.5px) rotate(-11.3deg) scale(0.87);opacity:1.00}56.7%{transform:translate(48.3px,-79.3px) rotate(-10.4deg) scale(0.82);opacity:1.00}65.3%{transform:translate(74.4px,-106.9px) rotate(-9.6deg) scale(0.78);opacity:1.00}74.0%{transform:translate(107.3px,-137.6px) rotate(-8.7deg) scale(0.73);opacity:1.00}82.7%{transform:translate(147.5px,-169.9px) rotate(-7.8deg) scale(0.69);opacity:0.89}91.3%{transform:translate(195.1px,-202.1px) rotate(-6.9deg) scale(0.64);opacity:0.44}100.0%{transform:translate(250.0px,-232.0px) rotate(-6.0deg) scale(0.60);opacity:0.00}}
+@keyframes flyin{0.0%{transform:translate(-250.0px,-220.0px) rotate(8.0deg) scale(0.60);opacity:0.00}8.7%{transform:translate(-202.8px,-207.8px) rotate(6.2deg) scale(0.67);opacity:0.44}17.3%{transform:translate(-155.7px,-182.9px) rotate(4.5deg) scale(0.74);opacity:0.89}26.0%{transform:translate(-112.8px,-151.2px) rotate(3.0deg) scale(0.80);opacity:1.00}34.7%{transform:translate(-76.4px,-117.4px) rotate(1.7deg) scale(0.85);opacity:1.00}43.3%{transform:translate(-47.7px,-84.7px) rotate(0.5deg) scale(0.90);opacity:1.00}52.0%{transform:translate(-26.5px,-55.7px) rotate(-0.5deg) scale(0.94);opacity:1.00}60.7%{transform:translate(-12.1px,-32.1px) rotate(-1.2deg) scale(0.97);opacity:1.00}69.3%{transform:translate(-3.4px,-15.4px) rotate(-1.8deg) scale(0.99);opacity:1.00}78.0%{transform:translate(0.0px,-8.0px) rotate(-2.0deg) scale(1.00);opacity:1.00}85%{transform:translate(0,-5px) rotate(-11deg)}91%{transform:translateY(2px) scale(1.06,.84)}96%{transform:translateY(-4px) scale(.97,1.04)}100%{transform:none}}
+.fl-shadow{position:absolute;left:32%;bottom:-3px;width:44%;height:7px;border-radius:50%;background:rgba(57,64,56,.16);filter:blur(1px)}
+.florist.leaving .fl-shadow{animation:shOff 1s ease-in forwards}
+.florist.landing .fl-shadow{animation:shIn 1.05s ease-out both}
+@keyframes shOff{0%,22%{transform:none;opacity:1}55%{transform:scale(.45);opacity:.35}75%,100%{transform:scale(.3);opacity:0}}
+@keyframes shIn{0%,50%{transform:scale(.3);opacity:0}84%{transform:scale(.8);opacity:.7}91%{transform:scale(1.12);opacity:1}100%{transform:none;opacity:1}}
+.fl-feather{position:absolute;left:38%;top:40%;width:12px;opacity:0;pointer-events:none;z-index:2}
+.fl-feather svg{display:block;width:100%;height:auto;animation:none}
+.florist.leaving .fl-feather{animation:feather 1.1s ease-out .25s forwards}
+@keyframes feather{0%{opacity:0;transform:none}10%{opacity:1}35%{transform:translate(-10px,12px) rotate(40deg)}60%{transform:translate(-2px,26px) rotate(-30deg)}85%{opacity:.8}100%{opacity:0;transform:translate(-12px,40px) rotate(50deg)}}
+.c-sign{position:relative}
+@media (min-width:861px){.bird-away .note .msg{display:block}}
+@media (prefers-reduced-motion:reduce){.florist .fl-fly,.florist .fl-shadow,.florist .fl-feather,.florist .fw,.florist.leaving svg,.florist.landing svg{animation:none!important}}
+/* the tag invites a tap: a small swing now and then, a dashed ring of 'write here' */
+#tag.hint #tagBody{animation:tagSwing 2.6s ease-in-out .2s infinite;transform-box:fill-box;transform-origin:8% 50%}
+@keyframes tagSwing{0%,60%,100%{rotate:0deg}68%{rotate:-7deg}76%{rotate:5deg}84%{rotate:-3deg}92%{rotate:1deg}}
+#tag.hint #tagText{text-decoration:underline dashed 1px;text-underline-offset:4px}
+@media (min-width:861px){.bird-away .note .msg{display:none}}
+@media (prefers-reduced-motion:reduce){#tag.hint #tagBody{animation:none}}
+#tagAsk{font:400 36px var(--f-hand);fill:var(--twine);opacity:0;transition:opacity .5s ease;pointer-events:none}
+#tag.hint #tagAsk{opacity:.85}
+</style>
+
+<div class="book">
+  <section class="page left-page" aria-labelledby="shelfH">
+    <header class="sign">
+      <h1>By the Stem</h1>
+      <p class="tagline">Flowers by the stem. Pick one, or make a bunch. </p>
+    </header>
+    <div class="view-shop" id="viewShop">
+    <h2 id="shelfH" class="sr">Today’s stems</h2>
+    <div class="stems" id="shelf"></div>
+    <nav class="pager" aria-label="More stems">
+      <button class="pg" id="pgPrev" type="button" aria-label="Previous stems"><svg viewBox="0 0 40 20" aria-hidden="true"><path d="M3 11 C12 9.6 22 10.8 36 9.6 M28 3.6 C31 6 33.6 8 36 9.6 C33 11.6 30.6 13.8 28.4 17"/></svg></button>
+      <span id="pgNum" aria-live="polite">1 / 3</span>
+      <button class="pg" id="pgNext" type="button" aria-label="More stems"><svg viewBox="0 0 40 20" aria-hidden="true"><path d="M3 11 C12 9.6 22 10.8 36 9.6 M28 3.6 C31 6 33.6 8 36 9.6 C33 11.6 30.6 13.8 28.4 17"/></svg></button>
+    </nav>
+    <p class="howto" id="howto"></p>
+    </div>
+
+    <!-- checkout replaces the stem list; the wrapped bunch stays on the paper -->
+    <form class="view-checkout" id="viewCheckout" hidden novalidate aria-labelledby="coH">
+      <h2 class="co-h" id="coH">Checkout</h2>
+      <fieldset class="co-f">
+        <legend>Pick up at By the Stem, 12 Elm St</legend>
+        <div class="chips" id="coDay" role="group" aria-label="Day"><button type="button" class="chip" data-v="Today" aria-pressed="true">Today</button><button type="button" class="chip" data-v="Tomorrow" aria-pressed="false">Tomorrow</button></div>
+        <div class="chips" id="coTime" role="group" aria-label="Time"><button type="button" class="chip" data-v="10–12" aria-pressed="false">10–12</button><button type="button" class="chip" data-v="12–2" aria-pressed="false">12–2</button><button type="button" class="chip" data-v="2–4" aria-pressed="true">2–4</button><button type="button" class="chip" data-v="4–7" aria-pressed="false">4–7</button></div>
+      </fieldset>
+      <label class="co-l" for="coName"><span>Name</span><input id="coName" name="name" autocomplete="name" required></label>
+      <label class="co-l" for="coPhone"><span>Phone <em>we’ll text you when it’s ready</em></span><input id="coPhone" name="phone" type="tel" autocomplete="tel"></label>
+      <label class="co-l" for="coNote"><span>A note to tuck in <em>optional</em></span><textarea id="coNote" name="note" rows="2" maxlength="120"></textarea></label>
+      <fieldset class="co-f">
+        <legend>Pay</legend>
+        <div class="chips" id="coPay" role="group" aria-label="Payment"><button type="button" class="chip" data-v="pickup" aria-pressed="true">At pickup</button><button type="button" class="chip" data-v="now" aria-pressed="false">Now</button></div>
+      </fieldset>
+      <p class="co-err" id="coErr" aria-live="polite"></p>
+    </form>
+
+    <div class="view-done" id="viewDone" hidden>
+      <h2 class="co-h" id="doneH">Thank you.</h2>
+      <p class="done-lede">Your bunch is booked. We’ll wrap real stems to match the sketch on the right.</p>
+      <dl class="done-dl" id="doneDl"></dl>
+    </div>
+  </section>
+
+  <div class="rings" aria-hidden="true" id="rings"></div>
+
+  <section class="page right-page" aria-label="Wrapping paper">
+    <div class="paperwrap">
+      <svg id="paper" viewBox="0 18 600 652" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Wrapping paper with your bouquet">
+        <defs>
+          <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="7" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 .42  0 0 0 0 .36  0 0 0 0 .26  0 0 0 -1 .5" result="c"/>
+            <feComposite in="c" in2="SourceAlpha" operator="in"/>
+          </filter>
+          <filter id="fibre" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency=".012 .22" numOctaves="2" seed="3" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 .98  0 0 0 0 .93  0 0 0 -2.2 1.25" result="c"/>
+            <feComposite in="c" in2="SourceAlpha" operator="in"/>
+          </filter>
+          <filter id="lift" x="-15%" y="-15%" width="130%" height="135%">
+            <feDropShadow dx="0" dy="2.5" stdDeviation="3" flood-color="#394038" flood-opacity=".16"/>
+          </filter>
+          <clipPath id="above" clipPathUnits="userSpaceOnUse"><rect x="-300" y="-400" width="800" height="650"/></clipPath>
+        </defs>
+        <g id="sheet"></g>
+        <g id="backL"></g><g id="backR"></g>
+        <g id="hint"><circle id="ring" cx="330" cy="455" r="15"/>
+        <g id="hintArt">
+          <g id="ghostFlower">
+            <path d="M330 452 C325 400 335 330 330 270"/>
+            <path d="M330 388 C306 378 296 360 300 344 C318 349 328 366 330 388Z"/>
+            <path d="M331 346 C352 338 362 322 360 308 C343 312 333 326 331 346Z"/>
+            <path d="M368.2 243.8L363.8 249.3L355.8 251.6L346.9 250.2L347.6 259.2L344.7 267.0L338.9 271.0L331.9 269.9L325.9 264.1L322.7 255.7L315.2 260.8L307.1 262.2L300.7 259.2L298.1 252.6L300.1 244.6L305.8 237.5L297.6 233.6L292.3 227.2L291.8 220.2L296.2 214.7L304.2 212.4L313.1 213.8L312.4 204.8L315.3 197.0L321.1 193.0L328.1 194.1L334.1 199.9L337.3 208.3L344.8 203.2L352.9 201.8L359.3 204.8L361.9 211.4L359.9 219.4L354.2 226.5L362.4 230.4L367.7 236.8Z"/>
+            <circle cx="330" cy="232" r="10"/>
+          </g>
+          <text id="hintText" x="352" y="538" text-anchor="middle">Drag a stem onto the paper</text>
+          <text id="hintSub" x="330" y="570" text-anchor="middle">or tap one on the shelf, then wrap it up</text>
+          <g id="hintArrowAt" transform="translate(150 529)"><path id="hintArrow" d="M34 0.5 C24 -0.5 12 0.8 1 0 M8 -6 C5 -3 3 -1 1 0 C3 1.4 5 3.4 8 6.5"/></g>
+        </g></g>
+        <g id="tails" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round"></g>
+        <g id="stems"></g>
+        <g id="ghost"></g>
+        <g id="frontL" filter="url(#lift)"></g><g id="frontR" filter="url(#lift)"></g>
+        <g id="twine" opacity="0" fill="none" stroke="#B4593F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path id="band" d="M232 480 C268 492 300 494 330 489 C364 484 396 474 426 462"/>
+          <path id="bow" d="M330 486 C300 452 276 478 296 490 C306 496 322 492 330 487 M332 486 C360 450 392 474 374 489 C364 497 344 493 333 488 M329 489 C322 510 316 526 302 546 M334 489 C343 508 350 522 368 536"/>
+        </g>
+        <g id="tag">
+          <path id="tagString" d="M333 489 C340 520 348 540 356 560" fill="none" stroke="#B4593F" stroke-width="1.6" stroke-linecap="round"/>
+          <g id="tagBody" transform="translate(346 548) rotate(9)">
+            <path d="M2 10 L12 0 H112 Q116 0 116 4 V52 Q116 56 112 56 H12 L2 46 Z" fill="#F4ECDC" stroke="#394038" stroke-width="1.3" stroke-linejoin="round"/>
+            <circle cx="13" cy="28" r="3.6" fill="#FCFCFA" stroke="#394038" stroke-width="1.2"/>
+            <text id="tagText" x="26" y="38">3 stems</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="note">
+      <div class="papers" role="group" aria-label="Choose wrapping paper" id="papers"></div>
+      <div class="sum">
+        <p class="tally"><span id="count">0 stems</span><span class="comma">,</span><span id="total">$0</span></p>
+        <div class="actions" id="actions"></div>
+      </div>
+      <p class="msg" id="msg" aria-live="polite"></p>
+    </div>
+  </section>
+</div>
+
+<!-- the "next page" after Buy: the shop hasn't opened yet, so the experience ends in the shop's own voice;
+     a quiet colophon at the foot says plainly that this is a design concept -->
+<div class="concept" id="concept" hidden>
+  <div class="cbox" role="dialog" aria-modal="true" aria-labelledby="cH">
+    <div class="c-left"><div class="c-art" id="cArt"></div><button class="link c-shuffle" id="cShuffle" type="button">Another card style ↻</button></div>
+    <div class="c-text">
+      <h2 id="cH" class="c-sign" tabindex="-1"><svg class="c-board" viewBox="0 0 300 170" aria-hidden="true">
+        <path class="tw" d="M150 6 C128 30 92 52 66 66 M150 6 C172 30 208 52 236 66"/>
+        <circle class="nail" cx="150" cy="7" r="4.5"/>
+        <path class="bd-fill" d="M40 70 C110 64 196 66 262 64 C266 96 264 128 266 158 C190 162 110 160 36 162 C38 130 36 100 40 70Z" transform="translate(6 -5)"/>
+        <path class="bd" d="M40 70 C110 64 196 66 262 64 C266 96 264 128 266 158 C190 162 110 160 36 162 C38 130 36 100 40 70Z"/>
+        <path class="bd" d="M52 84 C60 82 64 86 68 84 M226 146 C234 144 240 148 248 146" opacity=".5"/>
+        <text x="151" y="128" text-anchor="middle">Opening soon</text>
+      </svg><span class="sr">Opening soon</span></h2>
+      <div class="c-note">
+        <p>We haven’t opened our doors yet. When we do, yours is the first bunch we’ll wrap.</p>
+        <p class="c-from">— the florist</p>
+      </div>
+      <p class="c-sum" id="cSum"></p>
+      <div class="c-act"><button class="secondary" id="cSave" type="button">Save this card</button><button class="link" id="cBack" type="button">Back to my bunch</button></div>
+      <button class="link c-new" id="cNew" type="button">Make another bunch</button>
+    </div>
+  </div>
+  <p class="c-colophon">By the Stem is a design concept. There’s no shop yet, and nothing was charged.</p>
+</div>
+
+<div class="dlpop" id="dlPop" hidden>
+  <div class="dlbox" role="dialog" aria-modal="true" aria-label="Picture of your bunch">
+    <button class="dlx" id="dlX" type="button" aria-label="Close">×</button>
+    <img id="dlImg" alt="Your bunch from By the Stem">
+    <p>Right-click or long-press to save it.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const INK='#394038';
+const PAL={pink:'#F2B5B0',cream:'#F3E7A0',lav:'#C3ADEA',green:'#A9C89B',sage:'#A9C3B2',mustard:'#E9AE2B',apricot:'#F6A86E',
+  white:'#EEE7DA',dark:'#5A6258',pea:'#D6B4E6',lily:'#F4E9DD',pollen:'#C9744F',bud:'#CFE0B8',carn:'#F4B6C6',rose:'#D9545E',hyd:'#A9BFEA',allium:'#9F7CC9',oat:'#E6D9BE',gyp:'#F7F4EE',delph:'#9EB5E6',peony:'#F4C2C8',dahlia:'#E28AB4',zinc:'#DCE2DE',enamel:'#EFE7D6',sage2:'#D9E4D3',rim:'#C8D0CA',sun:'#F4C64F',sunc:'#7A5236',coral:'#F2876A',bell:'#FBF8EF',scab:'#DDB0C8'};
+
+/* ---------- drawing kit (style A: fine line, misregistered fill) ---------- */
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f=v=>(Math.round(v*10)/10);
+function smooth(pts,closed){
+  const n=pts.length;const P=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;const segs=closed?n:n-1;
+  for(let i=0;i<segs;i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
+    d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`}
+  return closed?d+'Z':d;
+}
+const rad=d=>d*Math.PI/180;
+function xf(ox,oy,ang){const a=ang*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return([x,y])=>[ox+x*c-y*s,oy+x*s+y*c]}
+const STRIP=212; /* in a bouquet, leaves below this line are stripped, like a florist would */
+function kit(seed,amt,strip){
+  const r=rng(seed);const J=(v,a=amt)=>v+(r()-.5)*2*a;
+  const out={lines:[],fills:[]};
+  const line=d=>out.lines.push(d);const fill=(d,c)=>out.fills.push({d,c});
+  const L=pts=>line(smooth(pts,false));
+  function leaf(ox,oy,ang,len,w,c='green'){
+    const T=xf(ox,oy,J(ang,4));if(strip&&oy>STRIP)return;const Ln=J(len,len*.06),W=J(w,w*.1);
+    const p=[[0,0],[W,-Ln*.45],[J(0,1),-Ln],[-W,-Ln*.52]].map(T);
+    const d=`M${f(p[0][0])} ${f(p[0][1])}Q${f(p[1][0])} ${f(p[1][1])} ${f(p[2][0])} ${f(p[2][1])}Q${f(p[3][0])} ${f(p[3][1])} ${f(p[0][0])} ${f(p[0][1])}Z`;
+    line(d);fill(d,c);L([[0,0],[J(W*.08,.6),-Ln*.5],[0,-Ln*.82]].map(T));
+  }
+  function blob(cx,cy,R,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;const rr=R+J(0,wob);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)}
+  function ell(cx,cy,rx,ry,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;pts.push([cx+Math.cos(t)*(rx+J(0,wob)),cy+Math.sin(t)*(ry+J(0,wob))])}return smooth(pts,true)}
+  function arc(cx,cy,R,a0,span,scal){const pts=[];const steps=Math.max(4,Math.round(span/26));const ph=r()*6;for(let i=0;i<=steps;i++){const t=(a0+span*i/steps)*Math.PI/180;const rr=R*(1+scal*Math.sin(6*t+ph))+J(0,amt*.8);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,false)}
+  function shape(local,T,c){const d=smooth(local.map(([x,y])=>T([J(x,amt*.6),J(y,amt*.6)])),true);line(d);if(c)fill(d,c);return d}
+  return {r,J,out,line,L,fill,leaf,blob,ell,arc,shape,strip};
+}
+/* one closed outline with n round lobes: a whole floret in a single line */
+const lobedK=(J,cx,cy,R,n,ph)=>{const pts=[],m=n*4;for(let i=0;i<m;i++){const t=ph+i/m*6.283,rr=R*(.6+.4*Math.abs(Math.cos(n/2*(t-ph))))+J(0,.3);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)};
+const GEN={
+  ran(K){const{J,L,fill,leaf,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(98),192],[J(100),134]]);
+    leaf(100,256,-50,36,13);leaf(100,222,44,30,11);
+    const cx=J(100,1.5),cy=J(92,1.5);
+    fill(blob(cx,cy,40,11,3.2),'pink');
+    [[5,330,0],[13,300,0],[22,290,.03],[31,300,.05],[41,315,.06]].forEach(([R,sp,sc])=>K.line(arc(cx+J(0,1.8),cy+J(0,1.8),R,r()*360,sp-40+r()*40,sc)));
+    L([[100,134],[J(93),129],[J(88,1),126]]);L([[100,134],[J(107),129],[J(112,1),126]]);
+  },
+  lil(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(101),262],[J(99),190],[J(101),126]]);
+    [[296,-1],[278,1],[258,-1],[238,1],[218,-1],[198,1],[180,-1]].forEach(([y,s],i)=>leaf(100,y,s*J(36,6),34-i*1.6,5));
+    L([[100,170],[J(112),148],[J(123,1.5),131]]);
+    shape([[-5,0],[-7,-14],[0,-32],[7,-14],[5,0]],xf(123,131,J(26,4)),'bud');
+    const cx=J(100,1),cy=J(94,1),o=J(-8,8);
+    for(let k=0;k<6;k++){const s=k%2?.84:1,T=xf(cx,cy,o+k*60+J(0,5));
+      shape([[-7,0],[-13,-18],[-10,-34],[J(0,1.5),-48],[10,-34],[13,-18],[7,0]].map(([x,y])=>[x*s,y*s]),T,'lily');
+      L([[0,-7],[J(0,1),-22*s],[0,-38*s]].map(T));}
+    for(let i=0;i<6;i++){const a=(o+30+i*60+J(0,10))*Math.PI/180,len=J(25,3),ex=cx+Math.sin(a)*len,ey=cy-Math.cos(a)*len;
+      L([[cx,cy],[cx+Math.sin(a)*len*.5+J(0,1.5),cy-Math.cos(a)*len*.5],[ex,ey]]);const d=blob(ex,ey,2.8,6,.4);line(d);fill(d,'pollen')}
+  },
+  ane(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(98),260],[J(102),190],[J(100),130]]);
+    leaf(100,160,-62,26,8);leaf(100,160,58,24,8);leaf(100,162,-14,20,6);
+    const cx=J(100,1),cy=J(94,1),o=J(0,15);
+    for(let k=0;k<6;k++)shape([[-9,0],[-17,-16],[-13,-31],[0,-37],[13,-31],[17,-16],[9,0]],xf(cx,cy,o+k*60+J(0,6)),'white');
+    const d=blob(cx,cy,10,8,.8);line(d);fill(d,'dark');
+    for(let i=0;i<16;i++){const t=i/16*6.283,a=12,b=J(17,1.5);L([[cx+Math.cos(t)*a,cy+Math.sin(t)*a],[cx+Math.cos(t)*b,cy+Math.sin(t)*b]])}
+  },
+  pea(K){const{J,L,line,fill,leaf,blob,shape,r}=K;
+    L([[100,332],[J(96),262],[J(103),196],[J(99),136],[J(103),94]]);
+    leaf(100,248,-58,28,10);leaf(100,248,56,26,10);
+    const sp=[[100,214],[112,208]];const ccx=J(124,1),ccy=J(198,1);
+    for(let i=0;i<=12;i++){const th=Math.PI*1.15+i/12*1.8*6.283,rr=9*(1-i/14);sp.push([ccx+Math.cos(th)*rr,ccy+Math.sin(th)*rr])}
+    L(sp);
+    [[101,116,1,15],[100,142,-1,16],[101,170,1,14]].forEach(([x,y,side,R])=>{
+      const fx=x+side*J(20,2),fy=y-J(14,2);
+      L([[x,y],[x+side*10,y-5],[fx-side*6,fy+6]]);
+      const ph=r()*6,loc=[];for(let i=0;i<14;i++){const t=i/14*6.283,rr=R*(1+.1*Math.sin(7*t+ph));loc.push([Math.cos(t)*rr,Math.sin(t)*rr*.9])}
+      shape(loc,xf(fx,fy,0),'pea');
+      shape([[-7,0],[-3,6],[5,5],[8,-1],[0,2]],xf(fx,fy+R*.75,-side*20),'pea');
+    });
+    const b=blob(103,90,4,6,.5);line(b);fill(b,'green');
+  },
+  cal(K){const{J,L,shape}=K;
+    L([[100,332],[J(101),250],[J(99),170],[J(102),122]]);
+    const T=xf(102,124,J(8,4));
+    shape([[0,0],[-9,-18],[-17,-42],[-14,-58],[-2,-64],[16,-74],[13,-52],[10,-22]],T,'white');
+    L([[-15,-54],[-4,-51],[8,-55],[15,-68]].map(T));
+    shape([[-2,-16],[-3,-34],[0,-43],[3,-34],[2,-16]],T,'mustard');
+  },
+  car(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(100),262],[J(101),196],[J(100),128]]);
+    leaf(100,262,-38,30,4);leaf(100,262,40,30,4);leaf(100,200,-42,26,3.5);leaf(100,200,44,26,3.5);
+    const T=xf(J(100,1),128,J(0,4));
+    shape([[-6,0],[-8,-22],[8,-22],[6,0]],T,'green');
+    const pts=[[-9,-22]];const n=17;
+    for(let i=0;i<=n;i++){const t=Math.PI+i/n*Math.PI,rr=(i%2?30:23)+J(0,2.5);pts.push([Math.cos(t)*rr*1.05,-24+Math.sin(t)*rr*.95])}
+    pts.push([9,-22]);shape(pts,T,'carn');
+    L([[-14,-30],[-4,-40],[2,-33]].map(T));L([[5,-44],[13,-35]].map(T));L([[-6,-24],[0,-30],[7,-25]].map(T));
+  },
+  peo(K){const{J,L,leaf,shape,fill,ell,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),134]]);
+    leaf(100,252,-52,40,15);leaf(100,234,-20,34,11);leaf(100,214,50,40,14);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy-2,42,36,12,2.5),'peony');
+    [-72,-36,0,36,72].forEach(a=>shape([[-12,0],[-21,-16],[-15,-34],[0,-39],[15,-34],[21,-16],[12,0]],xf(cx,cy+22,J(a,5)),null));
+    [-30,0,30].forEach(a=>shape([[-9,0],[-15,-12],[-11,-25],[0,-29],[11,-25],[15,-12],[9,0]],xf(cx,cy-2,J(a,6)),null));
+    for(let i=0;i<3;i++)K.line(arc(cx+J(0,5),cy-12+J(0,3),J(6+i*3,1.5),r()*360,200,.12));
+  },
+  dah(K){const{J,L,leaf,shape,fill,blob,line}=K;
+    L([[100,332],[J(99),262],[J(102),196],[J(100),136]]);
+    leaf(100,246,-55,34,12);leaf(100,246,55,32,12);
+    const cx=J(100,1),cy=J(96,1);
+    fill(blob(cx,cy,43,14,1.5),'dahlia');
+    [[30,14,1],[21,11,.8],[12,8,.62]].forEach(([R,n,s],ri)=>{const o=ri*13+J(0,8);
+      for(let i=0;i<n;i++){const a=o+i*360/n;shape([[-6,0],[-7,-9],[0,-14],[7,-9],[6,0]].map(([x,y])=>[x*s,y*s]),xf(cx+Math.sin(rad(a))*R,cy-Math.cos(rad(a))*R,a),null)}});
+    line(blob(cx,cy,5,6,.5));
+  },
+  /* delphinium: a tall airy spire; open florets alternate along the stem on short stalks, buds taper to the tip */
+
+  /* delphinium: six open florets well apart, the stem showing between them, buds to the tip */
+  del(K){const{J,L,leaf,blob,line,fill,r}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),40]]);
+    leaf(100,292,-36,32,10);leaf(100,270,38,28,9);
+    for(let i=0;i<6;i++){const y=210-i*25,s=11.5-i*.9,side=i%2?1:-1,fx=100+side*J(s+3,.8),fy=J(y,1);
+      L([[100,fy+6],[fx-side*s*.5,fy+2]]);
+      const d=lobedK(J,fx,fy,s,5,r()*6);line(d);fill(d,'delph');line(blob(fx,fy,1.6,5,.15))}
+    [[76,1,4.6],[64,-1,3.8],[54,1,3],[46,-1,2.4]].forEach(([y,side,s])=>{const fx=100+side*J(5,.6),fy=J(y,1);
+      L([[100,fy+3.5],[fx,fy+1]]);const d=blob(fx,fy,s,6,.3);line(d);fill(d,'delph')});
+  },
+
+  /* baby's breath: open forking sprays, one or two tiny flowers at each tip */
+  gyp(K){const{J,L,line,fill,blob,r}=K;
+    L([[100,332],[J(100),262],[J(101),196],[100,186]]);
+    const tips=[];
+    (function br(x,y,ang,len,dep){const a=rad(ang),ex=x+Math.sin(a)*len,ey=y-Math.cos(a)*len;
+      L([[x,y],[(x+ex)/2+J(0,2),(y+ey)/2],[ex,ey]]);
+      if(dep<3){br(ex,ey,ang-J(30,7),len*.72,dep+1);br(ex,ey,ang+J(30,7),len*.72,dep+1)}else tips.push([ex,ey]);
+    })(100,186,J(0,4),54,0);
+    tips.forEach(([tx,ty])=>{const n=r()<.4?3:2,offs=[[0,-1],[J(-5,1),J(-4,1)],[J(5,1),J(-3,1)]];for(let q=0;q<n;q++){const d=blob(tx+offs[q][0],ty+offs[q][1],J(3.1,.4),6,.3);line(d);fill(d,'gyp')}});
+  },
+  /* hydrangea: a soft scalloped mophead with a few loose four-petal florets drawn on it, room between them */
+  hyd(K){const{J,L,leaf,fill,blob,line,r}=K;const lobed=(cx,cy,R,n,ph)=>{const pts=[],m=n*4;for(let i=0;i<m;i++){const t=ph+i/m*6.283,rr=R*(.6+.4*Math.abs(Math.cos(n/2*(t-ph))))+J(0,.35);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)};
+    L([[100,332],[J(101),262],[J(99),196],[J(100),142]]);
+    leaf(100,236,-52,50,20);leaf(100,254,50,44,18);
+    const cx=J(100,1),cy=J(100,1),ph=r()*6;
+    const head=[];for(let i=0;i<30;i++){const t=i/30*6.283,k=1+.045*Math.cos(7*t+ph)+J(0,.01);head.push([cx+Math.cos(t)*48*k,cy+Math.sin(t)*37*k])}
+    const hd=smooth(head,true);line(hd);fill(hd,'hyd');
+    [[0,-2],[-23,-13],[21,-16],[-2,-25],[17,10],[-21,12],[3,19],[32,-2],[-34,-1]].forEach(([dx,dy],i)=>{
+      const fx=cx+J(dx,1.5),fy=cy+J(dy,1.5),s=i<5?J(7.6,.6):J(6.2,.5);
+      line(lobed(fx,fy,s,4,r()*1.6));line(blob(fx,fy,1.1,5,.1))});
+  },
+
+  /* allium: one round head with a dozen small star florets spaced over it */
+  all(K){const{J,L,line,fill,blob}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),92]]);
+    const cx=J(100,1),cy=62,hd=blob(cx,cy,30,12,1.2);fill(hd,'allium');line(hd);
+    for(let i=0;i<12;i++){const a=i*2.39996,rr=Math.sqrt((i+.6)/12)*21,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      for(let p=0;p<3;p++){const t=p*Math.PI/3+a;L([[x-Math.cos(t)*3,y-Math.sin(t)*3],[x+Math.cos(t)*3,y+Math.sin(t)*3]])}}
+  },
+  bun(K){const{J,L,line,fill,leaf,ell}=K;
+    L([[100,332],[J(98),252],[J(103),172],[J(100),112]]);
+    leaf(100,304,-16,76,5);leaf(100,286,18,58,4);
+    const cx=J(100,1),cy=88;fill(ell(cx,cy,11,23,12,1),'oat');
+    line(ell(cx,cy,10,22,12,.8));
+    for(let i=0;i<26;i++){const t=i/26*6.283;const x0=cx+Math.cos(t)*10,y0=cy+Math.sin(t)*22;const k=J(4,1.4);L([[x0,y0],[x0+Math.cos(t)*k,y0+Math.sin(t)*k*1.4]])}
+  },
+  rose(K){const{J,L,leaf,shape,fill,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),128]]);
+    leaf(100,238,-55,26,10);leaf(100,238,50,24,9);leaf(100,198,-48,22,8);
+    [[284,1],[256,-1],[176,1]].forEach(([y,s])=>L([[100,y],[100+s*4,y-4]]));
+    const cx=J(100,1),cy=J(94,1);
+    const ep=[];const ph=r()*6.28;for(let i=0;i<11;i++){const t=ph+i/11*6.283;ep.push([cx+Math.cos(t)*J(33,2),cy-2+Math.sin(t)*J(30,2)])}
+    fill(smooth(ep,true),'rose');
+    L([[cx-30,cy-4],[cx-24,cy-24],[cx-8,cy-32],[cx+6,cy-28],[cx+20,cy-33],[cx+31,cy-16],[cx+30,cy-4]].map(([x,y])=>[J(x,1),J(y,1)]));
+    shape([[0,30],[-20,25],[-32,6],[-29,-12],[-15,-6],[-5,10]],xf(cx,cy,0),null);
+    shape([[2,30],[22,24],[33,4],[28,-14],[14,-8],[6,8]],xf(cx,cy,0),null);
+    const sp=[];for(let i=0;i<=14;i++){const t=i/14*2.6*Math.PI+r()*.2,rr=3+i*1.05;sp.push([cx+Math.cos(t)*rr,cy-10+Math.sin(t)*rr*.7])}L(sp);
+    [140,180,220].forEach(a=>shape([[-2.4,0],[0,-13],[2.4,0]],xf(cx,cy+30,a+J(0,6)),'green'));
+  },
+  tul(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(103),252],[J(98),172],[J(101),130]]);
+    leaf(100,322,-16,118,19);leaf(100,304,20,92,15);
+    const T=xf(J(101,1),131,J(0,5));
+    shape([[0,0],[-17,-8],[-21,-26],[-18,-47],[-8,-38],[0,-53],[8,-38],[18,-47],[21,-26],[17,-8]],T,'apricot');
+    L([[-2,-6],[-8,-24],[-8,-38]].map(T));L([[3,-6],[9,-26],[8,-38]].map(T));
+  },
+  fre(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),262],[J(101),198],[J(105),164],[J(122),136],[J(146),116],[J(172,1),100]]);
+    leaf(100,322,-10,128,9);
+    const OPEN=[[-.1,0],[-.15,-.42],[-.48,-.76],[-.42,-.98],[-.17,-.9],[0,-1.06],[.17,-.9],[.42,-.98],[.48,-.76],[.15,-.42],[.1,0]];
+    const BUD=[[-.1,0],[-.24,-.5],[0,-1],[.24,-.5],[.1,0]];
+    [[104,168,-24,36,'o'],[115,146,-8,33,'o'],[130,128,8,26,'h'],[148,115,20,18,'h'],[162,106,32,12,'b'],[173,100,46,8,'b']].forEach(([x,y,a,s,t])=>{
+      const T=xf(J(x,1),J(y,1),J(a,5));
+      const sh=t==='o'?OPEN:t==='h'?OPEN.map(([u,v])=>[u*.62,v]):BUD;
+      shape(sh.map(([u,v])=>[u*s,v*s]),T,'cream');
+      if(t==='o')L([[0,-.25*s],[J(0,.6),-.55*s],[0,-.78*s]].map(T));
+    });
+  },
+  sna(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),34]]);
+    leaf(100,292,-30,36,7);leaf(100,266,32,33,7);leaf(100,240,-26,28,6);
+    const FL=[[0,0],[.32,-.46],[.78,-.52],[1.06,-.16],[.98,.24],[.62,.36],[.28,.16]];
+    for(let i=0;i<10;i++){const y=214-i*17.5,s=23-i*1.55,side=i%2?1:-1;
+      if(i<7){const T=xf(100+side*1.5,J(y,1.2),-side*J(16,5));shape(FL.map(([u,v])=>[u*s*side,v*s]),T,'lav');
+        L([[.52*s*side,-.02*s],[.78*s*side,-.1*s],[1.0*s*side,-.06*s]].map(T));}
+      else{const d=blob(100+side*s*.32,y-s*.1,s*.32,7,.7);line(d);fill(d,'lav')}}
+    const d=blob(J(101,.5),34,3.4,6,.5);line(d);fill(d,'lav');
+  },
+  cra(K){const{J,L,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(100),250],[J(101),170],[J(100),80]]);
+    const cx=J(100,1),cy=62;const d=blob(cx,cy,18,12,1);line(d);fill(d,'mustard');
+    [[-8,-8],[0,-11],[8,-8],[-12,0],[-4,-2],[4,-1],[12,1],[-8,7],[0,6],[8,8],[-2,13]].forEach(([dx,dy])=>line(arc(cx+dx+J(0,.8),cy+dy+J(0,.8),2.6,r()*360,210,0)));
+  },
+  euc(K){const{J,L,line,fill,blob}=K;
+    const base=[[100,332],[105,278],[97,214],[104,150],[98,92],[101,46]];
+    L(base.map(([x,y],i)=>i?[J(x),y]:[x,y]));
+    const sx=y=>{for(let i=0;i<base.length-1;i++){const[a,b]=base[i],[c,d]=base[i+1];if(y<=b&&y>=d){const t=(b-y)/(b-d);return a+(c-a)*t}}return 101};
+    [[298,-1,17],[278,1,16.5],[254,-1,15.5],[232,1,15],[210,-1,14],[188,1,13],[167,-1,12],[147,1,11],[128,-1,10],[110,1,9],[93,-1,8],[77,1,7],[62,-1,5.8],[50,1,4.6]]
+    .forEach(([y,side,R])=>{if(K.strip&&y>STRIP)return;const x=sx(y);const rr=J(R,R*.08);const cx=x+side*(rr+J(4,1.2)),cy=J(y-rr*.35,1.5);
+      const d=blob(cx,cy,rr,10,rr*.07+.4);line(d);fill(d,'sage');L([[x,y],[x+side*3,y-1],[cx-side*rr*.35,cy]]);});
+  },
+  /* sunflower: one big head, a single ring of petals, a brown middle */
+  sun(K){const{J,L,leaf,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),130]]);
+    leaf(100,250,-58,44,20);leaf(100,214,56,40,18);
+    const cx=J(100,1),cy=J(94,1),p=lobedK(J,cx,cy,40,14,r()*6);line(p);fill(p,'sun');
+    const c=blob(cx,cy,16,10,.8);line(c);fill(c,'sunc');
+    for(let i=0;i<2;i++)line(arc(cx+J(0,2),cy+J(0,2),6+i*4,r()*360,220,.1));
+  },
+  /* poppy: a loose coral cup on a curving stem, with a nodding bud */
+  pop(K){const{J,L,shape,blob,line,fill}=K;
+    L([[100,332],[J(96),270],[J(104),206],[J(98),150],[J(101),118]]);
+    L([[99,236],[J(84),214],[J(78),194],[J(82,1),182]]);const b=blob(84,176,6,7,.5);line(b);fill(b,'green');
+    const T=xf(J(101,1),118,J(0,4));
+    shape([[0,4],[-14,2],[-27,-6],[-30,-22],[-21,-36],[-8,-31],[0,-40],[9,-32],[22,-37],[30,-21],[27,-6],[14,2]],T,'coral');
+    L([[-12,-4],[-15,-20],[-11,-31]].map(T));L([[12,-4],[15,-21],[10,-31]].map(T));
+    const c=blob(...T([0,-24]),4.5,6,.4);line(c);fill(c,'dark');
+  },
+  /* lily of the valley: an arching stem of small white bells and one broad leaf */
+  lov(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),250],[J(101),186],[J(110),140],[J(128,1),112],[J(150,1),98]]);
+    leaf(100,326,-10,150,24,'green');
+    [[103,174],[109,150],[118,130],[131,113],[143,104],[152,99]].forEach(([x,y],i)=>{const s=1-i*.09,by=y+13*s;
+      L([[x,y],[x+J(1,.6),by-4]]);
+      shape([[-6,0],[-7,7],[-9,11],[-4,10],[0,12],[4,10],[9,11],[7,7],[6,0],[0,-2]].map(([u,v])=>[u*s,v*s]),xf(x+1,by-3,J(0,6)),'bell')});
+  },
+  /* scabiosa: a frilled flat ring round a domed pincushion, on a wiry stem */
+  sca(K){const{J,L,line,fill,blob,leaf,r}=K;
+    L([[100,332],[J(97),262],[J(103),190],[J(100),116]]);
+    leaf(100,272,-48,22,5);leaf(100,240,50,20,5);
+    const cx=J(100,1),cy=J(100,1),p=lobedK(J,cx,cy,27,12,r()*6);line(p);fill(p,'scab');
+    const d=blob(cx,cy,12,9,.6);line(d);fill(d,'scab');
+    [[-4,-4],[4,-3],[0,3],[-5,4],[5,5]].forEach(([dx,dy])=>line(blob(cx+dx,cy+dy,1.3,5,.1)));
+  },
+};
+const CACHE=new Map(),STEMD=new Map();
+/* a zinc florist's bucket, drawn in the same hand; on the shelf it hides the bottom of each stem */
+function bucket(seed,i){
+  const K=kit(seed,.7),{J,L,line,fill}=K;const top=292,bot=344,wt=J(35,1.2),wb=J(27,1);
+  const body=`M${f(100-wt)} ${top} C${f(100-wt+2)} ${top+30} ${f(100-wb-1)} ${bot-22} ${f(100-wb)} ${bot} C88 ${bot+2} 112 ${bot+1} ${f(100+wb)} ${bot} C${f(100+wb+1)} ${bot-22} ${f(100+wt-2)} ${top+30} ${f(100+wt)} ${top} Z`;
+  const tint=['zinc','enamel','zinc','sage2'][i%4];
+  fill(body,tint);line(body);
+  const rim=K.ell(100,top,wt,5.5,10,.4);fill(rim,'rim');line(rim);
+  L([[100-wt+4,top+16],[100,top+18],[100+wt-5,top+15.5]]);
+  L([[100-wb-2,bot-10],[100,bot-8.5],[100+wb+1,bot-10.5]]);
+  L([[100+wt-10,top+22],[100+wt-11,top+38]]);
+  const o=K.out;
+  return `<g>${o.fills.map(p=>`<path d="${p.d}" fill="#FCFCFA"/>`).join('')}</g>`+
+    `<g transform="translate(2 -1.5)" opacity=".92" style="mix-blend-mode:multiply">${o.fills.map(p=>`<path d="${p.d}" fill="${PAL[p.c]}"/>`).join('')}</g>`+
+    o.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+}
+const MAIN={ran:'pink',tul:'apricot',fre:'cream',sna:'lav',lil:'lily',ane:'white',pea:'pea',cal:'white',car:'carn',rose:'rose',hyd:'hyd',all:'allium',bun:'oat',gyp:'gyp',del:'delph',peo:'peony',dah:'dahlia',sun:'sun',pop:'coral',lov:'bell',sca:'scab'};
+/* these two arch to one side; they're drawn arching left */
+const MIRROR=new Set(['fre','lov']);
+function draw(k,s,strip,col){
+  const key=k+s+(strip?'s':'')+(col||'');if(CACHE.has(key))return CACHE.get(key);
+  const g=(seed,amt)=>{const K=kit(seed,amt,strip);GEN[k](K);if(MIRROR.has(k)){const mx=d=>d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g,(m,x,y)=>f(200-x)+' '+y);K.out.lines=K.out.lines.map(mx);K.out.fills.forEach(p=>p.d=mx(p.d))}return K.out};
+  const A=g(s,1.1),B=g(s+97,2.4);STEMD.set(k+s+(strip?'s':''),A.lines[0]);
+  const fc=c=>(col&&c===MAIN[k])?col:PAL[c];
+  /* in the bouquet, each stem gets an underlay in the paper's colour so the flower in front covers the one behind */
+  const under=strip?`<g class="under">${A.fills.map(p=>`<path d="${p.d}"/>`).join('')}</g>`:'';
+  const out=under+`<g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply">${B.fills.map(p=>`<path d="${p.d}" fill="${fc(p.c)}"/>`).join('')}</g>`+
+    A.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  CACHE.set(key,out);return out;
+}
+
+/* ---------- the bench ---------- */
+const G=1.68, T={x:330,y:468}, PIVOT=250, MAXN=12, SPREAD=56, SCMIN=.4, SCMAX=1.24;
+const KINDS={
+  ran:{name:'Ranunculus',price:6,hx:100,hy:92,r:40},
+  tul:{name:'Tulip',price:4,hx:101,hy:106,r:26},
+  lil:{name:'Lily',price:7,hx:100,hy:94,r:46},
+  ane:{name:'Anemone',price:5,hx:100,hy:94,r:36},
+  pea:{name:'Sweet pea',price:4,hx:104,hy:132,r:30},
+  cal:{name:'Calla lily',price:7,hx:104,hy:86,r:28},
+  car:{name:'Carnation',price:3,hx:100,hy:102,r:30},
+  rose:{name:'Rose',price:6,hx:100,hy:92,r:34},
+  hyd:{name:'Hydrangea',price:8,hx:100,hy:100,r:44},
+  all:{name:'Allium',price:5,hx:100,hy:62,r:30},
+  bun:{name:'Bunny tail',price:2,hx:100,hy:88,r:16},
+  gyp:{name:'Baby’s breath',price:3,hx:100,hy:100,r:46},
+  del:{name:'Delphinium',price:6,hx:100,hy:120,r:24},
+  peo:{name:'Peony',price:9,hx:100,hy:96,r:44},
+  dah:{name:'Dahlia',price:6,hx:100,hy:96,r:43},
+  fre:{name:'Freesia',price:4,hx:68,hy:128,r:34},
+  sna:{name:'Snapdragon',price:5,hx:100,hy:112,r:24},
+  cra:{name:'Craspedia',price:3,hx:100,hy:62,r:19},
+  sun:{name:'Sunflower',price:5,hx:100,hy:94,r:40},
+  pop:{name:'Poppy',price:4,hx:101,hy:100,r:30},
+  lov:{name:'Lily of the valley',price:5,hx:74,hy:136,r:30},
+  sca:{name:'Scabiosa',price:4,hx:100,hy:100,r:27},
+  euc:{name:'Eucalyptus',price:3,hx:100,hy:150,r:26},
+};
+for(const K of Object.values(KINDS)){const vx=K.hx-100,vy=K.hy-PIVOT;K.a0=Math.atan2(vx,-vy)*180/Math.PI;K.len=Math.hypot(vx,vy)}
+/* today's stems, eight to a page */
+const PAGES=[['rose','tul','cal','hyd','fre','car','sna','euc'],['sun','pop','peo','dah','del','all','gyp','pea'],['lov','sca','cra','bun']];
+const ALL=PAGES.flat();
+let page=0,SHELF=PAGES[0];
+/* what came in today: one colour each, two for tulip and carnation; every default sits in its own hue */
+const COLORS={
+  rose:[['Red','#D9545E'],['Ivory','#F4EEDD']],
+  hyd:[['Blue','#A9BFEA']],all:[['Purple','#9F7CC9']],bun:[['Natural','#E6D9BE']],gyp:[['White','#F7F4EE']],
+  del:[['Blue','#9EB5E6']],peo:[['Blush','#F4C2C8'],['Coral','#EF8A62']],dah:[['Magenta','#E28AB4']],
+  car:[['Magenta','#D9558F'],['Cream','#F2E8CF']],
+  cal:[['White','#EEE7DA']],
+  ran:[['Blush','#F2B5B0'],['Butter','#F5DE92']],
+  tul:[['Orange','#F6A86E'],['Yellow','#F2CC4E']],
+  pea:[['Lilac','#CDAAE8'],['Wine','#8E3B57']],
+  lil:[['White','#F4E9DD']],ane:[['White','#EEE7DA']],fre:[['Lemon','#F3E7A0']],
+  sna:[['Lavender','#C3ADEA']],cra:[['Gold','#E9AE2B']],euc:[['Silver','#A9C3B2']],
+  sun:[['Yellow','#F4C64F']],pop:[['Coral','#F2876A']],lov:[['White','#FBF8EF']],sca:[['Mauve','#DDB0C8']],
+};
+const sel={};for(const k of ALL)sel[k]=COLORS[k][0][1];
+const colName=(k,c)=>(COLORS[k].find(x=>x[1]===c)||COLORS[k][0])[0];
+/* today's stock, as the shop would set it each morning */
+const STOCK={del:6,peo:5,dah:7,hyd:4,all:8,bun:18,gyp:25,car:16,tul:14,cal:6,fre:7,pea:10,sna:5,cra:12,euc:20,rose:12,ran:9,lil:6,ane:8,sun:6,pop:9,lov:10,sca:8};STOCK.peo=9;
+const left=k=>STOCK[k]-items.filter(i=>i.k===k).length;
+/* wrapping papers; twine colour is paired with each */
+/* wrapping papers: five textured sheets drawn as quiet SVG patterns (texture never louder than the stems);
+   front = the printed side, back = the plain inside you see when a corner folds over */
+const PAPERS={
+  /* pair: the card colour that sits behind this paper on the keepsake cards — a contrasting hue so the wrapped bunch stands out */
+  kraft:{name:'Kraft',fill:'url(#pp-kraft)',front:'#E2CBA4',back:'#D8C09A',crease:'#C8AD82',twine:'#B4593F',pair:'#BFD0DA'},
+  news:{name:'Newsprint',fill:'url(#pp-news)',front:'#EFEBE3',back:'#E5E0D6',crease:'#CFC9BC',twine:'#394038',pair:'#EFC3BA'},
+  gingham:{name:'Gingham',fill:'url(#pp-gingham)',front:'#F7DCD7',back:'#F4E6E2',crease:'#E5C9C3',twine:'#B4593F',pair:'#BFD3B8'},
+  dots:{name:'Dots',fill:'url(#pp-dots)',front:'#E6EDDF',back:'#DCE5D3',crease:'#BFCDB4',twine:'#B4593F',pair:'#F2CBAE'},
+  stripes:{name:'Stripes',fill:'url(#pp-stripes)',front:'#E9E3F3',back:'#ECE8F4',crease:'#D2C9E3',twine:'#394038',pair:'#F0DC9C'},
+};
+let paperId='kraft';const PP=()=>PAPERS[paperId];
+(function(){
+  const r=rng(77),J=(v,a)=>v+(r()-.5)*2*a,F=v=>Math.round(v*10)/10;let o='';
+  const pat=(id,w,h,base,inner)=>{o+=`<pattern id="${id}" width="${w}" height="${h}" patternUnits="userSpaceOnUse"><rect width="${w}" height="${h}" fill="${base}"/>${inner}</pattern>`};
+  const many=(n,fn)=>Array.from({length:n},fn).join('');
+  pat('pp-kraft',220,220,'#E2CBA4',many(30,()=>{const x=r()*220,y=r()*220,s=1+r()*2,dark=r()>.3;
+    return `<path d="M${F(x)} ${F(y)} q${F(s)} ${F(J(0,s))} ${F(s*1.6)} ${F(J(0,s*.6))} q${F(-s*.4)} ${F(s)} ${F(-s*1.4)} ${F(s*.4)}z" fill="${dark?'#A88A5E':'#F2E3C8'}" opacity="${dark?.55:.9}"/>`}));
+  pat('pp-news',280,160,'#EFEBE3',many(3,(_,i)=>{let s='',x=14;const y=30+i*46;while(x<260){const w=14+r()*36;s+=`<path d="M${F(x)} ${F(y+J(0,1))} L${F(x+w)} ${F(y+J(0,1))}" stroke="#B4B5AE" stroke-width="1.8" stroke-linecap="round" opacity=".5"/>`;x+=w+11+r()*11}return s}));
+  pat('pp-gingham',112,112,'#FCF3F0',`<path d="M0 ${F(28+J(0,1.4))} C37 ${F(27+J(0,2))} 75 ${F(29+J(0,2))} 112 28" stroke="#F0B9B4" stroke-width="22" opacity=".28" fill="none"/><path d="M${F(28+J(0,1.4))} 0 C${F(27+J(0,2))} 37 ${F(29+J(0,2))} 75 28 112" stroke="#F0B9B4" stroke-width="22" opacity=".28" fill="none"/>`);
+  const dot=(cx,cy)=>{const p=[[cx-4,cy-4],[cx+4,cy-5],[cx+5,cy+3],[cx-3,cy+5]].map(([x,y])=>[J(x,1),J(y,1)]);return `<path d="M${F(p[0][0])} ${F(p[0][1])} Q${F(p[1][0])} ${F(p[1][1]-2)} ${F(p[1][0])} ${F(p[1][1])} Q${F(p[2][0]+2)} ${F(p[2][1])} ${F(p[2][0])} ${F(p[2][1])} Q${F(p[3][0])} ${F(p[3][1]+2)} ${F(p[3][0])} ${F(p[3][1])} Q${F(p[0][0]-2)} ${F(p[0][1])} ${F(p[0][0])} ${F(p[0][1])}Z" fill="#B3CABB"/>`};
+  pat('pp-dots',100,100,'#E6EDDF',dot(20,20)+dot(70,70));
+  pat('pp-stripes',76,220,'#F3F0F8',`<path d="M19 0 C15 55 23 110 19 165 S16 205 19 220" stroke="#CFC4EA" stroke-width="13" fill="none" opacity=".45"/>`);
+  document.querySelector('#paper defs').insertAdjacentHTML('beforeend',o);
+})();
+
+
+let items=[],nextId=1,state='build',pinchP=0;
+const svg=$('#paper'),layerStems=$('#stems'),layerGhost=$('#ghost');
+const cl=v=>Math.max(0,Math.min(1,v));
+const ez=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const rand=()=>Math.floor(Math.random()*1e6);
+
+/* shelf */
+/* empty, invisible cells fill out a short page so every page of the shelf is the same height */
+const ghosts=()=>Array.from({length:(8-SHELF.length%8)%8},()=>`<div class="item ghost" aria-hidden="true"><span class="pick"><svg viewBox="0 0 200 340"></svg><span class="row"><span class="nm">&nbsp;</span><span class="pr">&nbsp;</span></span></span></div>`).join('');
+function buildShelf(){$('#shelf').innerHTML=SHELF.map((k,i)=>`<div class="item" data-k="${k}">
+  <button class="pick" type="button" data-k="${k}">
+    <svg viewBox="0 0 200 340" aria-hidden="true"></svg>
+    <span class="row"><span class="nm${KINDS[k].name.length>13?' long':''}">${KINDS[k].name}</span><span class="dots" aria-hidden="true"></span><span class="pr">$${KINDS[k].price}</span></span></button>
+  <div class="meta"><span class="left"></span>
+  <div class="swatches" role="group" aria-label="${KINDS[k].name} colour">${COLORS[k].length>1?COLORS[k].map(([n,c])=>`<button class="sw" type="button" data-k="${k}" data-c="${c}" title="${n}" aria-label="${n}" style="background:${c}"></button>`).join(''):''}</div></div>
+</div>`).join('')+ghosts();renderShelf();
+  $('#pgNum').textContent=`${page+1} / ${PAGES.length}`;
+  $('#pgPrev').disabled=page===0;$('#pgNext').disabled=page===PAGES.length-1;
+}
+function centreBench(){
+  const root=document.documentElement.style;
+  if(innerWidth<=860){root.setProperty('--shift','0px');root.setProperty('--noteX','0px');return}
+  const M=svg.getScreenCTM();if(!M)return;
+  const pr=578*M.a+M.e,note=document.querySelector('.note'),col=document.querySelector('.right-page').getBoundingClientRect();
+  let L=1e9,SR=-1e9;document.querySelectorAll('#shelf .item:not(.ghost) .pick svg,#shelf .item:not(.ghost) .nm').forEach(e=>{const r=e.getBoundingClientRect();if(r.width){L=Math.min(L,r.left);SR=Math.max(SR,r.right)}});
+  /* the strip is centred under the paper (never under the shelf); the bench is centred on the shelf and the paper, the two big shapes */
+  const pl=78*M.a+M.e,nx=Math.min(col.width-note.offsetWidth,Math.max(SR+24-col.left,(pl+pr)/2-col.left-note.offsetWidth/2));root.setProperty('--noteX',Math.round(nx)+'px');
+  if(L>1e8)return;
+  const cur=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--shift'))||0,R=pr;
+  let s=cur+innerWidth/2-(L+R)/2;
+  /* the shopkeeper's bubble opens right of the paper's top corner: on a narrow window nudge the bench left only as far as it needs */
+  const need=pr+(s-cur)+300-innerWidth;if(need>0)s-=Math.min(need,Math.max(0,L+(s-cur)-150));
+  root.setProperty('--shift',Math.round(s)+'px');try{placeFlor()}catch(e){}
+}
+let cbT;addEventListener('resize',()=>{clearTimeout(cbT);cbT=setTimeout(centreBench,120)});
+function goPage(p){
+  if(p<0||p>=PAGES.length||p===page)return;
+  const s=$('#shelf'),dir=p>page?1:-1;s.style.setProperty('--dir',dir);s.classList.add('out');
+  setTimeout(()=>{page=p;SHELF=PAGES[p];buildShelf();s.classList.remove('out');s.classList.add('in');requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.remove('in')))},170);
+}
+function renderShelf(){
+  SHELF.forEach(k=>{
+    const it=document.querySelector(`.item[data-k="${k}"]`),n=left(k);if(!it)return;
+    it.querySelector('svg').innerHTML=draw(k,4100+ALL.indexOf(k)*37,false,sel[k]);
+    it.classList.toggle('out',n<=0);
+    const l=it.querySelector('.left');l.textContent=n<=0?'sold out':(n<=5&&COLORS[k].length<2)?`${n} left`:'';it.querySelector('.swatches').style.display=n<=0?'none':'';l.classList.toggle('low',n>0&&n<=5);
+    it.querySelector('.pick').setAttribute('aria-label',n<=0?`${KINDS[k].name}, sold out today`:`Add a ${colName(k,sel[k]).toLowerCase()} ${KINDS[k].name.toLowerCase()}, $${KINDS[k].price}, ${n} left`);
+    it.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===sel[k]));
+  });
+}
+$('#shelf').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b)return;sel[b.dataset.k]=b.dataset.c;renderShelf()});
+
+$('#rings').innerHTML=Array.from({length:14},(_,i)=>`<svg viewBox="0 0 44 16"><path d="M3 ${f(8+(i%3-1)*.7)} C3 2.2 41 ${f(1.6+(i%2)*.8)} 41 8 C41 ${f(13.6-(i%2)*.6)} 3 14 3 ${f(8+(i%3-1)*.7)}"/></svg>`).join('');
+
+buildShelf();
+$('#pgPrev').addEventListener('click',()=>goPage(page-1));
+$('#pgNext').addEventListener('click',()=>goPage(page+1));
+/* paper picker */
+$('#papers').innerHTML=`<p class="ph">choose a paper</p>`+Object.entries(PAPERS).map(([id,p],i)=>`<button class="pp" type="button" data-p="${id}" aria-label="${p.name} paper" aria-pressed="${id===paperId}"><svg viewBox="0 0 70 50" aria-hidden="true"><path class="loop" d="M10 30 C4 12 30 3 54 7 C70 10 70 36 50 44 C30 50 8 44 6 26 C5 18 12 12 20 9"/><g class="sheet"><path d="M14 13 C28 ${11-i%2} 44 10 56 ${9+i%2} C57 19 57 29 58 39 C44 40 30 41 16 42 C15 32 15 22 14 13 Z" fill="${p.fill}" stroke="#394038" stroke-width="1.3" stroke-linejoin="round"/><path d="M47 ${10+i%2} L56 ${19+i%2}" fill="none" stroke="#394038" stroke-width="1" opacity=".5"/></g></svg><span>${p.name}</span></button>`).join('');
+$('#papers').addEventListener('click',e=>{const b=e.target.closest('.pp');if(!b||state==='ordered')return;setPaper(b.dataset.p)});
+const mq=matchMedia('(max-width:820px)');
+const setHow=()=>{$('#howto').textContent=mq.matches?'Tap a stem to add it, or drag it up onto the paper. Tap a flower on the paper to bring it forward.':'Drag or click a stem to add it. Click a flower on the paper to bring it forward; Shift-click sends it back.'};
+setHow();mq.addEventListener?.('change',setHow);
+
+/* placement rule: the stem tail locks to the tie point; the head goes where you put it, inside a fan */
+function placeFor(k,pt){
+  const K=KINDS[k];const vx=pt.x-T.x,vy=pt.y-T.y;
+  const a=Math.atan2(vx,-vy)*180/Math.PI;
+  let rot=Math.max(-SPREAD,Math.min(SPREAD,a-K.a0));
+  const sc=Math.max(SCMIN,Math.min(SCMAX,Math.hypot(vx,vy)/(K.len*G)));
+  return {rot:nudge(k,rot,sc),sc};
+}
+/* gentle spacing: if a head would sit mostly on top of another, ease it a few degrees aside */
+function headAt(k,rot,sc){const K=KINDS[k],a=(rot+K.a0)*Math.PI/180,d=K.len*G*sc;return [T.x+Math.sin(a)*d,T.y-Math.cos(a)*d]}
+function nudge(k,rot,sc){
+  const K=KINDS[k];let shift=0;
+  for(let pass=0;pass<3;pass++){
+    const h=headAt(k,rot+shift,sc);let moved=false;
+    for(const o of items){const ho=headAt(o.k,o.rot,o.sc),need=(K.r*Math.max(sc,HMIN)+KINDS[o.k].r*ds(o))*G*.62;
+      const dx=h[0]-ho[0],dy=h[1]-ho[1],dd=Math.hypot(dx,dy);
+      if(dd<need){const dir=Math.sign(dx)||(rot>=0?1:-1);shift+=dir*Math.min(3,(need-dd)/(K.len*G*sc)*57.3*.5);moved=true}}
+    if(!moved)break;
+  }
+  shift=Math.max(-7,Math.min(7,shift));
+  return Math.max(-SPREAD,Math.min(SPREAD,rot+shift));
+}
+function autoPlace(k){
+  const used=items.map(i=>i.rot+KINDS[i.k].a0);
+  let best=(Math.random()-.5)*10;
+  if(used.length){let bs=-1e9;for(let a=-46;a<=46;a+=2){const m=Math.min(...used.map(u=>Math.abs(u-a)));const s=m-Math.abs(a)*.12+Math.random()*2.5;if(s>bs){bs=s;best=a}}}
+  return {rot:Math.max(-SPREAD,Math.min(SPREAD,best-KINDS[k].a0)),sc:.9+Math.random()*.16};
+}
+/* each stem passes the tie a few px apart (not all through one point), and is cut off at the tie;
+   below it, the stems run together as one neat bundle */
+const HMIN=.62,ds=it=>Math.max(it.sc,HMIN),cutL=it=>(ds(it)-it.sc)*KINDS[it.k].len/ds(it);
+const neck=it=>it.rot*.16*(1-.5*pinchP);
+const tf=it=>`translate(${f(T.x+neck(it))} ${T.y}) rotate(${f(it.rot*(1-.22*pinchP))}) scale(${(G*ds(it)*(1-.04*pinchP)).toFixed(3)}) translate(-100 -${PIVOT})`;
+function stemMarkup(it,cls=''){const K=KINDS[it.k];
+  return `<g class="pl ${cls}" data-id="${it.id||''}" transform="${tf(it)}"><g clip-path="url(#above)"><g transform="translate(0 ${f(cutL(it))})"><g class="${it.fresh?'pop':''}">${draw(it.k,it.seed,true,it.col)}</g></g></g>${cls?'':`<circle class="hit" cx="${K.hx}" cy="${f(K.hy+cutL(it))}" r="${K.r+10}"/>`}</g>`}
+/* stacking: by default shorter stems sit in front; a stem you click (or move) comes to the front */
+const order=()=>[...items].sort((a,b)=>(a.z||0)-(b.z||0)||KINDS[b.k].len*b.sc-KINDS[a.k].len*a.sc);
+const topZ=()=>Math.max(0,...items.map(i=>i.z||0))+1, bottomZ=()=>Math.min(0,...items.map(i=>i.z||0))-1;
+function restack(id,back){
+  const it=items.find(i=>i.id===id);if(!it||state!=='build')return;
+  it.z=back?bottomZ():topZ();it.fresh=true;renderStems();
+  say(back?`Moved the ${KINDS[it.k].name.toLowerCase()} to the back.`:`Moved the ${KINDS[it.k].name.toLowerCase()} to the front.`);
+}
+const layerTails=document.getElementById('tails');
+/* where each drawn stem actually crosses the tie line, and which way it is heading there */
+const probe=el('path',{},document.querySelector('#paper defs'));
+const SE=new Map();
+function stemEnd(k,seed,yc=PIVOT){
+  const key=k+seed+'@'+Math.round(yc*4);if(SE.has(key))return SE.get(key);
+  draw(k,seed,true);probe.setAttribute('d',STEMD.get(k+seed+'s'));
+  const Ln=probe.getTotalLength();let lo=0,hi=Ln;
+  for(let i=0;i<22;i++){const m=(lo+hi)/2;if(probe.getPointAtLength(m).y>yc)lo=m;else hi=m}
+  const p=probe.getPointAtLength(hi),q=probe.getPointAtLength(Math.max(0,hi-8));
+  const r={x:p.x,y:p.y,dx:q.x-p.x,dy:q.y-p.y};SE.set(key,r);return r;
+}
+function renderTails(){
+  const byRot=[...items].sort((a,b)=>a.rot-b.rot);
+  layerTails.innerHTML=byRot.map((it,i)=>{
+    const cl=cutL(it),e=stemEnd(it.k,it.seed,PIVOT-cl),a=it.rot*(1-.22*pinchP)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),sc=G*ds(it)*(1-.04*pinchP);
+    const lx=(e.x-100)*sc,ly=(e.y+cl-PIVOT)*sc;
+    const x0=T.x+neck(it)+lx*c-ly*s,y0=T.y+lx*s+ly*c;
+    let dx=e.dx*c-e.dy*s,dy=e.dx*s+e.dy*c;const dl=Math.hypot(dx,dy)||1;dx/=dl;dy/=dl;
+    const x1=T.x+(i-(byRot.length-1)/2)*2.2+neck(it)*.3,y1=T.y+108+((it.seed%9)-4)*.8;
+    return `<path d="M${f(x0)} ${f(y0)} C${f(x0+dx*30)} ${f(y0+dy*30)} ${f(x1)} ${f(T.y+58)} ${f(x1)} ${f(y1)}"/>`}).join('');
+}
+let tipShown=false;
+
+/* ---------- the florist: tips the first time a gesture becomes useful, then a word about the bunch now and then ---------- */
+let addedFromShelf=false,tagMsg='';const told=new Set();
+const TIPS={1:'Tip: drag a flower lower to cut its stem shorter.',2:'Tip: tap a flower to bring it to the front.',3:'Tip: drag a flower off the paper to take it out.'};
+const FOCAL=new Set(['rose','peo','dah','sun','hyd','cal','pop','tul','sca']),SPIRE=new Set(['sna','del','fre','lov','euc']),AIRY=new Set(['euc','gyp','bun']);
+const hueOf=c=>{const n=parseInt(c.slice(1),16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+  if(d<.16)return null;let h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;return (h*60+360)%360};
+function floristLine(){
+  const n=items.length,ks=items.map(i=>i.k),has=s=>ks.some(k=>s.has(k));
+  if(TIPS[n]&&!told.has(TIPS[n]))return TIPS[n];
+  if(n<3)return '';
+  const c=[],cnt={};ks.forEach(k=>cnt[k]=(cnt[k]||0)+1);
+  if(n>=MAXN)c.push('That’s all the paper will hold. Time to wrap?');
+  if(n===MAXN-2)c.push('Generous! There’s room for two more.');
+  for(const k in cnt)if(cnt[k]===3)c.push(`Three stems of ${KINDS[k].name.toLowerCase()}, a lovely repeat.`);
+  if(n>=4&&!has(AIRY))c.push('A little eucalyptus or baby’s breath would give it room to breathe.');
+  if(n>=3&&ks.includes('euc'))c.push('The eucalyptus softens it nicely.');
+  if(has(SPIRE)&&has(FOCAL))c.push('Tall spires with round blooms: a good shape.');
+  const hs=items.map(i=>hueOf(i.col||COLORS[i.k][0][1])).filter(h=>h!==null);
+  if(hs.length>=4&&hs.every(h=>h<70||h>330))c.push('All warm tones. Very sunny.');
+  if(hs.length>=4&&hs.every(h=>h>=180&&h<=330))c.push('Cool and calm, like early spring.');
+  if(n===7)c.push('That’s a proper bunch now.');
+  return c.find(t=>!told.has(t))||'';
+}
+function florist(){const t=floristLine();if(t){told.add(t);say(t,false,6500)}}
+/* the note on the tag: the tag shows it (shrinking to fit), and the card carries it */
+function setTagText(){const t=$('#tagText'),p=$('#tagBody path');if(!t)return;t.style.fontSize='';const n=items.length;t.textContent=tagMsg||`${n} stem${n===1?'':'s'}`;
+  /* a longer note first gets a little smaller, then the tag itself gets longer (up to a point) */
+  let fs=31,W=116;while(fs>23&&t.getComputedTextLength()>W-32){fs-=1;t.style.fontSize=fs+'px'}
+  W=Math.min(236,Math.max(116,Math.ceil(t.getComputedTextLength()+36)));while(fs>16&&t.getComputedTextLength()>W-32){fs-=1;t.style.fontSize=fs+'px'}
+  if(p)p.setAttribute('d',`M2 10 L12 0 H${W-4} Q${W} 0 ${W} 4 V52 Q${W} 56 ${W-4} 56 H12 L2 46 Z`);const a=$('#tagAsk');if(a)a.setAttribute('x',W+12)}
+function openTagEdit(){tag.classList.remove('hint');
+  const wrapEl=document.querySelector('.paperwrap');let inp=document.getElementById('tagInput');
+  if(!inp){inp=document.createElement('input');inp.id='tagInput';inp.type='text';inp.maxLength=24;inp.placeholder='for someone…';inp.setAttribute('aria-label','A note on the tag');wrapEl.appendChild(inp);
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.dataset.cancel='1';inp.blur()}});
+    inp.addEventListener('blur',()=>{if(!inp.dataset.cancel){const was=tagMsg;tagMsg=inp.value.trim();setTagText();if(tagMsg&&tagMsg!==was)say('Lovely. It’ll be on your card too.',false,4500)}delete inp.dataset.cancel;inp.hidden=true;tag.focus({preventScroll:true})})}
+  const r=$('#tagBody').getBoundingClientRect(),w=wrapEl.getBoundingClientRect();
+  inp.style.left=Math.round(r.left-w.left-14)+'px';inp.style.top=Math.round(r.top-w.top+r.height/2-22)+'px';
+  inp.value=tagMsg;inp.hidden=false;inp.focus();inp.select();
+}
+function renderStems(){if(addedFromShelf){addedFromShelf=false;florist()}layerStems.innerHTML=order().map(it=>stemMarkup(it)).join('');renderTails();items.forEach(i=>i.fresh=false);updateUI()}
+function updateStemTransforms(){layerStems.querySelectorAll('.pl').forEach(g=>{const it=items.find(i=>i.id==g.dataset.id);if(it)g.setAttribute('transform',tf(it))});renderTails()}
+
+/* ---------- paper: a tilted sheet with two creases; the lower corners fold up across the stems ---------- */
+const BASE={TL:[78,70],TR:[520,26],BR:[578,608],BL:[136,652],F1:[104,330],E1:[300,636],F2:[551,340],E2:[360,630]};
+/* the wrapped shape is fitted to the bunch: paper top sits just under the tallest heads,
+   both creases run to one cone tip under the tie, and each folded corner lands where we want it */
+let WR=null;
+function reflect(P,A,B){const ux=B[0]-A[0],uy=B[1]-A[1],Ln=Math.hypot(ux,uy),nx=ux/Ln,ny=uy/Ln;
+  const pr=(P[0]-A[0])*nx+(P[1]-A[1])*ny,px=A[0]+nx*pr,py=A[1]+ny*pr;return [2*px-P[0],2*py-P[1]]}
+function computeWrapped(){
+  const heads=items.map(it=>{const K=KINDS[it.k];const a=(it.rot*.78+K.a0)*Math.PI/180;const d=K.len*G*it.sc*.96;return [T.x+Math.sin(a)*d,T.y-Math.cos(a)*d]});
+  const minY=Math.min(...heads.map(h=>h[1])),minX=Math.min(...heads.map(h=>h[0])),maxX=Math.max(...heads.map(h=>h[0]));
+  const hw=[0,80,98,114][items.length]||125,Lx=Math.max(40,Math.min(minX-40,T.x-hw)),Rx=Math.min(590,Math.max(maxX+40,T.x+hw));
+  const topY=Math.max(30,Math.min(minY+40,T.y-200));
+  const TL=[Lx,topY+12],TR=[Rx,topY-10];
+  const F1=[Lx+26,T.y-34],F2=[Rx-26,T.y-48];
+  const E=[T.x+2,T.y+86];
+  const DL=[T.x+62,T.y-12],DR=[T.x-56,T.y-40];
+  return {TL,TR,F1,F2,E1:E,E2:E,BL:reflect(DL,F1,E),BR:reflect(DR,F2,E)};
+}
+function gat(k,g){const a=BASE[k];if(!WR||g<=0)return a;const b=WR[k];return [a[0]+(b[0]-a[0])*g,a[1]+(b[1]-a[1])*g]}
+function lineX(A,B,y){return A[0]+(B[0]-A[0])*(y-A[1])/(B[1]-A[1])}
+function layoutTwine(){
+  const y=T.y+30,xl=lineX(WR.F1,WR.E1,y)-6,xr=lineX(WR.F2,WR.E2,y)+6,cx=(xl+xr)/2+4;
+  $('#band').setAttribute('d',`M${f(xl)} ${f(y-4)} C${f(xl+40)} ${f(y+8)} ${f(cx-30)} ${f(y+10)} ${f(cx)} ${f(y+5)} C${f(cx+30)} ${f(y)} ${f(xr-40)} ${f(y-6)} ${f(xr)} ${f(y-14)}`);
+  $('#bow').setAttribute('d',`M${f(cx)} ${f(y+2)} C${f(cx-30)} ${f(y-32)} ${f(cx-54)} ${f(y-6)} ${f(cx-34)} ${f(y+6)} C${f(cx-24)} ${f(y+12)} ${f(cx-8)} ${f(y+8)} ${f(cx)} ${f(y+3)} M${f(cx+2)} ${f(y+2)} C${f(cx+30)} ${f(y-34)} ${f(cx+62)} ${f(y-10)} ${f(cx+44)} ${f(y+5)} C${f(cx+34)} ${f(y+13)} ${f(cx+14)} ${f(y+9)} ${f(cx+3)} ${f(y+4)} M${f(cx-1)} ${f(y+5)} C${f(cx-8)} ${f(y+26)} ${f(cx-14)} ${f(y+42)} ${f(cx-28)} ${f(y+62)} M${f(cx+4)} ${f(y+5)} C${f(cx+13)} ${f(y+24)} ${f(cx+20)} ${f(y+38)} ${f(cx+38)} ${f(y+52)}`);
+  const tx=cx+22,ty=y+70;
+  $('#tagString').setAttribute('d',`M${f(cx+2)} ${f(y+5)} C${f(cx+8)} ${f(y+30)} ${f(tx+2)} ${f(ty-20)} ${f(tx+10)} ${f(ty+20)}`);
+  $('#tagBody').setAttribute('transform',`translate(${f(tx)} ${f(ty)}) rotate(9)`);
+  measure();
+}
+const WOB={};
+function edge(a,b,key){const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],Ln=Math.hypot(dx,dy)||1;
+  const k=WOB[key]??(WOB[key]=(Math.random()-.5)*6);return `Q${f(mx-dy/Ln*k)} ${f(my+dx/Ln*k)} ${f(b[0])} ${f(b[1])}`}
+const M=p=>`M${f(p[0])} ${f(p[1])}`, Lt=p=>`L${f(p[0])} ${f(p[1])}`;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e}
+const sheet=$('#sheet');
+const S={fill:el('path',{fill:'#EDE4D3'},sheet),grain:el('path',{filter:'url(#grain)'},sheet),
+  edge:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round','stroke-linejoin':'round'},sheet),
+  crease:el('path',{fill:'none',stroke:'#CDBFA4','stroke-width':1.2,'stroke-linecap':'round'},sheet)};
+function makeFlap(){const g=el('g',{});return {g,fill:el('path',{},g),grain:el('path',{filter:'url(#grain)'},g),
+  edge:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round','stroke-linejoin':'round'},g),
+  fold:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round'},g)}}
+const FL={L:makeFlap(),R:makeFlap()};
+$('#backL').appendChild(FL.L.g);$('#backR').appendChild(FL.R.g);
+function foldPt(F,E,C,th){const ux=E[0]-F[0],uy=E[1]-F[1],Ln=Math.hypot(ux,uy),nx=ux/Ln,ny=uy/Ln;
+  const pr=(C[0]-F[0])*nx+(C[1]-F[1])*ny,px=F[0]+nx*pr,py=F[1]+ny*pr,c=Math.cos(th);
+  return [[px+(C[0]-px)*c,py+(C[1]-py)*c-Math.sin(th)*18],c]}
+function setFlap(fl,F,E,C0,th,k1,k2,side){
+  const [C,c]=foldPt(F,E,C0,th);
+  const d=`${M(F)}${edge(F,C,k1)}${edge(C,E,k2)}${Lt(F)}Z`;
+  fl.fill.setAttribute('d',d);fl.grain.setAttribute('d',d);
+  fl.fill.setAttribute('fill',c<0?PP().back:PP().fill);
+  fl.edge.setAttribute('d',`${M(F)}${edge(F,C,k1)}${edge(C,E,k2)}`);
+  fl.fold.setAttribute('d',`${M(F)}${Lt(E)}`);fl.fold.setAttribute('opacity',cl(th/1.2).toFixed(2));
+  const want=th>.001?$(side==='L'?'#frontL':'#frontR'):$(side==='L'?'#backL':'#backR');
+  if(fl.g.parentNode!==want)want.appendChild(fl.g);
+}
+let curPaper=[0,0,0];
+function setPaper(id){
+  paperId=id;const p=PP();
+  svg.style.setProperty('--wrap',p.front);
+  $('#twine').setAttribute('stroke',p.twine);$('#tagString').setAttribute('stroke',p.twine);
+  document.querySelectorAll('.pp').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===id));
+  const pn=document.getElementById('pname');if(pn)pn.textContent=p.name;
+  drawPaper(...curPaper);
+}
+function drawPaper(g,lf,rf){
+  curPaper=[g,lf,rf];S.fill.setAttribute('fill',PP().fill);S.crease.setAttribute('stroke',PP().crease);
+  const P={};for(const k in BASE)P[k]=gat(k,g);
+  const hex=`${M(P.TL)}${edge(P.TL,P.TR,'t')}${edge(P.TR,P.F2,'r1')}${Lt(P.E2)}${edge(P.E2,P.E1,'b')}${Lt(P.F1)}${edge(P.F1,P.TL,'l1')}Z`;
+  S.fill.setAttribute('d',hex);S.grain.setAttribute('d',hex);
+  S.edge.setAttribute('d',`${M(P.F1)}${edge(P.F1,P.TL,'l1')}${edge(P.TL,P.TR,'t')}${edge(P.TR,P.F2,'r1')}${M(P.E2)}${edge(P.E2,P.E1,'b')}`);
+  S.crease.setAttribute('d',`${M(P.F1)}${Lt(P.E1)}${M(P.F2)}${Lt(P.E2)}`);
+  setFlap(FL.L,P.F1,P.E1,P.BL,lf*Math.PI,'l2','b2','L');
+  setFlap(FL.R,P.F2,P.E2,P.BR,rf*Math.PI,'r2','b3','R');
+}
+S.crease.setAttribute('stroke','#CDBFA4');
+
+/* twine */
+const band=$('#band'),bow=$('#bow'),twine=$('#twine'),tag=$('#tag');
+/* the shopkeeper is a little animal sitting on the paper's top-right corner; whatever the shop says, it says in a bubble */
+const CRITTERS={lemon:`<svg viewBox="0 0 80 66" aria-hidden="true" class="cr bird lemon"><g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply"><path d="M8 55 C10 49 10.5 44 12.5 38 C16.5 24 30 16 44 16 C57 16 66.5 24 66 36 C65.5 48 56 58 42 59 C30 60 18 59 8 55Z" fill="#F2D46B"/></g><path d="M34.8 41.0 l3.0 0.3 M35.4 39.3 l3.0 -0.4 M22.5 39.4 l3.0 -0.3 M50.5 25.2 l2.8 -1.0 M45.9 23.4 l3.0 0.4 M58.4 44.2 l3.0 -0.4 M38.3 24.0 l2.7 -1.2 M35.3 37.0 l3.0 0.1 M37.9 43.8 l2.9 -0.6 M44.5 37.5 l2.8 -1.0 M52.6 46.1 l2.8 -1.0 M24.6 31.8 l2.6 -1.4 M49.2 35.6 l3.0 0.1 M32.3 24.5 l3.0 -0.3 M49.8 31.2 l2.6 -1.4 M48.9 26.0 l2.8 -1.1 M50.7 28.0 l3.0 -0.5 M34.6 28.5 l3.0 -0.1 M20.0 43.9 l2.7 -1.4 M33.4 29.2 l2.8 -1.1 " stroke="#FFF8E1" stroke-width="1.6" stroke-linecap="round" opacity=".9"/><g fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><g class="legA"><path d="M34 58.6 L33 64 M30.4 64.4 L33 64 L35.6 64.8"/></g><g class="legB"><path d="M45 58.4 L46 64 M43.4 64.8 L46 64 L48.6 64.4"/></g><path d="M8 55 C10 49 10.5 44 12.5 38 C16.5 24 30 16 44 16 C57 16 66.5 24 66 36 C65.5 48 56 58 42 59 C30 60 18 59 8 55Z"/><path d="M15 50 C12 47 11 43 12.5 39" opacity=".5"/><path class="m-smile" d="M64.6 29.8 L71.6 32.4 L64.6 35.2Z" fill="#E9AE2B"/><path class="m-open" d="M64.6 29.4 L71.6 30.6 L64.6 32.2Z M64.8 33.6 L70.4 35.6 L64.6 36.4Z" fill="#E9AE2B"/></g><circle cx="54.5" cy="25.5" r="1.8" fill="#394038"/><circle cx="60.5" cy="26.8" r="1.8" fill="#394038"/><g class="fw fwu"><g transform="translate(-9 3) rotate(-12 46 25)"><path d="M46 25 C43 15 37 6 27 0.5 C25.5 9 29 18 39 25.5Z" fill="#F2D46B" transform="translate(1.6 -1.2)"/><path d="M46 25 C43 15 37 6 27 0.5 C25.5 9 29 18 39 25.5Z" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 23.5 C40 16 35 9 29 4" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/></g></g><g class="fw fwm"><path d="M44 29 C35 28 24 25.5 12 21 C15 28 23 33.5 33 34.5 C38 34.5 42 32.5 44 30.5Z" fill="#F2D46B" transform="translate(1.6 -1.2)"/><path d="M44 29 C35 28 24 25.5 12 21 C15 28 23 33.5 33 34.5 C38 34.5 42 32.5 44 30.5Z" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 30 C34 29 25 27 15 23.5" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/></g><g class="fw fwd"><path d="M45 31 C38 35 30 41 24 49 C32 48.5 40 43 45.5 35Z" fill="#F2D46B" transform="translate(1.6 -1.2)"/><path d="M45 31 C38 35 30 41 24 49 C32 48.5 40 43 45.5 35Z" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M43.5 33.5 C38 37.5 32 42 27 47" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/></g></svg>`,waver:`<svg viewBox="0 0 80 66" aria-hidden="true" class="cr bird waver"><g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply"><path d="M24 40 C24 26 31 16 40 16 C49 16 56 26 56 40 C56 52 49 58 40 58 C31 58 24 52 24 40Z" fill="#F3E7A0"/><path d="M25 38 C17 40 13 47 14 54 C21 52 25 46 25 38Z" fill="#A9C89B"/><g class="wave"><path d="M55 36 C62 32 67 25 67 18 C60 20 56 28 55 36Z" fill="#A9C89B"/></g></g><g fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 40 C24 26 31 16 40 16 C49 16 56 26 56 40 C56 52 49 58 40 58 C31 58 24 52 24 40Z"/><path d="M25 38 C17 40 13 47 14 54 C21 52 25 46 25 38Z"/><path d="M24.5 40 C21 44 18 48 15 52"/><path d="M39 16.2 C38 11 41 9 43.2 10.6"/><g class="wave"><path d="M55 36 C62 32 67 25 67 18 C60 20 56 28 55 36Z"/><path d="M55.5 34.5 C59 29 62.5 24 66 19.5"/></g><g class="legA"><path d="M35 58 L35 64 M32 64.6 L35 64 L37.6 65"/></g><g class="legB"><path d="M45 58 L45 64 M42.4 65 L45 64 L48 64.6"/></g><path class="m-smile" d="M37.8 34 L42.2 34 L40 37.8Z"/><path class="m-open" d="M37.8 33.4 L42.2 33.4 L40 35.4Z M38.4 36.6 L41.6 36.6 L40 38.8Z"/></g><circle cx="35" cy="30" r="1.8" fill="#394038"/><circle cx="45" cy="30" r="1.8" fill="#394038"/></svg>`,pear:`<svg viewBox="0 0 80 66" aria-hidden="true" class="cr bird pear"><g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply"><path d="M40 12 C47 12 50 20 50 26 C50 30 58 38 58 48 C58 57 50 61 40 61 C30 61 22 57 22 48 C22 38 30 30 30 26 C30 20 33 12 40 12Z" fill="#A9BFEA"/><path d="M27 38 C20 41 17 49 19 55 C25 52 28 45 27 38Z" fill="#A9C89B"/><path d="M53 38 C60 41 63 49 61 55 C55 52 52 45 53 38Z" fill="#A9C89B"/></g><g fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M40 12 C47 12 50 20 50 26 C50 30 58 38 58 48 C58 57 50 61 40 61 C30 61 22 57 22 48 C22 38 30 30 30 26 C30 20 33 12 40 12Z"/><path d="M27 38 C20 41 17 49 19 55 C25 52 28 45 27 38Z"/><path d="M26.5 40 C24 45 21.5 49 19.5 53.5"/><path d="M53 38 C60 41 63 49 61 55 C55 52 52 45 53 38Z"/><path d="M53.5 40 C56 45 58.5 49 60.5 53.5"/><path d="M37 12.2 L35 8 M40 12 L40 7.4 M43 12.2 L45 8"/><path d="M36 61 L35.6 64.6 M33.4 64.8 L35.6 64.6 L37.6 65.2 M44 61 L44.4 64.6 M42.4 65.2 L44.4 64.6 L46.6 64.8"/><path class="m-smile" d="M38 25.4 L42 25.4 L40 29Z"/><path class="m-open" d="M38 24.8 L42 24.8 L40 26.6Z M38.6 27.6 L41.4 27.6 L40 29.6Z"/></g><circle cx="36" cy="22" r="1.8" fill="#394038"/><circle cx="44" cy="22" r="1.8" fill="#394038"/></svg>`,holder:`<svg viewBox="0 0 80 66" aria-hidden="true" class="cr bird holder"><g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply"><path d="M24 40 C24 26 31 16 40 16 C49 16 56 26 56 40 C56 52 49 58 40 58 C31 58 24 52 24 40Z" fill="#F4C2C8"/><path d="M51 30 C47 29 46 24 47 20 L49.5 22.5 L51.5 18.5 L53.5 22.5 L56 20 C57 24 56 29 51 30Z" fill="#F6A86E"/><path d="M26 40 C31 42 36 45 38.5 49.5 C32 50.5 27 46 26 40Z" fill="#A9C89B"/><path d="M54 40 C49 42 44 45 41.5 49.5 C48 50.5 53 46 54 40Z" fill="#A9C89B"/></g><g fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 40 C24 26 31 16 40 16 C49 16 56 26 56 40 C56 52 49 58 40 58 C31 58 24 52 24 40Z"/><path d="M41 53 C44 45 48 37 51 30"/><path d="M51 30 C47 29 46 24 47 20 L49.5 22.5 L51.5 18.5 L53.5 22.5 L56 20 C57 24 56 29 51 30Z"/><path d="M26 40 C31 42 36 45 38.5 49.5 C32 50.5 27 46 26 40Z"/><path d="M27.5 41.5 C31 44 35 46.5 38 49"/><path d="M54 40 C49 42 44 45 41.5 49.5 C48 50.5 53 46 54 40Z"/><path d="M52.5 41.5 C49 44 45 46.5 42 49"/><path d="M39 16.2 C38 11 41 9 43.2 10.6"/><g class="legA"><path d="M35 58 L35 64 M32 64.6 L35 64 L37.6 65"/></g><g class="legB"><path d="M45 58 L45 64 M42.4 65 L45 64 L48 64.6"/></g><path class="m-smile" d="M37.8 34 L42.2 34 L40 37.8Z"/><path class="m-open" d="M37.8 33.4 L42.2 33.4 L40 35.4Z M38.4 36.6 L41.6 36.6 L40 38.8Z"/></g><circle cx="35" cy="30" r="1.8" fill="#394038"/><circle cx="45" cy="30" r="1.8" fill="#394038"/></svg>`};
+const CRIT=((location.hash.match(/c=(\w+)/)||[])[1])||'lemon';
+const flor=document.createElement('div');flor.className='florist';flor.setAttribute('aria-hidden','true');
+flor.innerHTML=`<div class="fl-bubble"><span></span></div><div class="fl-shadow"></div><div class="fl-feather"><svg viewBox="0 0 12 20"><path d="M6 1 C10 6 10 13 6 19 C2 13 2 6 6 1Z" fill="#F2D46B" stroke="#394038" stroke-width="1" stroke-linejoin="round"/><path d="M6 3 L6 18" fill="none" stroke="#394038" stroke-width=".8" opacity=".5"/></svg></div><div class="fl-fly">`+(CRITTERS[CRIT]||CRITTERS.lemon)+`</div>`;
+flor.dataset.b=((location.hash.match(/b=(\w)/)||[])[1])||'a';document.querySelector('.paperwrap').appendChild(flor);
+function placeFlor(){const M=svg.getScreenCTM();if(!M)return;const w=document.querySelector('.paperwrap').getBoundingClientRect();let C=[520,26];if(state==='wrapped'){/* wrapped: stand beside the bunch, just right of the folded paper, never on the flowers or the tag */let R=-1e9,T=1e9,Bm=-1e9;['#stems','#frontL','#frontR'].forEach(s=>{const r=document.querySelector(s)?.getBoundingClientRect();if(r&&r.width){R=Math.max(R,r.right);T=Math.min(T,r.top);Bm=Math.max(Bm,r.bottom)}});if(R>-1e9){flor.style.left=Math.round(R-w.left+6)+'px';flor.style.top=Math.round(T+(Bm-T)*.42-w.top)+'px';return}}
+  flor.style.left=Math.round(C[0]*M.a+M.e-w.left-70)+'px';flor.style.top=Math.round(C[1]*M.d+M.f-w.top-68)+'px'}
+let florT;
+const birdHome=document.querySelector('.paperwrap');
+function flyAway(){if(flor.classList.contains('away'))return;flor.classList.remove('speaking','talk','landing');flor.classList.add('leaving');document.body.classList.add('bird-away');
+  setTimeout(()=>{flor.classList.remove('leaving');flor.classList.add('away')},1020)}
+function landOn(where){const wasAway=flor.classList.contains('away')||flor.classList.contains('leaving');flor.classList.remove('away','leaving','speaking','talk');document.body.classList.remove('bird-away');
+  if(where==='sign'){const s=document.querySelector('#concept .c-sign');s.appendChild(flor);flor.style.left='calc(76% - 50px)';flor.style.top='calc(34% - 74px)'}
+  else{if(!wasAway&&flor.parentElement===birdHome){placeFlor();return}birdHome.appendChild(flor);placeFlor()}
+  void flor.offsetWidth;flor.classList.add('landing');setTimeout(()=>flor.classList.remove('landing'),1100)}
+function floristSays(t,ms){const b=flor.querySelector('.fl-bubble'),s=b.querySelector('span');clearTimeout(florT);if(flor.classList.contains('away')&&t){return}
+  if(!t){flor.classList.remove('speaking','talk');return}
+  s.textContent=t;flor.classList.remove('speaking','talk','flip');void flor.offsetWidth;
+  /* the bubble opens to the right of the creature; if the window is too narrow it opens to the left instead */
+  {const r=b.getBoundingClientRect();if(r.right>innerWidth-12)flor.classList.add('flip')}
+  flor.classList.add('speaking','talk');
+  setTimeout(()=>flor.classList.remove('talk'),Math.min(2400,600+t.length*45));
+  florT=setTimeout(()=>flor.classList.remove('speaking'),ms||3600)}
+setTimeout(()=>{placeFlor();if(!items.length&&state==='build')floristSays('Hello! Pick a few stems you like.',5200)},900);
+{const tb=$('#tagBody'),hn=document.createElementNS(NS,'text');hn.id='tagAsk';hn.setAttribute('x','128');hn.setAttribute('y','34');hn.textContent='← write a note?';tb.appendChild(hn)}
+tag.setAttribute('tabindex','0');tag.setAttribute('role','button');tag.setAttribute('aria-label','Write a note on the tag');
+tag.addEventListener('click',()=>{if(state==='wrapped')openTagEdit()});
+tag.addEventListener('keydown',e=>{if(state==='wrapped'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openTagEdit()}});
+let bandL=0,bowL=0;
+function measure(){bandL=band.getTotalLength();bowL=bow.getTotalLength();band.style.strokeDasharray=bandL;bow.style.strokeDasharray=bowL}
+
+/* ---------- wrap timeline (played forward to wrap, backward to unwrap) ---------- */
+const TOTAL=2300;
+function frameAt(t){return{pinch:ez(cl(t/520)),g:ez(cl((t-120)/1250)),lf:ez(cl((t-300)/720)),rf:ez(cl((t-780)/720)),tw:cl((t-1420)/820)}}
+function apply(fr){
+  pinchP=fr.pinch;updateStemTransforms();drawPaper(fr.g,fr.lf,fr.rf);
+  const bp=cl(fr.tw*1.7),wp=cl(fr.tw*1.7-.7);
+  band.style.strokeDashoffset=bandL*(1-bp);bow.style.strokeDashoffset=bowL*(1-wp);
+  twine.setAttribute('opacity',fr.tw>0?1:0);
+}
+function play(forward,done){
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dur=reduce?1:(forward?TOTAL:TOTAL*.55);const t0=performance.now();
+  (function step(now){const p=Math.min(1,(now-t0)/dur);apply(frameAt((forward?p:1-p)*TOTAL));p<1?requestAnimationFrame(step):done()})(t0);
+}
+
+/* ---------- UI state ---------- */
+let msgTimer;
+function say(t,keep,ms){try{floristSays(t,keep?9000:(ms||3600))}catch(e){}const m=$('#msg');m.textContent=t;m.classList.remove('in');void m.offsetWidth;if(t)m.classList.add('in');clearTimeout(msgTimer);if(!keep)msgTimer=setTimeout(()=>{m.textContent=''},ms||3200)}
+const total=()=>items.reduce((s,i)=>s+KINDS[i.k].price,0);
+function updateUI(){
+  const n=items.length;renderShelf();
+  $('#count').textContent=`${n} stem${n===1?'':'s'}`;$('#total').textContent=`$${total()}`;
+  $('#hintArt').style.display=(n||state!=='build')?'none':'';
+  $('#ring').style.display=state==='build'?'':'none';
+  svg.classList.toggle('locked',state!=='build');
+  let h='';
+  if(state==='build'){if(n)h+=`<button class="link" id="bClear" type="button">Clear</button>`;h+=`<button class="primary" id="bWrap" type="button" ${n?'':'disabled'}>${n===1?'Wrap stem':'Wrap bouquet'}</button>`}
+  else if(state==='wrapped')h=`<button class="link" id="bUnwrap" type="button">Unwrap</button><button class="primary" id="bOrder" type="button">Buy this bunch · $${total()}</button>`;
+  else if(state==='checkout')h=`<button class="link" id="bBack" type="button">Back</button><button class="primary" id="bPlace" type="submit" form="viewCheckout">Place order · $${total()}</button>`;
+  else if(state==='ordered')h=`<button class="link" id="bNew" type="button">Start another bunch</button>`;
+  else h=`<button class="primary" type="button" disabled>${state==='wrapping'?'Wrapping…':'Unwrapping…'}</button>`;
+  $('#actions').innerHTML=h;showView();
+  $('#bClear')?.addEventListener('click',()=>{items=[];tagMsg='';renderStems();say('Paper cleared.')});
+  $('#bWrap')?.addEventListener('click',wrap);
+  $('#bUnwrap')?.addEventListener('click',unwrap);
+  $('#bOrder')?.addEventListener('click',goCheckout);
+  $('#bBack')?.addEventListener('click',()=>{state='wrapped';updateUI()});
+  $('#bNew')?.addEventListener('click',()=>{items=[];tagMsg='';tag.classList.remove('on');pinchP=0;apply(frameAt(0));state='build';resetCheckout();renderStems();say('')});
+}
+function wrap(){if(!items.length)return;state='wrapping';updateUI();say('');try{flyAway()}catch(e){}
+  WR=computeWrapped();layoutTwine();
+  setTagText();
+  play(true,()=>{state='wrapped';tag.classList.remove('on');void tag.getBBox();tag.classList.add('on');updateUI();if(!tagMsg)setTimeout(()=>{if(state==='wrapped'&&!tagMsg)tag.classList.add('hint')},1200);setTimeout(()=>$('#bOrder')?.focus({preventScroll:true}),50)})}
+function unwrap(){state='unwrapping';tag.classList.remove('on');updateUI();play(false,()=>{state='build';updateUI();try{landOn('home')}catch(e){}setTimeout(()=>say('Unwrapped. Keep arranging.'),700)})}
+
+/* ---------- buying: wrap → Buy → checkout on the left → Place order → booked. The wrapped bunch stays on the paper throughout. ---------- */
+const co={day:'Today',time:'2–4',pay:'pickup',no:''};
+const views={shop:$('#viewShop'),checkout:$('#viewCheckout'),done:$('#viewDone')};
+function showView(){
+  const v=state==='checkout'?'checkout':state==='ordered'?'done':'shop';
+  for(const k in views)views[k].hidden=k!==v;
+  $('#papers').style.visibility=state==='ordered'?'hidden':'';
+}
+function chipGroup(id,key){$(id).addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;co[key]=b.dataset.v;$(id).querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b))})}
+chipGroup('#coDay','day');chipGroup('#coTime','time');chipGroup('#coPay','pay');
+$('#viewCheckout').addEventListener('submit',e=>{e.preventDefault();placeOrder()});
+/* Buy leads to the shop's "opening soon" page: no checkout, no order, no payment; a colophon says it's a concept */
+function goCheckout(){
+  const art=$('#cArt');art.innerHTML='';const c=bouquetClone();c.setAttribute('preserveAspectRatio','xMidYMid meet');art.appendChild(c);
+  /* swap the plain sketch for the card itself once it's drawn */
+  showCard(nextStyle());
+  const counts=new Map();items.forEach(it=>counts.set(it.k,(counts.get(it.k)||0)+1));
+  $('#cSum').textContent=`Your bunch: ${[...counts].map(([k,n])=>`${n} ${KINDS[k].name.toLowerCase()}`).join(', ')}, wrapped in ${PP().name.toLowerCase()} paper · $${total()}.`;
+  $('#concept').hidden=false;document.body.classList.add('modal-open');setTimeout(()=>$('#cH').focus({preventScroll:true}),60);
+  setTimeout(()=>{try{landOn('sign');setTimeout(()=>floristSays('Here’s your bunch, as a card!',5200),1150)}catch(e){}},700);
+}
+function closeConcept(){$('#concept').hidden=true;document.body.classList.remove('modal-open');try{flor.classList.add('away');birdHome.appendChild(flor);document.body.classList.add('bird-away');setTimeout(()=>{if(state==='build')landOn('home')},0)}catch(e){}}
+$('#cBack').addEventListener('click',()=>{closeConcept();$('#bOrder')?.focus({preventScroll:true})});
+$('#cSave').addEventListener('click',()=>savePicture(true));
+$('#cShuffle').addEventListener('click',()=>showCard(nextStyle()));
+$('#cNew').addEventListener('click',()=>{closeConcept();items=[];tagMsg='';tag.classList.remove('on');pinchP=0;apply(frameAt(0));state='build';renderStems();say('')});
+$('#concept').addEventListener('keydown',e=>{if(e.key==='Escape')closeConcept()});
+function placeOrder(){
+  const name=$('#coName').value.trim();
+  if(!name){$('#coName').setAttribute('aria-invalid','true');$('#coErr').textContent='Add a name so we know whose bunch it is.';$('#coName').focus();return}
+  $('#coName').removeAttribute('aria-invalid');$('#coErr').textContent='';
+  co.no=String(1000+Math.floor(Math.random()*9000));
+  const counts=new Map();items.forEach(it=>counts.set(it.k,(counts.get(it.k)||0)+1));
+  const stems=[...counts].map(([k,n])=>`${n} ${KINDS[k].name.toLowerCase()}`).join(', ');
+  const note=$('#coNote').value.trim();
+  $('#doneH').textContent=`Thank you, ${name.split(' ')[0]}.`;
+  $('#doneDl').innerHTML=
+    `<dt>Order</dt><dd class="big">No. ${co.no}</dd>`+
+    `<dt>Pick up</dt><dd>${co.day}, ${co.time} pm<br>By the Stem, 12 Elm St</dd>`+
+    `<dt>Bunch</dt><dd>${stems}<br>${PP().name} paper</dd>`+
+    (note?`<dt>Note</dt><dd>“${note.replace(/</g,'&lt;')}”</dd>`:'')+
+    `<dt>${co.pay==='now'?'Paid':'To pay'}</dt><dd class="big">$${total()}${co.pay==='now'?'':' <small style="font:400 15px var(--f-ui);color:var(--muted)">at pickup</small>'}</dd>`+
+    `<dt></dt><dd style="color:var(--muted);font-size:15px">${$('#coPhone').value.trim()?'We’ll text you when it’s ready.':'It’ll be ready at the counter.'}</dd>`;
+  state='ordered';updateUI();say('');
+}
+function resetCheckout(){['#coName','#coPhone','#coNote'].forEach(s=>$(s).value='');$('#coErr').textContent=''}
+
+/* a picture of the bunch to keep: the wrapped sketch on a card with the shop's name */
+function bouquetClone(noTag){
+  const c=svg.cloneNode(true);c.removeAttribute('id');
+  ['#hint','#ghost'].forEach(s=>c.querySelector(s)?.remove());
+  if(noTag)c.querySelector('#tag')?.remove();
+  c.querySelectorAll('.hit').forEach(n=>n.remove());
+  c.querySelectorAll('[id]').forEach(n=>{const t=n.tagName.toLowerCase();if(t!=='filter'&&t!=='clippath'&&t!=='pattern')n.removeAttribute('id')});
+  const tg=document.getElementById('tag'),was=tg.style.display;if(noTag)tg.style.display='none';
+  const bb=svg.getBBox();tg.style.display=was;const p=22;
+  c.setAttribute('viewBox',`${f(bb.x-p)} ${f(bb.y-p)} ${f(bb.width+2*p)} ${f(bb.height+2*p)}`);
+  return c;
+}
+function svgImage(str){return new Promise((res,rej)=>{const url=URL.createObjectURL(new Blob([str],{type:'image/svg+xml'}));const im=new Image();im.onload=()=>{res(im);setTimeout(()=>URL.revokeObjectURL(url),1000)};im.onerror=rej;im.src=url})}
+function wobLine(ctx,x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo((x1+x2)/2+(Math.random()-.5)*3,(y1+y2)/2+(Math.random()-.5)*3,x2,y2);ctx.stroke()}
+/* ---------- keepsake cards: three calm styles, a different one each time; every style uses the bunch as it was wrapped ---------- */
+const CARD_STYLES=['classic','polaroid','tag'],N_STYLES=CARD_STYLES.length;
+let cardStyle=CARD_STYLES[Math.floor(Math.random()*N_STYLES)],lastCard=null;
+/* a different style from the one shown, every time */
+const nextStyle=()=>{const i=CARD_STYLES.indexOf(cardStyle);cardStyle=CARD_STYLES[(i+1+Math.floor(Math.random()*(N_STYLES-1)))%N_STYLES];return cardStyle};
+function stemList(){const seen=[];items.forEach(it=>{const n=KINDS[it.k].name.toLowerCase();if(!seen.includes(n))seen.push(n)});return seen}
+function stemNames(){const seen=stemList();return seen.length<2?(seen[0]||''):seen.slice(0,-1).join(', ')+' & '+seen[seen.length-1]}
+/* the flower names, broken into one to four balanced lines ("rose, tulip," / "calla & peony") at the largest size that fits */
+/* the flower names, plus the note from the tag (if one was written) on its own line above them */
+function nameLines(ctx,size,min,maxW){const N=nameLines0(ctx,size,min,maxW);
+  if(tagMsg){N.msg='“'+tagMsg+'”';N.msgSize=Math.round(Math.max(N.size,46)*.95);N.msgW=maxW;N.msgH=Math.round(N.msgSize*1.2)}return N}
+function nameLines0(ctx,size,min,maxW){
+  const L=stemList(),n=L.length,face='Nanum Pen Script';
+  const build=k=>{const per=n/k,out=[];let i=0;
+    for(let g=0;g<k;g++){const end=g===k-1?n:Math.max(i+1,Math.round(per*(g+1)));const grp=L.slice(i,end);i=end;
+      const last=g===k-1;let s;
+      if(!last)s=grp.join(', ')+',';
+      else if(k>1&&grp.length===1)s='& '+grp[0];
+      else s=grp.length<2?grp[0]:grp.slice(0,-1).join(', ')+' & '+grp[grp.length-1];
+      out.push(s)}return out.filter(Boolean)};
+  for(let k=1;k<=Math.min(4,Math.max(1,n));k++){const lines=build(k),floor=k===1?Math.max(min,size*.8):min;
+    for(let s=size;s>=floor;s-=2){ctx.font=`${s}px "${face}"`;if(lines.every(l=>ctx.measureText(l).width<=maxW))return {lines,size:s,lh:Math.round(s*1.04)}}}
+  const lines=build(Math.min(4,n));ctx.font=`${min}px "${face}"`;return {lines,size:min,lh:Math.round(min*1.04)};
+}
+/* extra height the names need beyond one line */
+const extraH=N=>(N.lines.length-1)*N.lh+(N.msg?N.msgH:0);
+/* draws the lines so the last one sits on baseline y */
+function drawNames(ctx,N,x,y){
+  if(N.msg){ctx.save();ctx.fillStyle=RUST;fitFont(ctx,N.msg,N.msgSize,28,N.msgW);ctx.fillText(N.msg,x,y-(N.lines.length-1)*N.lh-N.size*.95-10);ctx.restore()}
+  ctx.font=`${N.size}px "Nanum Pen Script"`;N.lines.forEach((l,i)=>ctx.fillText(l,x,y-(N.lines.length-1-i)*N.lh))}
+const INKC='#394038',MUTED='#7A8077',RUST='#B4593F',BG='#F3EFE6';
+async function bunchImage(maxW,maxH){
+  const c=bouquetClone(true);c.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const vb=c.getAttribute('viewBox').split(' ').map(Number),s=Math.min(maxW/vb[2],maxH/vb[3]);
+  c.setAttribute('width',f(vb[2]*s));c.setAttribute('height',f(vb[3]*s));
+  const st=document.createElementNS(NS,'style');st.textContent='.under path{fill:#FAF6EE}text{font-family:cursive}';c.insertBefore(st,c.firstChild);
+  return {im:await svgImage(new XMLSerializer().serializeToString(c)),w:vb[2]*s,h:vb[3]*s};
+}
+async function paperTexture(w,h){
+  const id=PP().fill.slice(5,-1),p=document.getElementById(id);
+  /* the card is drawn much bigger than the bench, so the texture is scaled up to keep the same quiet density */
+  const def=p?new XMLSerializer().serializeToString(p).replace('<pattern ','<pattern patternTransform="scale(2)" '):'';
+  return svgImage(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><defs>${def}</defs><rect width="${w}" height="${h}" fill="${p?`url(#${id})`:PP().front}"/></svg>`);
+}
+function wobRect(ctx,x,y,w,h){wobLine(ctx,x,y,x+w,y+1);wobLine(ctx,x+w,y,x+w-1,y+h);wobLine(ctx,x+w,y+h,x,y+h-1);wobLine(ctx,x,y+h,x+1,y)}
+function grain(ctx,x,y,w,h){ctx.save();ctx.globalAlpha=.05;ctx.fillStyle=INKC;for(let i=0;i<w*h/110;i++)ctx.fillRect(x+Math.random()*w,y+Math.random()*h,1.4,1.4);ctx.restore()}
+const longDate=()=>new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+const shortDate=()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}).toLowerCase();
+function fitFont(ctx,text,size,min,maxW,face='Nanum Pen Script'){let s=size;while(s>min){ctx.font=`${s}px "${face}"`;if(ctx.measureText(text).width<maxW)break;s-=2}return s}
+
+/* every card: plain ground, the wrapped bunch as the one textured thing, and three levels of text only —
+   the flowers (largest, by hand), the shop's name, the date (smallest, muted) */
+function shade(hex,amt){const n=parseInt(hex.slice(1),16),m=c=>Math.round(c*(1-amt));return `rgb(${m(n>>16)},${m(n>>8&255)},${m(n&255)})`}
+function softTint(hex,amt){const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,m=c=>Math.round(c+(255-c)*amt);return `rgb(${m(r)},${m(g)},${m(b)})`}
+/* 1. classic: cream card, offset print, a soft wash of the paper's colour behind the bunch */
+async function drawClassic(ctx,W,H){
+  /* the ground behind the card is the paper's own colour, a little deeper, so the cream card stands out clearly */
+  ctx.fillStyle=PP().pair;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const m=70,cw=W-2*m,ch=H-2*m;
+  ctx.fillStyle='rgba(244,201,166,.5)';ctx.fillRect(m+12,m-9,cw,ch);
+  ctx.fillStyle='#FFFDF7';ctx.fillRect(m,m,cw,ch);grain(ctx,m,m,cw,ch);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,m,m,cw,ch);
+  ctx.textAlign='center';ctx.fillStyle=INKC;ctx.font='58px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,m+110);
+  const tw=ctx.measureText('By the Stem').width;ctx.strokeStyle=RUST;ctx.lineWidth=2.6;wobLine(ctx,W/2-tw/2+4,m+124,W/2+tw/2+2,m+121);
+  const N=nameLines(ctx,70,40,cw-160),ex=extraH(N);
+  const b=await bunchImage(cw-120,820-ex),cx=W/2,cy=m+560-ex/2;
+  /* the wash hugs the bunch: wider for a full bunch, smaller for a single stem */
+  const ry=Math.min(400-ex/2,b.h/2+56),rx=Math.min(cw/2-44,Math.max(b.w/2+90,ry*.66));
+  ctx.save();ctx.fillStyle=softTint(PP().pair,.55);ctx.beginPath();
+  for(let i=0;i<=28;i++){const t=i/28*Math.PI*2,k=1+Math.sin(t*3+1.3)*.04+Math.cos(t*5)*.022;const x=cx+Math.cos(t)*rx*k,y=cy+Math.sin(t)*ry*k;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}
+  ctx.closePath();ctx.fill();ctx.restore();
+  ctx.drawImage(b.im,cx-b.w/2,cy-b.h/2,b.w,b.h);
+  ctx.fillStyle=INKC;drawNames(ctx,N,W/2,m+ch-120);
+  ctx.fillStyle=MUTED;ctx.font='26px "Patrick Hand"';ctx.fillText(longDate(),W/2,m+ch-70);
+}
+/* 2. polaroid: white instant-photo frame; the photo is a plain tint of the paper colour so only the bunch carries texture */
+async function drawPolaroid(ctx,W,H){
+  ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const fw=860,fh=1090;ctx.save();ctx.translate(W/2,H/2+14);ctx.rotate(-.03);
+  const x=-fw/2,y=-fh/2;
+  ctx.fillStyle='rgba(57,64,56,.09)';ctx.fillRect(x+12,y+16,fw,fh);
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(x,y,fw,fh);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,x,y,fw,fh);
+  const N=nameLines(ctx,66,38,fw-120),pw=760,ph=790-extraH(N),px=x+50,py=y+50;
+  ctx.fillStyle=softTint(PP().pair,.15);ctx.fillRect(px,py,pw,ph);grain(ctx,px,py,pw,ph);
+  ctx.globalAlpha=.5;ctx.lineWidth=1.4;wobRect(ctx,px,py,pw,ph);ctx.globalAlpha=1;
+  const b=await bunchImage(pw-60,ph-50);ctx.drawImage(b.im,px+(pw-b.w)/2,py+(ph-b.h)/2,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;drawNames(ctx,N,0,y+fh-128);
+  ctx.fillStyle=MUTED;ctx.font='26px "Patrick Hand"';ctx.fillText(`By the Stem · ${longDate()}`,0,y+fh-76);
+  ctx.restore();
+  ctx.save();ctx.translate(W/2-20,H/2-fh/2+22);ctx.rotate(-.07);ctx.fillStyle='rgba(244,201,166,.8)';ctx.fillRect(-120,-30,240,60);ctx.restore();
+}
+/* 3. gift tag: a florist's tag with a hole and a loop of twine; the bunch fills the tag */
+async function drawTag(ctx,W,H){
+  ctx.fillStyle=PP().pair;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const L=120,R=W-120,T=190,B=H-70,cut=140,poly=[[L+cut,T],[R-cut,T],[R,T+cut],[R,B],[L,B],[L,T+cut]];
+  const path=(dx,dy)=>{ctx.beginPath();poly.forEach(([px,py],i)=>{i?ctx.lineTo(px+dx,py+dy):ctx.moveTo(px+dx,py+dy)});ctx.closePath()};
+  ctx.fillStyle='rgba(244,201,166,.45)';path(12,-9);ctx.fill();
+  ctx.fillStyle='#FBF6EC';path(0,0);ctx.fill();
+  ctx.save();path(0,0);ctx.clip();grain(ctx,L,T,R-L,B-T);ctx.restore();
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';
+  poly.forEach((p,i)=>{const q=poly[(i+1)%poly.length];wobLine(ctx,p[0],p[1],q[0],q[1])});
+  const hx=W/2,hy=T+64;ctx.strokeStyle=RUST;ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.bezierCurveTo(hx-60,hy-80,hx-170,hy-140,hx-250,-10);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(hx+6,hy);ctx.bezierCurveTo(hx+70,hy-90,hx+150,hy-130,hx+220,-10);ctx.stroke();
+  ctx.fillStyle=BG;ctx.beginPath();ctx.arc(hx,hy,20,0,Math.PI*2);ctx.fill();ctx.strokeStyle=INKC;ctx.lineWidth=2.2;ctx.stroke();
+  const N=nameLines(ctx,64,38,R-L-120),bh=780-extraH(N);
+  const b=await bunchImage(R-L-120,bh);ctx.drawImage(b.im,W/2-b.w/2,T+110+(bh-b.h)/2,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;drawNames(ctx,N,W/2,B-150);
+  ctx.font='40px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,B-92);
+  ctx.fillStyle=MUTED;ctx.font='24px "Patrick Hand"';ctx.fillText(longDate(),W/2,B-50);
+}
+/* 4. classic, framed: cream card with an inner rule, on the paper's contrasting colour */
+async function drawFramed(ctx,W,H){
+  ctx.fillStyle=PP().pair;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const m=70,cw=W-2*m,ch=H-2*m;
+  ctx.fillStyle='#FFFDF7';ctx.fillRect(m,m,cw,ch);grain(ctx,m,m,cw,ch);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,m,m,cw,ch);
+  ctx.globalAlpha=.55;ctx.lineWidth=1.4;wobRect(ctx,m+26,m+26,cw-52,ch-52);ctx.globalAlpha=1;
+  ctx.textAlign='left';ctx.fillStyle=INKC;ctx.font='46px "Nanum Pen Script"';ctx.fillText('By the Stem',m+70,m+118);
+  ctx.textAlign='right';ctx.fillStyle=MUTED;ctx.font='24px "Patrick Hand"';ctx.fillText(longDate(),m+cw-70,m+114);
+  const N=nameLines(ctx,68,40,cw-180),bh=860-extraH(N);
+  const b=await bunchImage(cw-180,bh);ctx.drawImage(b.im,W/2-b.w/2,m+170+(bh-b.h)/2,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;drawNames(ctx,N,W/2,m+ch-90);
+}
+/* 5. polaroid clipped on kraft */
+async function drawPolaroidKraft(ctx,W,H){
+  const id='pp-kraft',p=document.getElementById(id);
+  const def=new XMLSerializer().serializeToString(p).replace('<pattern ','<pattern patternTransform="scale(2.4)" ');
+  ctx.drawImage(await svgImage(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs>${def}</defs><rect width="${W}" height="${H}" fill="url(#${id})"/></svg>`),0,0,W,H);
+  const fw=840,fh=1070;ctx.save();ctx.translate(W/2+10,H/2+10);ctx.rotate(.04);
+  const x=-fw/2,y=-fh/2;
+  ctx.fillStyle='rgba(57,64,56,.16)';ctx.fillRect(x+14,y+18,fw,fh);
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(x,y,fw,fh);ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,x,y,fw,fh);
+  const N=nameLines(ctx,64,38,fw-120),pw=740,ph=770-extraH(N),px=x+50,py=y+50;
+  ctx.fillStyle=softTint(PP().pair,.15);ctx.fillRect(px,py,pw,ph);grain(ctx,px,py,pw,ph);
+  ctx.globalAlpha=.5;ctx.lineWidth=1.4;wobRect(ctx,px,py,pw,ph);ctx.globalAlpha=1;
+  const b=await bunchImage(pw-60,ph-50);ctx.drawImage(b.im,px+(pw-b.w)/2,py+(ph-b.h)/2,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;drawNames(ctx,N,0,y+fh-124);
+  ctx.fillStyle=MUTED;ctx.font='26px "Patrick Hand"';ctx.fillText(`By the Stem · ${longDate()}`,0,y+fh-74);
+  /* a paperclip */
+  ctx.strokeStyle='#8E918A';ctx.lineWidth=5;ctx.beginPath();
+  ctx.moveTo(x+90,y-40);ctx.lineTo(x+90,y+70);ctx.bezierCurveTo(x+90,y+100,x+130,y+100,x+130,y+70);ctx.lineTo(x+130,y-60);
+  ctx.bezierCurveTo(x+130,y-95,x+70,y-95,x+70,y-60);ctx.lineTo(x+70,y+40);ctx.stroke();
+  ctx.restore();
+}
+/* 6. kraft gift tag with white twine */
+async function drawTagKraft(ctx,W,H){
+  ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);
+  const L=120,R=W-120,T=190,B=H-70,cut=140,poly=[[L+cut,T],[R-cut,T],[R,T+cut],[R,B],[L,B],[L,T+cut]];
+  const path=()=>{ctx.beginPath();poly.forEach(([px,py],i)=>{i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.closePath()};
+  const id='pp-kraft',p=document.getElementById(id);
+  const def=new XMLSerializer().serializeToString(p).replace('<pattern ','<pattern patternTransform="scale(2.2)" ');
+  const tex=await svgImage(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs>${def}</defs><rect width="${W}" height="${H}" fill="url(#${id})"/></svg>`);
+  ctx.save();path();ctx.clip();ctx.drawImage(tex,0,0,W,H);ctx.restore();
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';poly.forEach((p2,i)=>{const q=poly[(i+1)%poly.length];wobLine(ctx,p2[0],p2[1],q[0],q[1])});
+  const hx=W/2,hy=T+64;ctx.strokeStyle='#FFFDF7';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.bezierCurveTo(hx-60,hy-80,hx-170,hy-140,hx-250,-10);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(hx+6,hy);ctx.bezierCurveTo(hx+70,hy-90,hx+150,hy-130,hx+220,-10);ctx.stroke();
+  ctx.strokeStyle=INKC;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.bezierCurveTo(hx-60,hy-80,hx-170,hy-140,hx-250,-10);ctx.stroke();
+  ctx.fillStyle=BG;ctx.beginPath();ctx.arc(hx,hy,20,0,Math.PI*2);ctx.fill();ctx.lineWidth=2.2;ctx.stroke();
+  const N=nameLines(ctx,64,38,R-L-120),bh=780-extraH(N);
+  const b=await bunchImage(R-L-120,bh),by=T+110+(bh-b.h)/2;
+  /* the pale oval behind the bunch follows its size */
+  ctx.fillStyle=softTint(PP().pair,.35);ctx.beginPath();
+  {const cy=by+b.h/2,maxB=B-150-N.lines.length*N.lh-18,ry=Math.min(maxB-cy,b.h/2+40),rx=Math.min((R-L)/2-14,Math.max(b.w/2+56,ry*.66));
+   ctx.ellipse(W/2,cy,rx,ry,0,0,Math.PI*2);ctx.fill();}
+  ctx.drawImage(b.im,W/2-b.w/2,by,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;drawNames(ctx,N,W/2,B-150);
+  ctx.font='40px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,B-92);
+  ctx.fillStyle='#6B5A40';ctx.font='24px "Patrick Hand"';ctx.fillText(longDate(),W/2,B-50);
+}
+/* ---------- calmer cards: three styles, one quiet palette ----------
+   every card: the same warm-grey table, a cream card, ink lines, rust only for the twine and one underline;
+   the one colour that changes is a pale "soft" patch right behind the bunch, picked to stand apart from the wrap */
+const SOFT={kraft:'#DCE5E7',news:'#F2DCD5',gingham:'#DCE6D6',dots:'#F6E1CF',stripes:'#F3E8C4'};
+const TABLE='#ECE7DE',CREAM='#FFFDF8';
+const softC=()=>SOFT[paperId]||'#E8E4DA';
+function blobPath(ctx,cx,cy,rx,ry){ctx.beginPath();for(let i=0;i<=32;i++){const t=i/32*Math.PI*2,k=1+Math.sin(t*3+1.3)*.035+Math.cos(t*5)*.018;const x=cx+Math.cos(t)*rx*k,y=cy+Math.sin(t)*ry*k;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.closePath()}
+function cardShadow(ctx,draw){ctx.save();ctx.fillStyle='rgba(57,64,56,.08)';ctx.translate(10,14);draw();ctx.fill();ctx.restore()}
+/* Classic: cream card on the table, the shop's name at the top, a soft patch behind the bunch */
+async function calmClassic(ctx,W,H){
+  ctx.fillStyle=TABLE;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const m=80,cw=W-2*m,ch=H-2*m;
+  cardShadow(ctx,()=>{ctx.beginPath();ctx.rect(m,m,cw,ch)});
+  ctx.fillStyle=CREAM;ctx.fillRect(m,m,cw,ch);grain(ctx,m,m,cw,ch);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.2;ctx.lineCap='round';wobRect(ctx,m,m,cw,ch);
+  ctx.textAlign='center';ctx.fillStyle=INKC;ctx.font='54px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,m+104);
+  const tw=ctx.measureText('By the Stem').width;ctx.strokeStyle=RUST;ctx.lineWidth=2.4;wobLine(ctx,W/2-tw/2+4,m+118,W/2+tw/2+2,m+115);
+  const N=nameLines(ctx,64,38,cw-160),ex=extraH(N);
+  const b=await bunchImage(cw-140,780-ex),cx=W/2,cy=m+540-ex/2;
+  const ry=Math.min(390-ex/2,b.h/2+50),rx=Math.min(cw/2-50,Math.max(b.w/2+80,ry*.7));
+  ctx.fillStyle=softC();blobPath(ctx,cx,cy,rx,ry);ctx.fill();
+  ctx.drawImage(b.im,cx-b.w/2,cy-b.h/2,b.w,b.h);
+  ctx.fillStyle=INKC;drawNames(ctx,N,W/2,m+ch-110);
+  ctx.fillStyle=MUTED;ctx.font='24px "Patrick Hand"';ctx.fillText(longDate(),W/2,m+ch-64);
+}
+/* Polaroid: white frame, slightly turned, a strip of tape; the photo is the soft colour */
+async function calmPolaroid(ctx,W,H){
+  ctx.fillStyle=TABLE;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const fw=860,fh=1090;ctx.save();ctx.translate(W/2,H/2+14);ctx.rotate(-.025);
+  const x=-fw/2,y=-fh/2;
+  cardShadow(ctx,()=>{ctx.beginPath();ctx.rect(x,y,fw,fh)});
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(x,y,fw,fh);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.2;ctx.lineCap='round';wobRect(ctx,x,y,fw,fh);
+  const N=nameLines(ctx,62,38,fw-120),pw=760,ph=790-extraH(N),px=x+50,py=y+50;
+  ctx.fillStyle=softC();ctx.fillRect(px,py,pw,ph);grain(ctx,px,py,pw,ph);
+  ctx.globalAlpha=.45;ctx.lineWidth=1.3;wobRect(ctx,px,py,pw,ph);ctx.globalAlpha=1;
+  const b=await bunchImage(pw-80,ph-70);ctx.drawImage(b.im,px+(pw-b.w)/2,py+(ph-b.h)/2,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;drawNames(ctx,N,0,y+fh-126);
+  ctx.fillStyle=MUTED;ctx.font='24px "Patrick Hand"';ctx.fillText(`By the Stem · ${longDate()}`,0,y+fh-74);
+  ctx.restore();
+  ctx.save();ctx.translate(W/2-10,H/2-fh/2+24);ctx.rotate(-.06);ctx.fillStyle='rgba(232,221,200,.9)';ctx.fillRect(-110,-28,220,56);ctx.restore();
+}
+/* Gift tag: a cream florist's tag on rust twine; the soft colour sits behind the bunch as a pale oval */
+async function calmTag(ctx,W,H){
+  ctx.fillStyle=TABLE;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const L=130,R=W-130,T=200,B=H-80,cut=140,poly=[[L+cut,T],[R-cut,T],[R,T+cut],[R,B],[L,B],[L,T+cut]];
+  const path=(dx=0,dy=0)=>{ctx.beginPath();poly.forEach(([px,py],i)=>{i?ctx.lineTo(px+dx,py+dy):ctx.moveTo(px+dx,py+dy)});ctx.closePath()};
+  ctx.fillStyle='rgba(57,64,56,.08)';path(10,14);ctx.fill();
+  ctx.fillStyle=CREAM;path();ctx.fill();ctx.save();path();ctx.clip();grain(ctx,L,T,R-L,B-T);ctx.restore();
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.2;ctx.lineCap='round';poly.forEach((p,i)=>{const q=poly[(i+1)%poly.length];wobLine(ctx,p[0],p[1],q[0],q[1])});
+  const hx=W/2,hy=T+62;ctx.strokeStyle=RUST;ctx.lineWidth=3.4;
+  ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.bezierCurveTo(hx-60,hy-80,hx-170,hy-140,hx-250,-10);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(hx+6,hy);ctx.bezierCurveTo(hx+70,hy-90,hx+150,hy-130,hx+220,-10);ctx.stroke();
+  ctx.fillStyle=TABLE;ctx.beginPath();ctx.arc(hx,hy,18,0,Math.PI*2);ctx.fill();ctx.strokeStyle=INKC;ctx.lineWidth=2;ctx.stroke();
+  const N=nameLines(ctx,60,36,R-L-130),bh=740-extraH(N);
+  const b=await bunchImage(R-L-150,bh),by=T+120+(bh-b.h)/2,cy=by+b.h/2;
+  const maxB=B-140-N.lines.length*N.lh-16,ry=Math.min(maxB-cy,b.h/2+42),rx=Math.min((R-L)/2-40,Math.max(b.w/2+60,ry*.7));
+  ctx.fillStyle=softC();blobPath(ctx,W/2,cy,rx,ry);ctx.fill();
+  ctx.drawImage(b.im,W/2-b.w/2,by,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;drawNames(ctx,N,W/2,B-140);
+  ctx.font='38px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,B-86);
+  ctx.fillStyle=MUTED;ctx.font='22px "Patrick Hand"';ctx.fillText(longDate(),W/2,B-48);
+}
+async function makeCard(style=cardStyle){
+  await Promise.all(['84px "Nanum Pen Script"','24px "Patrick Hand"'].map(s=>document.fonts?.load(s)));
+  const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  await ({classic:calmClassic,polaroid:calmPolaroid,tag:calmTag}[style]||drawClassic)(ctx,W,H);
+  lastCard=cv;return cv;
+}
+/* show the card on the concept page; "Another card" redraws it in a different style */
+function showCard(style){
+  const art=$('#cArt');
+  makeCard(style).then(cv=>{if($('#concept').hidden)return;art.innerHTML=`<img src="${cv.toDataURL('image/png')}" alt="Your bunch, as a ${({tag:'gift tag',tagKraft:'kraft gift tag',polaroidKraft:'polaroid',framed:'framed'})[style]||style} card from By the Stem">`}).catch(()=>{});
+}
+async function savePicture(useShown){
+  /* the one way to save is the Save button on the opening-soon page */
+  const btn=$('#cSave');btn.disabled=true;
+  try{
+    const cv=(useShown===true&&lastCard)?lastCard:await makeCard(nextStyle());
+    /* in the claude.ai viewer the page asks to save the file (the viewer confirms); elsewhere it shows the picture to save by hand */
+    const dl=await dlCap;
+    if(dl){
+      const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+      try{await dl.save({filename:'by-the-stem-bunch.png',data:blob});say('Saved a picture of your bunch.');btn.disabled=false;return}
+      catch(e){if(e&&e.code==='declined'){btn.disabled=false;return}}
+    }
+    $('#dlImg').src=cv.toDataURL('image/png');$('#dlPop').hidden=false;$('#dlX').focus();
+  }catch(err){say('Couldn’t make the picture this time. Try the save icon again.')}
+  btn.disabled=false;
+}
+const dlCap=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(()=>null):Promise.resolve(null);
+$('#dlX').addEventListener('click',()=>{$('#dlPop').hidden=true;$('#cSave').focus()});
+$('#dlPop').addEventListener('click',e=>{if(e.target.id==='dlPop'){$('#dlPop').hidden=true}});
+$('#dlPop').addEventListener('keydown',e=>{if(e.key==='Escape')$('#dlPop').hidden=true});
+
+/* ---------- drag ---------- */
+let drag=null;
+function svgPt(x,y){const p=svg.createSVGPoint();p.x=x;p.y=y;return p.matrixTransform(svg.getScreenCTM().inverse())}
+function overPaper(x,y){const r=svg.getBoundingClientRect();return x>r.left-12&&x<r.right+12&&y>r.top-12&&y<r.bottom+12}
+function shelfScale(){const s=document.querySelector('.item svg').getBoundingClientRect();return Math.max(.3,s.width/200)}
+function begin(e,src,k,seed,id,capEl){
+  if(state!=='build'||(e.pointerType==='mouse'&&e.button!==0))return false;
+  drag={src,k,seed,id,pid:e.pointerId,sx:e.clientX,sy:e.clientY,started:false,touch:e.pointerType==='touch'};
+  try{capEl.setPointerCapture(e.pointerId)}catch(_){}
+  return true;
+}
+function startDrag(e){
+  drag.started=true;
+  if(drag.src==='paper'){drag.prev=items.find(i=>i.id===drag.id);items=items.filter(i=>i.id!==drag.id);renderStems()}
+  const ss=shelfScale(),K=KINDS[drag.k];
+  const c=document.createElement('div');c.className='float';
+  c.style.width=200*ss+'px';c.style.height=340*ss+'px';c.style.transformOrigin=`${K.hx*ss}px ${K.hy*ss}px`;
+  c.innerHTML=`<svg viewBox="0 0 200 340">${draw(drag.k,drag.seed,false,drag.col)}</svg>`;
+  document.body.appendChild(c);document.body.classList.add('dragging');
+  drag.clone=c;drag.ss=ss;$('#hintArt').style.display='none';
+}
+function moveDrag(e){
+  const x=e.clientX,y=e.clientY,K=KINDS[drag.k],ss=drag.ss,c=drag.clone;
+  const r=svg.getBoundingClientRect();
+  const dist=Math.hypot(Math.max(r.left-x,0,x-r.right),Math.max(r.top-y,0,y-r.bottom));
+  const target=svg.getScreenCTM().a*G/ss;const s=1+(target-1)*(1-cl(dist/260));
+  c.style.transform=`translate(${x-K.hx*ss}px,${y-K.hy*ss}px) scale(${s.toFixed(3)}) rotate(${(x-drag.sx)*.02}deg)`;
+  if(overPaper(x,y)){
+    drag.place=placeFor(drag.k,svgPt(x,y));
+    layerGhost.innerHTML=stemMarkup({k:drag.k,seed:drag.seed,col:drag.col,...drag.place},'ghosted');
+    c.style.opacity=0;svg.classList.add('hot');
+  }else{drag.place=null;layerGhost.innerHTML='';c.style.opacity=1;svg.classList.remove('hot')}
+}
+function endDrag(commit){
+  const d=drag;drag=null;
+  layerGhost.innerHTML='';svg.classList.remove('hot');document.body.classList.remove('dragging');
+  if(d.clone){const c=d.clone;c.style.opacity=0;setTimeout(()=>c.remove(),150)}
+  if(commit&&d.place){
+    if(items.length>=MAXN){say(`The paper holds ${MAXN} stems. Wrap it, or drag one off.`)}
+    else if(d.src==='shelf'&&left(d.k)<=0)say(`${KINDS[d.k].name} is sold out today.`);
+    else{items.push({id:d.id||nextId++,k:d.k,seed:d.seed,col:d.col,...d.place,z:d.src==='paper'?topZ():0,fresh:true});if(d.src==='shelf')addedFromShelf=true}
+  }else if(d.src==='paper'){
+    if(commit)say(`Took the ${KINDS[d.k].name.toLowerCase()} off the paper.`);else if(d.prev)items.push(d.prev);
+  }
+  renderStems();
+}
+function addAuto(k){
+  if(state!=='build')return;
+  if(items.length>=MAXN){say(`The paper holds ${MAXN} stems. Wrap it, or drag one off.`);return}
+  if(left(k)<=0){say(`${KINDS[k].name} is sold out today.`);return}
+  const p=autoPlace(k);p.rot=nudge(k,p.rot,p.sc);
+  items.push({id:nextId++,k,seed:rand(),col:sel[k],...p,fresh:true});addedFromShelf=true;renderStems();
+}
+$('#shelf').addEventListener('pointerdown',e=>{
+  const b=e.target.closest('.pick');if(!b)return;const k=b.dataset.k;
+  if(left(k)<=0){say(`${KINDS[k].name} is sold out today.`);return}
+  if(begin(e,'shelf',k,rand(),null,b)){drag.col=sel[k];if(e.pointerType==='mouse')e.preventDefault()}
+});
+$('#shelf').addEventListener('click',e=>{const b=e.target.closest('.pick');if(b&&e.detail===0)addAuto(b.dataset.k)});
+function pickAt(cx,cy){const p=svgPt(cx,cy);let best=null,bs=1.35;
+  for(const it of items){const h=headAt(it.k,it.rot,it.sc),r=KINDS[it.k].r*G*ds(it)+6,s=Math.hypot(p.x-h[0]-neck(it),p.y-h[1])/r;if(s<bs){bs=s;best=it}}
+  return best}
+layerStems.addEventListener('pointerdown',e=>{
+  const g=e.target.closest('.pl');if(!g)return;const it=pickAt(e.clientX,e.clientY)||items.find(i=>i.id==g.dataset.id);if(!it)return;
+  if(begin(e,'paper',it.k,it.seed,it.id,svg)){drag.col=it.col;e.preventDefault()}
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;
+  if(!drag.started){
+    if(drag.src==='shelf'&&drag.touch){
+      if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)){drag=null;return}
+      if(!(dy<-10&&Math.abs(dy)>Math.abs(dx)))return;
+    }else if(Math.hypot(dx,dy)<5)return;
+    startDrag(e);
+  }
+  moveDrag(e);
+});
+window.addEventListener('pointerup',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  if(!drag.started){const d=drag;drag=null;if(d.src==='shelf')addAuto(d.k);else restack(d.id,e.shiftKey);return}
+  endDrag(true);
+});
+window.addEventListener('pointercancel',()=>{if(drag){if(drag.started)endDrag(false);else drag=null}});
+
+/* ---------- start: an empty sheet; the dashed flower and the note on the paper say what to do ---------- */
+$('#ring').setAttribute('cy',T.y);
+drawPaper(0,0,0);measure();
+items=[];renderStems();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{centreBench();setTimeout(centreBench,250);try{const b=document.getElementById('hintText').getBBox();if(b.width)document.getElementById('hintArrowAt').setAttribute('transform',`translate(${f(b.x-44)} ${f(b.y+b.height*.56)})`)}catch(e){}});
+})();
+</script>

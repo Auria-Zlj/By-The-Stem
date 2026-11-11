@@ -1,0 +1,1499 @@
+<title>By the Stem Flowers</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: an open spiral sketchbook on the shop table. Left page is the hand-lettered price list (the shelf),
+   right page is the wrapping paper with the total written underneath. The book has a largest size and sits centred.
+   One light look on purpose: ink on paper. */
+:root{
+  --ink:#394038;
+  --muted:#7A8077;
+  --table:#F2F0EA;
+  --page:#FFFDF7;
+  --twine:#B4593F;
+  --print:#F4C9A6;
+  --f-hand:"Nanum Pen Script","Bradley Hand","Segoe Print",cursive;
+  --f-ui:"Patrick Hand","Comic Neue","Segoe Print",cursive;
+  --wobc:52% 48% 55% 45%/47% 53% 46% 54%;
+}
+html,body{height:100%}
+body{margin:0;background:var(--table);color:var(--ink);font-family:var(--f-ui);font-size:18px;line-height:1.3;display:flex;align-items:center;justify-content:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.book{box-sizing:border-box;width:min(calc(100% - 40px),1180px);height:min(calc(100% - 36px),760px);
+  display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);filter:drop-shadow(0 2px 0 rgba(57,64,56,.05))}
+.page{position:relative;background:var(--page);min-width:0;min-height:0;box-sizing:border-box;padding:min(4.5vh,38px) 40px min(3.5vh,28px)}
+.page::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500' preserveAspectRatio='none'%3E%3Cpath d='M2 3 C120 1.5 280 4 398 2.5 C399 160 397.5 340 398.5 497 C280 498.5 120 496.5 2.5 498 C1.2 340 2.6 160 2 3 Z' fill='none' stroke='%23394038' stroke-width='1.3' vector-effect='non-scaling-stroke' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+/* nothing framed but the paper: stems are loose studies on open white, labels written beside them like notes */
+body{background:var(--page)}
+.book{filter:none;grid-template-columns:minmax(0,1fr) min(6vw,84px) minmax(0,.95fr)}
+.rings{visibility:hidden}
+.page{background:transparent;padding-inline:4px}
+.page::before{display:none}
+.rings{position:relative;display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding-block:18px}
+.rings svg{width:44px;height:16px;overflow:visible}
+.rings path{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linecap:round}
+
+/* left page: the price list */
+.left-page{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:6px}
+.sign h1{font:400 clamp(44px,5vw,64px)/.85 var(--f-hand);margin:0;position:relative;display:inline-block}
+.sign h1::after{content:"";position:absolute;left:2%;right:-4%;bottom:-6px;height:10px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 10' preserveAspectRatio='none'%3E%3Cpath d='M2 6 C60 3 120 8 190 5 S270 3 298 6' fill='none' stroke='%23B4593F' stroke-width='1.6' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.sign .mark{display:inline-block;width:.5em;height:.86em;vertical-align:-.04em;margin-left:.08em;transform:rotate(10deg)}
+.sign .mark svg{width:100%;height:100%;overflow:visible}
+.tagline{margin:10px 0 0;font-size:18px}
+.sign{position:relative}
+/* a rubber stamp beside the name: the shop isn't open yet, so the ending later is an echo, not a twist */
+.soon{position:absolute;top:2px;right:0;display:grid;place-items:center;width:74px;height:74px;box-sizing:border-box;
+  font:400 19px/.85 var(--f-hand);text-align:center;color:var(--twine);transform:rotate(9deg);opacity:.85;
+  border:1.6px solid var(--twine);border-radius:52% 48% 55% 45%/47% 53% 46% 54%;box-shadow:inset 0 0 0 3px var(--page),inset 0 0 0 4.2px rgba(180,89,63,.55)}
+.today{margin:min(2.2vh,18px) 0 0;font:400 25px/1.05 var(--f-hand)}
+.today b{font-weight:400;color:var(--twine)}
+.stems{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-content:space-evenly;gap:min(2.6vh,24px) 14px;padding-inline:4px;min-height:0;transition:opacity .17s ease,transform .17s ease}
+.stems.out{opacity:0;transform:translateX(calc(var(--dir,1) * -14px))}
+.stems.in{opacity:0;transform:translateX(calc(var(--dir,1) * 14px));transition:none}
+.item{display:grid;justify-items:center;gap:2px;min-width:0}
+.pick{appearance:none;width:100%;min-width:0;background:none;border:0;padding:0;margin:0;color:var(--ink);font:inherit;cursor:grab;
+  display:grid;justify-items:center;gap:4px;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.pick svg{width:auto;max-width:100%;height:min(17vh,150px);aspect-ratio:200/340;overflow:visible;transform-origin:50% 97%;transition:transform .45s cubic-bezier(.3,1.6,.5,1)}
+.item:hover .pick svg{transform:translateY(-5px) rotate(-3deg)}
+.item:nth-child(even):hover .pick svg{transform:translateY(-5px) rotate(3deg)}
+.pick .row{display:grid;justify-items:center;gap:2px;width:100%}
+.pick .row .dots{display:none}
+.pick .nm{font-size:17px;line-height:1;padding-bottom:1px;white-space:nowrap}
+.pick .dots{flex:1;min-width:6px;height:6px;margin-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Ccircle cx='3' cy='3' r='1.05' fill='%23394038'/%3E%3C/svg%3E") repeat-x 0 0/9px 6px;opacity:.7}
+.pick .pr{font:400 16px/1 var(--f-ui);color:var(--muted)}
+.item:hover .pick .nm{background:linear-gradient(transparent 62%,rgba(244,201,166,.8) 62%,rgba(244,201,166,.8) 92%,transparent 92%)}
+.item.out .pick{cursor:not-allowed;opacity:.35}
+.pick:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.meta{display:flex;align-items:center;justify-content:center;gap:8px;min-height:18px}
+.item .left{font:400 20px/1 var(--f-hand);color:var(--twine);white-space:nowrap}
+.swatches{display:flex;gap:4px}
+.sw{appearance:none;width:15px;height:15px;border-radius:var(--wobc);border:1.2px solid var(--ink);padding:0;cursor:pointer;box-shadow:inset 0 0 0 2px var(--page)}
+.sw[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--page),0 0 0 1.5px var(--twine)}
+.sw:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.pager{display:flex;align-items:center;justify-content:space-between;font:400 24px/1 var(--f-hand)}
+.pg{appearance:none;background:none;border:0;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:6px;font:400 24px/1 var(--f-hand);padding:4px 2px}
+.pg svg{width:34px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+#pgPrev svg{transform:scaleX(-1)}
+#pgNext:hover:not(:disabled) svg{transform:translateX(4px)}
+#pgPrev:hover:not(:disabled) svg{transform:scaleX(-1) translateX(4px)}
+.pg:disabled{opacity:.2;cursor:default}
+.pg:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+#pgNum{color:var(--muted)}
+.howto{display:none}
+
+/* right page: paper + total */
+.right-page{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:10px}
+.note-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.papers{display:flex;align-items:center;gap:4px;justify-content:flex-start}
+.papers .ph{font:400 24px/1 var(--f-hand);margin:0 4px 0 0}
+.pp{appearance:none;background:none;border:0;padding:0;cursor:pointer;display:grid;justify-items:center;gap:0;color:var(--ink);font:400 15px/1 var(--f-ui)}
+.pp svg{width:50px;height:36px;overflow:visible}
+.pp .loop{fill:none;stroke:var(--twine);stroke-width:1.6;stroke-linecap:round;opacity:0;stroke-dasharray:200;stroke-dashoffset:200;transition:stroke-dashoffset .5s ease,opacity .1s}
+.pp[aria-pressed="true"] .loop{opacity:1;stroke-dashoffset:0}
+.pp .sheet{transition:transform .2s}
+.pp:hover .sheet{transform:translateY(-2px)}
+.pp:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.paperwrap{position:relative;min-height:0}
+#paper{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;overflow:visible}
+.note{display:grid;gap:8px}
+.tally{margin:0;display:flex;justify-content:space-between;align-items:flex-end;font-size:21px;padding-top:12px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3 C50 2 100 4.4 150 2.8 S190 3.4 199 3' fill='none' stroke='%23394038' stroke-dasharray='3 4' stroke-width='1.1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 6px}
+.tally .dots{height:6px;margin-bottom:7px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' viewBox='0 0 9 6'%3E%3Ccircle cx='3' cy='3' r='1.05' fill='%23394038'/%3E%3C/svg%3E") repeat-x 0 0/9px 6px;opacity:.7}
+.tally #total{font:400 38px/.9 var(--f-hand)}
+.actions{display:flex;align-items:center;justify-content:flex-end;gap:14px}
+.primary{position:relative;isolation:isolate;color:var(--ink);border:0;cursor:pointer;font:400 21px/1 var(--f-ui);padding:12px 22px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 44' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C50 2.6 110 5.6 159 3.6 M155.5 .8 C157.4 16 156.2 30 156.8 43.4 M159 40.2 C110 42.2 50 40.4 1.2 41.4 M4.6 43.6 C2.8 30 4.2 16 5.6 .6' fill='none' stroke='%23394038' stroke-width='1.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center/100% 100%}
+.primary::before{content:"";position:absolute;inset:4px 5px;z-index:-1;border-radius:3px 6px 4px 5px;background:var(--print);transform:translate(5px,-4px) rotate(-.8deg);transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.primary:hover:not(:disabled)::before{transform:none}
+.primary:disabled{color:#A9ADA5;opacity:.6;cursor:default}
+.primary:disabled::before{background:#EFEFEA}
+.link{appearance:none;border:0;cursor:pointer;color:var(--ink);font:400 19px/1 var(--f-ui);padding:8px 4px 10px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='4' viewBox='0 0 12 4'%3E%3Cpath d='M0 2.2 Q3 .4 6 2.2 T12 2.2' fill='none' stroke='%23394038' stroke-width='1.1'/%3E%3C/svg%3E") repeat-x 0 calc(100% - 4px)/12px 4px}
+.link:hover{background-position-x:6px}
+.primary:focus-visible,.link:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.msg{margin:0;font-size:16px;color:var(--muted);min-height:1.3em}
+.pp span{font-size:14px}
+.pp svg{width:42px;height:30px}
+
+/* paper scene */
+#paper .hit{fill:transparent;pointer-events:all;cursor:grab}
+#paper .pl{pointer-events:none}
+#paper.locked .hit{pointer-events:none}
+#paper .ghosted{opacity:.36}
+#paper .pop{animation:pop .5s cubic-bezier(.3,1.5,.5,1) both;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes pop{from{opacity:.25;transform:translateY(-14px)}}
+#ring{fill:none;stroke:#B6AA92;stroke-width:1.2;stroke-dasharray:3 4;transition:stroke .2s}
+#paper.hot #ring{stroke:var(--ink);stroke-dasharray:none}
+#hintText{font:400 30px var(--f-hand);fill:#A39A86}
+#tag{opacity:0;transform-box:fill-box;transform-origin:20% 0%}
+#tag.on{animation:tag 1.1s cubic-bezier(.25,1.3,.45,1) forwards}
+@keyframes tag{0%{opacity:0;transform:translateY(-46px) rotate(-22deg)}35%{opacity:1}60%{transform:translateY(0) rotate(9deg)}80%{transform:rotate(-4deg)}100%{opacity:1;transform:rotate(0)}}
+#tagText{font-family:var(--f-hand);font-size:31px;fill:var(--ink)}
+#paper .under path{fill:#FAF6EE}
+
+.float{position:fixed;left:0;top:0;pointer-events:none;z-index:50;transition:opacity .12s}
+.float svg{display:block;width:100%;height:100%;overflow:visible}
+body.dragging,body.dragging *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
+
+/* weight: the paper is the centre of the page; today's stems are a compact block beside it */
+.book{grid-template-columns:minmax(0,.74fr) min(6vw,84px) minmax(0,1.26fr)}
+.left-page{grid-template-rows:auto auto auto auto;align-content:start;gap:12px;padding-top:min(4vh,36px)}
+.stems{grid-template-columns:repeat(4,minmax(0,1fr));column-gap:2px;row-gap:min(2.2vh,18px);align-content:start;padding:0;margin-top:min(1.5vh,12px)}
+.pick svg{height:min(17vh,150px)}
+.pick .nm{font:400 22px/1 var(--f-hand)}
+.pick .pr{font:400 14px/1 var(--f-ui)}
+.pager{margin-top:min(1.5vh,12px)}
+
+/* under the paper: things on the table, not a form row.
+   left: a small fan of paper samples (the chosen one pulled out); right: the total written by hand, then the buttons */
+.note{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;padding:4px 10px 0 18px;background:none;position:relative}
+/* paper choice: says what it is, shows every option by name, circles the chosen one */
+.note .papers{position:relative;display:flex;align-items:flex-end;gap:6px;padding:26px 0 0 0}
+.note .papers .ph{position:absolute;top:0;left:2px;margin:0;font:400 25px/1 var(--f-hand);transform:rotate(-2deg)}
+.note .pp{display:grid;justify-items:center;gap:1px;cursor:pointer;transition:transform .25s cubic-bezier(.3,1.5,.5,1)}
+.note .pp svg{width:50px;height:36px}
+.note .pp span{display:block;font:400 15px/1 var(--f-ui);color:var(--muted)}
+.note .pp[aria-pressed="true"] span{color:var(--ink)}
+.note .pp:nth-of-type(odd) svg{transform:rotate(-3deg)}
+.note .pp:nth-of-type(even) svg{transform:rotate(3deg)}
+.note .pp:hover{transform:translateY(-4px)}
+.note .pp .sheet{transition:none}
+.note .pp:hover .sheet{transform:none}
+.sum{display:grid;justify-items:end;gap:8px}
+.note .tally{background:none;padding:0;margin:0;display:flex;align-items:baseline;gap:6px;transform:rotate(-2deg);font:400 30px/1 var(--f-hand)}
+.note .tally .comma{margin-left:-4px}
+.note .tally #total{font:400 38px/1 var(--f-hand);color:var(--twine)}
+.note .actions{gap:10px}
+.note .msg{position:absolute;right:10px;top:100%;margin-top:6px;font-size:15px;text-align:right}
+
+/* left column views: the shop (stems), checkout, and the booked order. Only one shows at a time. */
+.view-shop{display:contents}
+.view-shop[hidden]{display:none}
+.view-checkout,.view-done{display:grid;gap:12px;align-content:start;margin-top:min(2vh,18px)}
+.view-checkout[hidden],.view-done[hidden]{display:none}
+.co-h{margin:0;font:400 34px/1 var(--f-hand)}
+.co-f{border:0;margin:0;padding:0;display:grid;gap:8px}
+.co-f legend{padding:0;margin-bottom:6px;font-size:16px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;border:0;cursor:pointer;color:var(--ink);font:400 17px/1 var(--f-ui);padding:8px 13px;border-radius:var(--wobc);background:transparent;box-shadow:inset 0 0 0 1.2px var(--ink)}
+.chip[aria-pressed="true"]{background:var(--print)}
+.chip:hover{background:rgba(244,201,166,.4)}
+.chip:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.co-l{display:grid;gap:4px;font-size:16px}
+.co-l span em{font-style:normal;color:var(--muted);font-size:14px;margin-left:4px}
+.co-l input,.co-l textarea{font:400 24px/1.25 var(--f-hand);color:var(--ink);background:transparent;border:0;outline:none;padding:2px 0 4px;resize:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3 C50 2 100 4.4 150 2.8 S190 3.4 199 3' fill='none' stroke='%23394038' stroke-width='1.1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 100%/100% 6px}
+.co-l textarea{height:2.5em}
+.co-l input:focus-visible,.co-l textarea:focus-visible{background-color:rgba(244,201,166,.25)}
+.co-l input[aria-invalid="true"]{background-color:rgba(180,89,63,.12)}
+.co-err{margin:0;min-height:1.2em;color:var(--twine);font-size:15px}
+.done-lede{margin:0;font-size:17px;max-width:34ch}
+.done-dl{margin:6px 0 0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:17px}
+.done-dl dt{color:var(--muted)}
+.done-dl dd{margin:0}
+.done-dl dd.big{font:400 26px/1 var(--f-hand)}
+/* the concept page shown after Buy: a page of its own, not a pop-up over the bench */
+.concept{position:fixed;inset:0;padding-bottom:56px!important;z-index:65;background:var(--page);display:grid;place-items:center;overflow:auto;
+  padding:max(20px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.concept[hidden]{display:none}
+.concept:not([hidden]) .cbox{animation:fadeUp .45s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}}
+.cbox{width:min(1040px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:min(6vw,72px);align-items:center}
+.c-art{height:min(70vh,560px)}
+.c-art svg{width:100%;height:100%;display:block;overflow:visible}
+.c-art{display:grid;place-items:center}
+.c-left{display:grid;justify-items:center;gap:10px}
+.c-left .c-art{height:min(64vh,520px)}
+.c-shuffle{font-size:16px}
+.c-act button{white-space:nowrap}
+.c-art img{height:100%;width:auto;max-width:100%;object-fit:contain;transform:rotate(-1.5deg);filter:drop-shadow(0 12px 22px rgba(57,64,56,.18))}
+.c-art .under path{fill:#FAF6EE}
+.c-art text{font-family:var(--f-hand);font-size:31px;fill:var(--ink)}
+.c-text{display:grid;gap:14px;align-content:center;max-width:44ch}
+/* the sign hangs from a nail on a loop of twine and sways once as the page opens */
+.c-sign{margin:0;width:min(300px,80%);justify-self:start}
+.c-board{width:100%;height:auto;display:block;overflow:visible;transform-origin:50% 4%;animation:sway 2.4s cubic-bezier(.3,1.2,.4,1) both}
+@keyframes sway{0%{transform:rotate(-7deg)}35%{transform:rotate(4deg)}65%{transform:rotate(-1.6deg)}100%{transform:rotate(-1deg)}}
+.c-board .tw{fill:none;stroke:var(--twine);stroke-width:2;stroke-linecap:round}
+.c-board .nail{fill:var(--page);stroke:var(--ink);stroke-width:1.6}
+.c-board .bd-fill{fill:#E2CBA4}
+.c-board .bd{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.c-board text{font:400 46px var(--f-hand);fill:var(--ink)}
+/* the florist's note: a scrap of paper, taped, written by hand */
+.c-note{position:relative;background:#FBF6EC;padding:20px 24px 16px;transform:rotate(.8deg);box-shadow:0 1px 0 rgba(57,64,56,.06);
+  border:1.3px solid var(--ink);border-radius:3px 9px 4px 7px/7px 3px 9px 4px}
+.c-note::before{content:"";position:absolute;top:-12px;left:50%;width:84px;height:22px;margin-left:-42px;background:rgba(244,201,166,.8);transform:rotate(-3deg)}
+.c-text .c-note p{font:400 30px/1.05 var(--f-hand)}
+.c-text .c-note .c-from{margin-top:8px;text-align:right;font-size:26px;color:var(--muted)}
+.c-colophon{position:absolute;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom,0px));margin:0;text-align:center;font-size:14px;color:var(--muted);padding-inline:20px}
+.c-text p{margin:0;font-size:18px}
+.c-sum{color:var(--muted)}
+.c-act{display:flex;gap:16px;align-items:center;margin-top:6px}
+.c-new{justify-self:start;font-size:16px}
+@media (max-width:860px){.cbox{grid-template-columns:minmax(0,1fr)}.c-art{height:46vh}.concept{padding-bottom:20px!important}.c-colophon{position:static;margin-top:28px}}
+.c-sign:focus{outline:none}
+
+/* save a picture of the bunch: a small icon on the paper's corner */
+.dl{position:absolute;top:2px;right:2px;z-index:3;appearance:none;border:0;background:transparent;cursor:pointer;color:var(--ink);padding:6px;border-radius:50%;display:grid;place-items:center}
+.dl svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dl:hover{background:rgba(244,201,166,.45)}
+.dl:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.dl[hidden]{display:none}
+.dlpop{position:fixed;inset:0;z-index:70;background:rgba(252,252,250,.92);display:grid;place-items:center;padding:20px}
+.dlpop[hidden]{display:none}
+.dlbox{position:relative;display:grid;gap:8px;justify-items:center;max-height:100%}
+.dlbox img{max-width:min(520px,90vw);max-height:78vh;height:auto;box-shadow:0 10px 30px -16px rgba(57,64,56,.45)}
+.dlbox p{margin:0;color:var(--muted);font-size:15px}
+.dlx{position:absolute;top:-10px;right:-10px;appearance:none;border:0;background:var(--page);box-shadow:inset 0 0 0 1.2px var(--ink);border-radius:50%;width:34px;height:34px;font:400 20px/1 var(--f-ui);cursor:pointer;color:var(--ink)}
+
+/* the postcard sheet */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(252,252,250,.94);display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal[hidden]{display:none}
+body.modal-open{overflow:hidden}
+.msheet{width:min(1040px,100%);max-height:100%;overflow:auto;display:grid;gap:14px;justify-items:center;padding:8px 4px 12px}
+.mtitle{margin:0;font:400 44px/1 var(--f-hand);text-align:center}
+.msub{margin:0;max-width:62ch;text-align:center;color:var(--muted);font-size:17px}
+.cards{display:grid;width:min(780px,100%);margin:6px 0 14px}
+.pc-one{transform:rotate(-1deg);display:grid;grid-template-columns:52% 48%;grid-template-rows:minmax(0,1fr) auto;aspect-ratio:4/3}
+/* in-place, not a pop-up: the page itself becomes the card */
+.modal{background:var(--page)}
+.modal:not([hidden]) .pc-one{animation:becomeCard .7s cubic-bezier(.25,1.2,.4,1) both}
+.modal:not([hidden]) .mtitle,.modal:not([hidden]) .msub,.modal:not([hidden]) .mactions{animation:fadeUp .5s .35s ease both}
+@keyframes becomeCard{from{opacity:0;transform:translate(16%,-4%) scale(.7) rotate(4deg)}to{opacity:1;transform:rotate(-1deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}
+/* the tear-off stub: receipt on the left, pickup ticket on the right */
+.pc-stub{grid-column:1/-1;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:12px 7% 14px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3 C80 2.2 220 3.8 299 3' fill='none' stroke='%23394038' stroke-dasharray='4 5' stroke-width='1.2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 6px}
+.pc-stub p{margin:0;display:grid;gap:2px;font-size:14px;color:var(--muted);line-height:1.25}
+.pc-stub b{font:400 21px/1 var(--f-hand);color:var(--ink)}
+.stub-r{text-align:right;padding-right:64px}
+.stamp-o{position:absolute;right:5%;top:50%;transform:translateY(-50%) rotate(-12deg);width:52px;height:52px;border-radius:var(--wobc);border:1.6px solid var(--twine);color:var(--twine);
+  display:grid;place-items:center;font:400 20px/1 var(--f-hand)}
+@media (prefers-reduced-motion:reduce){.modal .pc-one,.modal .mtitle,.modal .msub,.modal .mactions{animation:none!important}}
+.pc-right{display:grid;grid-template-rows:auto minmax(0,1fr);padding:7% 8% 3% 2%;min-width:0}
+.pc-brand{margin:0;display:grid;justify-items:end;gap:2px}
+.pc-brand b{font:400 clamp(26px,3vw,36px)/.9 var(--f-hand);border-bottom:1.5px solid var(--twine);padding-bottom:4px}
+.pc-brand span{color:var(--muted);font-size:14px}
+.pc-one .pc-write{border:0;margin:0;padding:10% 0 4%;align-content:center}
+.pc-foot{margin:0;text-align:right;font:400 21px/1 var(--f-hand)}
+.pc{margin:0;aspect-ratio:3/2;position:relative;background:var(--page);box-shadow:0 2px 0 rgba(57,64,56,.06),0 10px 24px -14px rgba(57,64,56,.35)}
+.pc::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' preserveAspectRatio='none'%3E%3Cpath d='M2 2.5 C90 1.4 210 3.4 298 2 C299 70 297.8 130 298.4 198 C210 199 90 197.6 2.4 198.4 C1.4 130 2.6 70 2 2.5 Z' fill='none' stroke='%23394038' stroke-width='1.3' vector-effect='non-scaling-stroke' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.pc-front{transform:rotate(-1.4deg);display:grid;grid-template-columns:62% 38%}
+.pc-back{transform:rotate(1.2deg);display:grid;grid-template-columns:57% 43%}
+.pc-art{position:relative;padding:4%}
+.pc-art svg{width:100%;height:100%;display:block;overflow:visible}
+.pc-svg .under path{fill:#FAF6EE}
+.pc-svg text{font-family:var(--f-hand);font-size:31px;fill:var(--ink)}
+.pc-side{display:grid;align-content:space-between;padding:12% 10% 10% 0}
+.pc-side b{font:400 clamp(26px,3.2vw,40px)/.9 var(--f-hand)}
+.pc-side span{color:var(--muted);font-size:15px;margin-top:6px}
+.pc-side i{font:400 22px/1.05 var(--f-hand);font-style:normal}
+.pc-write{display:grid;align-content:start;gap:6px;padding:9% 6% 7% 8%;border-right:1.3px solid var(--ink);margin-block:7%}
+.pc-write input,.pc-write textarea{font:400 24px/1.35 var(--f-hand);color:var(--ink);background:transparent;border:0;outline:none;padding:0;width:100%;min-width:0;resize:none;
+  background-image:linear-gradient(transparent calc(100% - 1px),rgba(57,64,56,.18) calc(100% - 1px));background-size:100% 1.35em}
+.pc-write input{width:auto;flex:1}
+.pc-to,.pc-from{display:flex;align-items:baseline;gap:6px;font:400 24px/1.35 var(--f-hand)}
+.pc-write textarea{height:calc(1.35em * 4)}
+.pc-write ::placeholder{color:#B5B9B1}
+.pc-write :focus-visible{background-color:rgba(244,201,166,.25)}
+.pc-addr{display:grid;align-content:start;gap:16px;padding:9% 9% 8% 9%}
+.stamp{justify-self:end;width:30%;aspect-ratio:3/4;border:1.3px dashed var(--ink);display:grid;place-items:center;padding:4px}
+.stamp svg{width:70%;height:90%}
+.pc-addr i{display:block;height:1.3px;background:rgba(57,64,56,.45)}
+.pc-addr small{margin-top:auto;color:var(--muted);font-size:13px}
+.slip{width:min(520px,100%);padding:12px 18px 14px;background:#FFFDF7;position:relative}
+.slip::before{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200' preserveAspectRatio='none'%3E%3Cpath d='M2 2.5 C90 1.4 210 3.4 298 2 C299 70 297.8 130 298.4 198 C210 199 90 197.6 2.4 198.4 C1.4 130 2.6 70 2 2.5 Z' fill='none' stroke='%23394038' stroke-width='1.2' stroke-dasharray='5 4' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.slip-h{margin:0 0 6px;font:400 26px/1 var(--f-hand);color:var(--twine)}
+.slip ul{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:17px}
+.slip li{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.slip li em{font-style:normal;color:var(--muted)}
+.slip li.tot{border-top:1px dashed rgba(57,64,56,.4);padding-top:4px;margin-top:2px;font:400 24px/1.1 var(--f-hand)}
+.slip-n{margin:8px 0 0;font-size:15px;color:var(--muted)}
+.pc-out{display:grid;gap:6px;justify-items:center;width:100%}
+.pc-out img{width:100%;max-width:760px;height:auto;display:block}
+.pc-out p{margin:0;color:var(--muted);font-size:15px}
+.mactions{display:flex;gap:16px;align-items:center;justify-content:center;margin-top:4px;width:min(760px,100%)}
+.mactions .mgrow{flex:1}
+.secondary{position:relative;color:var(--ink);border:0;cursor:pointer;font:400 19px/1 var(--f-ui);padding:11px 18px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 44' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C50 2.6 110 5.6 159 3.6 M155.5 .8 C157.4 16 156.2 30 156.8 43.4 M159 40.2 C110 42.2 50 40.4 1.2 41.4 M4.6 43.6 C2.8 30 4.2 16 5.6 .6' fill='none' stroke='%23394038' stroke-width='1.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center/100% 100%}
+.secondary:hover:not(:disabled){background-color:rgba(244,201,166,.3)}
+.secondary:disabled{opacity:.6;cursor:default}
+.secondary:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.primary.big{font-size:23px;padding:15px 28px}
+
+@media (max-width:860px){
+  .pc-one{grid-template-columns:minmax(0,1fr);aspect-ratio:auto}
+  .pc-art{height:52vw}
+  .pc-write input,.pc-write textarea,.pc-to,.pc-from{font-size:20px}
+}
+@media (max-width:860px){
+  body{display:block}
+  .book{width:auto;height:auto;margin:12px;display:flex;flex-direction:column}
+  .rings{flex-direction:row;padding:0 18px;height:26px}
+  .rings svg{transform:rotate(90deg);width:20px}
+  .right-page{order:-1;height:72vh}
+  .left-page{order:2}
+  .rings{order:1}
+  .stems{grid-auto-rows:auto;gap:10px}
+  .pick svg{height:50px}
+  .meta{min-width:0}
+  .howto{display:block;font-size:14px;color:var(--muted);margin:4px 0 0}
+}
+@media (prefers-reduced-motion:reduce){
+  .pick svg,.primary::before,.pg svg,.stems{transition:none}
+  .c-board{animation:none;transform:rotate(-1deg)}
+  #paper .pop,#tag.on{animation-duration:.01s}
+}
+
+/* flower chooser sheet, laid over the bench */
+.fl{position:fixed;inset:0;z-index:80;overflow:auto;background:var(--page);padding-block:30px 60px;
+  padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.fl>*{max-width:1180px;margin-inline:auto}
+.fl-h{display:grid;gap:6px;margin-bottom:10px}
+.fl-h h1{margin:0;font:400 54px/1 var(--f-hand)}
+.fl-h p{margin:0;color:var(--muted)}
+.fl h2{font:400 34px/1 var(--f-hand);margin-top:30px;margin-bottom:14px;color:var(--twine)}
+.fl figure{margin:0;display:grid;gap:6px}
+.fl figcaption{font-size:19px}
+.fl figcaption b{font:400 30px/1 var(--f-hand);color:var(--twine);margin-right:4px}
+.fl svg{display:block;width:100%;height:100%;overflow:visible}
+.fl .big{height:330px;aspect-ratio:200/340}
+.fl .sm{height:150px;aspect-ratio:200/340;align-self:end}
+.fl-redo{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.fl .pair{display:flex;align-items:flex-end;justify-content:center;gap:10px}
+.fl-redo .big{height:300px}
+.fl .pair span{display:block;text-align:center;color:var(--muted);font-size:15px}
+.fl .arrow{font:400 30px var(--f-hand);color:var(--muted);align-self:center}
+.fl-new{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 24px}
+.fl .one{display:flex;align-items:flex-end;gap:10px}
+@media (max-width:1000px){.fl-redo{grid-template-columns:minmax(0,1fr)}.fl-new{grid-template-columns:repeat(2,minmax(0,1fr))}.fl .big{height:180px}.fl .sm{height:90px}}
+</style>
+
+<div class="book">
+  <section class="page left-page" aria-labelledby="shelfH">
+    <header class="sign">
+      <h1>By the Stem<span class="mark" id="mark" aria-hidden="true"></span></h1>
+      <span class="soon" aria-hidden="true">opening<br>soon</span>
+      <p class="tagline">Flowers by the stem. Pick one, or make a bunch. <span class="sr">The shop is opening soon.</span></p>
+    </header>
+    <div class="view-shop" id="viewShop">
+    <p class="today" id="today"></p>
+    <h2 id="shelfH" class="sr">Today’s stems</h2>
+    <div class="stems" id="shelf"></div>
+    <nav class="pager" aria-label="More stems">
+      <button class="pg" id="pgPrev" type="button" aria-label="Previous stems"><svg viewBox="0 0 40 20" aria-hidden="true"><path d="M3 11 C12 9.6 22 10.8 36 9.6 M28 3.6 C31 6 33.6 8 36 9.6 C33 11.6 30.6 13.8 28.4 17"/></svg>back</button>
+      <span id="pgNum" aria-live="polite">p. 1 of 2</span>
+      <button class="pg" id="pgNext" type="button" aria-label="More stems">more<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M3 11 C12 9.6 22 10.8 36 9.6 M28 3.6 C31 6 33.6 8 36 9.6 C33 11.6 30.6 13.8 28.4 17"/></svg></button>
+    </nav>
+    <p class="howto" id="howto"></p>
+    </div>
+
+    <!-- checkout replaces the stem list; the wrapped bunch stays on the paper -->
+    <form class="view-checkout" id="viewCheckout" hidden novalidate aria-labelledby="coH">
+      <h2 class="co-h" id="coH">Checkout</h2>
+      <fieldset class="co-f">
+        <legend>Pick up at By the Stem, 12 Elm St</legend>
+        <div class="chips" id="coDay" role="group" aria-label="Day"><button type="button" class="chip" data-v="Today" aria-pressed="true">Today</button><button type="button" class="chip" data-v="Tomorrow" aria-pressed="false">Tomorrow</button></div>
+        <div class="chips" id="coTime" role="group" aria-label="Time"><button type="button" class="chip" data-v="10–12" aria-pressed="false">10–12</button><button type="button" class="chip" data-v="12–2" aria-pressed="false">12–2</button><button type="button" class="chip" data-v="2–4" aria-pressed="true">2–4</button><button type="button" class="chip" data-v="4–7" aria-pressed="false">4–7</button></div>
+      </fieldset>
+      <label class="co-l" for="coName"><span>Name</span><input id="coName" name="name" autocomplete="name" required></label>
+      <label class="co-l" for="coPhone"><span>Phone <em>we’ll text you when it’s ready</em></span><input id="coPhone" name="phone" type="tel" autocomplete="tel"></label>
+      <label class="co-l" for="coNote"><span>A note to tuck in <em>optional</em></span><textarea id="coNote" name="note" rows="2" maxlength="120"></textarea></label>
+      <fieldset class="co-f">
+        <legend>Pay</legend>
+        <div class="chips" id="coPay" role="group" aria-label="Payment"><button type="button" class="chip" data-v="pickup" aria-pressed="true">At pickup</button><button type="button" class="chip" data-v="now" aria-pressed="false">Now</button></div>
+      </fieldset>
+      <p class="co-err" id="coErr" aria-live="polite"></p>
+    </form>
+
+    <div class="view-done" id="viewDone" hidden>
+      <h2 class="co-h" id="doneH">Thank you.</h2>
+      <p class="done-lede">Your bunch is booked. We’ll wrap real stems to match the sketch on the right.</p>
+      <dl class="done-dl" id="doneDl"></dl>
+    </div>
+  </section>
+
+  <div class="rings" aria-hidden="true" id="rings"></div>
+
+  <section class="page right-page" aria-label="Wrapping paper">
+    <div class="paperwrap">
+      <svg id="paper" viewBox="0 18 600 652" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Wrapping paper with your bouquet">
+        <defs>
+          <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="7" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 .42  0 0 0 0 .36  0 0 0 0 .26  0 0 0 -1 .5" result="c"/>
+            <feComposite in="c" in2="SourceAlpha" operator="in"/>
+          </filter>
+          <filter id="fibre" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency=".012 .22" numOctaves="2" seed="3" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 .98  0 0 0 0 .93  0 0 0 -2.2 1.25" result="c"/>
+            <feComposite in="c" in2="SourceAlpha" operator="in"/>
+          </filter>
+          <filter id="lift" x="-15%" y="-15%" width="130%" height="135%">
+            <feDropShadow dx="0" dy="2.5" stdDeviation="3" flood-color="#394038" flood-opacity=".16"/>
+          </filter>
+          <clipPath id="above" clipPathUnits="userSpaceOnUse"><rect x="-300" y="-400" width="800" height="650"/></clipPath>
+        </defs>
+        <g id="sheet"></g>
+        <g id="backL"></g><g id="backR"></g>
+        <g id="hint"><circle id="ring" cx="330" cy="455" r="15"/><text id="hintText" x="330" y="300" text-anchor="middle">Drop a stem here</text></g>
+        <g id="tails" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round"></g>
+        <g id="stems"></g>
+        <g id="ghost"></g>
+        <g id="frontL" filter="url(#lift)"></g><g id="frontR" filter="url(#lift)"></g>
+        <g id="twine" opacity="0" fill="none" stroke="#B4593F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path id="band" d="M232 480 C268 492 300 494 330 489 C364 484 396 474 426 462"/>
+          <path id="bow" d="M330 486 C300 452 276 478 296 490 C306 496 322 492 330 487 M332 486 C360 450 392 474 374 489 C364 497 344 493 333 488 M329 489 C322 510 316 526 302 546 M334 489 C343 508 350 522 368 536"/>
+        </g>
+        <g id="tag">
+          <path id="tagString" d="M333 489 C340 520 348 540 356 560" fill="none" stroke="#B4593F" stroke-width="1.6" stroke-linecap="round"/>
+          <g id="tagBody" transform="translate(346 548) rotate(9)">
+            <path d="M2 10 L12 0 H112 Q116 0 116 4 V52 Q116 56 112 56 H12 L2 46 Z" fill="#F4ECDC" stroke="#394038" stroke-width="1.3" stroke-linejoin="round"/>
+            <circle cx="13" cy="28" r="3.6" fill="#FCFCFA" stroke="#394038" stroke-width="1.2"/>
+            <text id="tagText" x="26" y="38">3 stems</text>
+          </g>
+        </g>
+      </svg>
+      <button class="dl" id="dlBtn" type="button" aria-label="Save a picture of your bunch" title="Save a picture" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 C12.2 8 11.8 11 12 15 M7.6 10.8 C9.4 12.4 10.6 13.6 12 15 C13.4 13.4 14.8 12.2 16.4 10.6 M4.4 15.6 C4.2 17.4 4.6 19 4.8 20 C9.6 20.4 14.6 20.2 19.4 20 C19.6 18.6 19.8 17.2 19.6 15.4"/></svg></button>
+    </div>
+    <div class="note">
+      <div class="papers" role="group" aria-label="Choose wrapping paper" id="papers"></div>
+      <div class="sum">
+        <p class="tally"><span id="count">0 stems</span><span class="comma">,</span><span id="total">$0</span></p>
+        <div class="actions" id="actions"></div>
+      </div>
+      <p class="msg" id="msg" aria-live="polite"></p>
+    </div>
+  </section>
+</div>
+
+<!-- the "next page" after Buy: the shop hasn't opened yet, so the experience ends in the shop's own voice;
+     a quiet colophon at the foot says plainly that this is a design concept -->
+<div class="concept" id="concept" hidden>
+  <div class="cbox" role="dialog" aria-modal="true" aria-labelledby="cH">
+    <div class="c-left"><div class="c-art" id="cArt"></div><button class="link c-shuffle" id="cShuffle" type="button">Another card style ↻</button></div>
+    <div class="c-text">
+      <h2 id="cH" class="c-sign" tabindex="-1"><svg class="c-board" viewBox="0 0 300 170" aria-hidden="true">
+        <path class="tw" d="M150 6 C128 30 92 52 66 66 M150 6 C172 30 208 52 236 66"/>
+        <circle class="nail" cx="150" cy="7" r="4.5"/>
+        <path class="bd-fill" d="M40 70 C110 64 196 66 262 64 C266 96 264 128 266 158 C190 162 110 160 36 162 C38 130 36 100 40 70Z" transform="translate(6 -5)"/>
+        <path class="bd" d="M40 70 C110 64 196 66 262 64 C266 96 264 128 266 158 C190 162 110 160 36 162 C38 130 36 100 40 70Z"/>
+        <path class="bd" d="M52 84 C60 82 64 86 68 84 M226 146 C234 144 240 148 248 146" opacity=".5"/>
+        <text x="151" y="128" text-anchor="middle">Opening soon</text>
+      </svg><span class="sr">Opening soon</span></h2>
+      <div class="c-note">
+        <p>We haven’t opened our doors yet. When we do, yours is the first bunch we’ll wrap.</p>
+        <p class="c-from">— the florist</p>
+      </div>
+      <p class="c-sum" id="cSum"></p>
+      <div class="c-act"><button class="secondary" id="cSave" type="button">Save this card</button><button class="link" id="cBack" type="button">Back to my bunch</button></div>
+      <button class="link c-new" id="cNew" type="button">Make another bunch</button>
+    </div>
+  </div>
+  <p class="c-colophon">By the Stem is a design concept. There’s no shop yet, and nothing was charged.</p>
+</div>
+
+<div class="dlpop" id="dlPop" hidden>
+  <div class="dlbox" role="dialog" aria-modal="true" aria-label="Picture of your bunch">
+    <button class="dlx" id="dlX" type="button" aria-label="Close">×</button>
+    <img id="dlImg" alt="Your bunch from By the Stem">
+    <p>Right-click or long-press to save it.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const INK='#394038';
+const PAL={pink:'#F2B5B0',cream:'#F3E7A0',lav:'#C3ADEA',green:'#A9C89B',sage:'#A9C3B2',mustard:'#E9AE2B',apricot:'#F6A86E',
+  white:'#EEE7DA',dark:'#5A6258',pea:'#D6B4E6',lily:'#F4E9DD',pollen:'#C9744F',bud:'#CFE0B8',carn:'#F4B6C6',rose:'#D9545E',hyd:'#A9BFEA',allium:'#9F7CC9',oat:'#E6D9BE',gyp:'#F7F4EE',delph:'#9EB5E6',peony:'#F4C2C8',dahlia:'#E28AB4',zinc:'#DCE2DE',enamel:'#EFE7D6',sage2:'#D9E4D3',rim:'#C8D0CA'};
+
+/* ---------- drawing kit (style A: fine line, misregistered fill) ---------- */
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f=v=>(Math.round(v*10)/10);
+function smooth(pts,closed){
+  const n=pts.length;const P=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;const segs=closed?n:n-1;
+  for(let i=0;i<segs;i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
+    d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`}
+  return closed?d+'Z':d;
+}
+const rad=d=>d*Math.PI/180;
+function xf(ox,oy,ang){const a=ang*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return([x,y])=>[ox+x*c-y*s,oy+x*s+y*c]}
+const STRIP=212; /* in a bouquet, leaves below this line are stripped, like a florist would */
+function kit(seed,amt,strip){
+  const r=rng(seed);const J=(v,a=amt)=>v+(r()-.5)*2*a;
+  const out={lines:[],fills:[]};
+  const line=d=>out.lines.push(d);const fill=(d,c)=>out.fills.push({d,c});
+  const L=pts=>line(smooth(pts,false));
+  function leaf(ox,oy,ang,len,w,c='green'){
+    const T=xf(ox,oy,J(ang,4));if(strip&&oy>STRIP)return;const Ln=J(len,len*.06),W=J(w,w*.1);
+    const p=[[0,0],[W,-Ln*.45],[J(0,1),-Ln],[-W,-Ln*.52]].map(T);
+    const d=`M${f(p[0][0])} ${f(p[0][1])}Q${f(p[1][0])} ${f(p[1][1])} ${f(p[2][0])} ${f(p[2][1])}Q${f(p[3][0])} ${f(p[3][1])} ${f(p[0][0])} ${f(p[0][1])}Z`;
+    line(d);fill(d,c);L([[0,0],[J(W*.08,.6),-Ln*.5],[0,-Ln*.82]].map(T));
+  }
+  function blob(cx,cy,R,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;const rr=R+J(0,wob);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)}
+  function ell(cx,cy,rx,ry,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;pts.push([cx+Math.cos(t)*(rx+J(0,wob)),cy+Math.sin(t)*(ry+J(0,wob))])}return smooth(pts,true)}
+  function arc(cx,cy,R,a0,span,scal){const pts=[];const steps=Math.max(4,Math.round(span/26));const ph=r()*6;for(let i=0;i<=steps;i++){const t=(a0+span*i/steps)*Math.PI/180;const rr=R*(1+scal*Math.sin(6*t+ph))+J(0,amt*.8);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,false)}
+  function shape(local,T,c){const d=smooth(local.map(([x,y])=>T([J(x,amt*.6),J(y,amt*.6)])),true);line(d);if(c)fill(d,c);return d}
+  return {r,J,out,line,L,fill,leaf,blob,ell,arc,shape,strip};
+}
+const GEN={
+  ran(K){const{J,L,fill,leaf,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(98),192],[J(100),134]]);
+    leaf(100,256,-50,36,13);leaf(100,222,44,30,11);
+    const cx=J(100,1.5),cy=J(92,1.5);
+    fill(blob(cx,cy,40,11,3.2),'pink');
+    [[5,330,0],[13,300,0],[22,290,.03],[31,300,.05],[41,315,.06]].forEach(([R,sp,sc])=>K.line(arc(cx+J(0,1.8),cy+J(0,1.8),R,r()*360,sp-40+r()*40,sc)));
+    L([[100,134],[J(93),129],[J(88,1),126]]);L([[100,134],[J(107),129],[J(112,1),126]]);
+  },
+  lil(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(101),262],[J(99),190],[J(101),126]]);
+    [[296,-1],[278,1],[258,-1],[238,1],[218,-1],[198,1],[180,-1]].forEach(([y,s],i)=>leaf(100,y,s*J(36,6),34-i*1.6,5));
+    L([[100,170],[J(112),148],[J(123,1.5),131]]);
+    shape([[-5,0],[-7,-14],[0,-32],[7,-14],[5,0]],xf(123,131,J(26,4)),'bud');
+    const cx=J(100,1),cy=J(94,1),o=J(-8,8);
+    for(let k=0;k<6;k++){const s=k%2?.84:1,T=xf(cx,cy,o+k*60+J(0,5));
+      shape([[-7,0],[-13,-18],[-10,-34],[J(0,1.5),-48],[10,-34],[13,-18],[7,0]].map(([x,y])=>[x*s,y*s]),T,'lily');
+      L([[0,-7],[J(0,1),-22*s],[0,-38*s]].map(T));}
+    for(let i=0;i<6;i++){const a=(o+30+i*60+J(0,10))*Math.PI/180,len=J(25,3),ex=cx+Math.sin(a)*len,ey=cy-Math.cos(a)*len;
+      L([[cx,cy],[cx+Math.sin(a)*len*.5+J(0,1.5),cy-Math.cos(a)*len*.5],[ex,ey]]);const d=blob(ex,ey,2.8,6,.4);line(d);fill(d,'pollen')}
+  },
+  ane(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(98),260],[J(102),190],[J(100),130]]);
+    leaf(100,160,-62,26,8);leaf(100,160,58,24,8);leaf(100,162,-14,20,6);
+    const cx=J(100,1),cy=J(94,1),o=J(0,15);
+    for(let k=0;k<6;k++)shape([[-9,0],[-17,-16],[-13,-31],[0,-37],[13,-31],[17,-16],[9,0]],xf(cx,cy,o+k*60+J(0,6)),'white');
+    const d=blob(cx,cy,10,8,.8);line(d);fill(d,'dark');
+    for(let i=0;i<16;i++){const t=i/16*6.283,a=12,b=J(17,1.5);L([[cx+Math.cos(t)*a,cy+Math.sin(t)*a],[cx+Math.cos(t)*b,cy+Math.sin(t)*b]])}
+  },
+  pea(K){const{J,L,line,fill,leaf,blob,shape,r}=K;
+    L([[100,332],[J(96),262],[J(103),196],[J(99),136],[J(103),94]]);
+    leaf(100,248,-58,28,10);leaf(100,248,56,26,10);
+    const sp=[[100,214],[112,208]];const ccx=J(124,1),ccy=J(198,1);
+    for(let i=0;i<=12;i++){const th=Math.PI*1.15+i/12*1.8*6.283,rr=9*(1-i/14);sp.push([ccx+Math.cos(th)*rr,ccy+Math.sin(th)*rr])}
+    L(sp);
+    [[101,116,1,15],[100,142,-1,16],[101,170,1,14]].forEach(([x,y,side,R])=>{
+      const fx=x+side*J(20,2),fy=y-J(14,2);
+      L([[x,y],[x+side*10,y-5],[fx-side*6,fy+6]]);
+      const ph=r()*6,loc=[];for(let i=0;i<14;i++){const t=i/14*6.283,rr=R*(1+.1*Math.sin(7*t+ph));loc.push([Math.cos(t)*rr,Math.sin(t)*rr*.9])}
+      shape(loc,xf(fx,fy,0),'pea');
+      shape([[-7,0],[-3,6],[5,5],[8,-1],[0,2]],xf(fx,fy+R*.75,-side*20),'pea');
+    });
+    const b=blob(103,90,4,6,.5);line(b);fill(b,'green');
+  },
+  cal(K){const{J,L,shape}=K;
+    L([[100,332],[J(101),250],[J(99),170],[J(102),122]]);
+    const T=xf(102,124,J(8,4));
+    shape([[0,0],[-9,-18],[-17,-42],[-14,-58],[-2,-64],[16,-74],[13,-52],[10,-22]],T,'white');
+    L([[-15,-54],[-4,-51],[8,-55],[15,-68]].map(T));
+    shape([[-2,-16],[-3,-34],[0,-43],[3,-34],[2,-16]],T,'mustard');
+  },
+  car(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(100),262],[J(101),196],[J(100),128]]);
+    leaf(100,262,-38,30,4);leaf(100,262,40,30,4);leaf(100,200,-42,26,3.5);leaf(100,200,44,26,3.5);
+    const T=xf(J(100,1),128,J(0,4));
+    shape([[-6,0],[-8,-22],[8,-22],[6,0]],T,'green');
+    const pts=[[-9,-22]];const n=17;
+    for(let i=0;i<=n;i++){const t=Math.PI+i/n*Math.PI,rr=(i%2?30:23)+J(0,2.5);pts.push([Math.cos(t)*rr*1.05,-24+Math.sin(t)*rr*.95])}
+    pts.push([9,-22]);shape(pts,T,'carn');
+    L([[-14,-30],[-4,-40],[2,-33]].map(T));L([[5,-44],[13,-35]].map(T));L([[-6,-24],[0,-30],[7,-25]].map(T));
+  },
+  peo(K){const{J,L,leaf,shape,fill,ell,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),134]]);
+    leaf(100,252,-52,40,15);leaf(100,234,-20,34,11);leaf(100,214,50,40,14);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy-2,42,36,12,2.5),'peony');
+    [-72,-36,0,36,72].forEach(a=>shape([[-12,0],[-21,-16],[-15,-34],[0,-39],[15,-34],[21,-16],[12,0]],xf(cx,cy+22,J(a,5)),null));
+    [-30,0,30].forEach(a=>shape([[-9,0],[-15,-12],[-11,-25],[0,-29],[11,-25],[15,-12],[9,0]],xf(cx,cy-2,J(a,6)),null));
+    for(let i=0;i<3;i++)K.line(arc(cx+J(0,5),cy-12+J(0,3),J(6+i*3,1.5),r()*360,200,.12));
+  },
+  dah(K){const{J,L,leaf,shape,fill,blob,line}=K;
+    L([[100,332],[J(99),262],[J(102),196],[J(100),136]]);
+    leaf(100,246,-55,34,12);leaf(100,246,55,32,12);
+    const cx=J(100,1),cy=J(96,1);
+    fill(blob(cx,cy,43,14,1.5),'dahlia');
+    [[30,14,1],[21,11,.8],[12,8,.62]].forEach(([R,n,s],ri)=>{const o=ri*13+J(0,8);
+      for(let i=0;i<n;i++){const a=o+i*360/n;shape([[-6,0],[-7,-9],[0,-14],[7,-9],[6,0]].map(([x,y])=>[x*s,y*s]),xf(cx+Math.sin(rad(a))*R,cy-Math.cos(rad(a))*R,a),null)}});
+    line(blob(cx,cy,5,6,.5));
+  },
+  /* delphinium: a tall airy spire; open florets alternate along the stem on short stalks, buds taper to the tip */
+  del(K){const{J,L,leaf,blob,line,fill,r}=K;const lobed=(cx,cy,R,n,ph)=>{const pts=[],m=n*4;for(let i=0;i<m;i++){const t=ph+i/m*6.283,rr=R*(.6+.4*Math.abs(Math.cos(n/2*(t-ph))))+J(0,.35);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)};
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),36]]);
+    leaf(100,292,-36,32,10);leaf(100,272,38,30,10);leaf(100,252,-30,26,8);
+    for(let i=0;i<8;i++){const y=214-i*19,s=12.6-i*.8,side=i%2?1:-1,fx=100+side*J(s*.82,.8),fy=J(y,1.2);
+      L([[100,fy+7],[fx-side*s*.3,fy+3]]);
+      const d=lobed(fx,fy,s,5,r()*6);line(d);fill(d,'delph');line(blob(fx,fy,s*.2,5,.2))}
+    [[66,1,5],[56,-1,4.2],[47,1,3.4],[39,-1,2.6]].forEach(([y,side,s])=>{const fx=100+side*J(4.5,.8),fy=J(y,1);
+      L([[100,fy+4],[fx,fy+1]]);const d=blob(fx,fy,s,6,.3);line(d);fill(d,'delph')});
+  },
+  gyp(K){const{J,L,line,fill,blob}=K;
+    L([[100,332],[J(100),262],[J(101),196],[100,186]]);
+    const tips=[];
+    (function br(x,y,ang,len,dep){
+      const a=rad(ang),ex=x+Math.sin(a)*len,ey=y-Math.cos(a)*len;
+      L([[x,y],[(x+ex)/2+J(0,2.5),(y+ey)/2],[ex,ey]]);
+      if(dep<3){br(ex,ey,ang-J(24,6),len*.76,dep+1);br(ex,ey,ang+J(24,6),len*.76,dep+1);if(dep===1)tips.push([ex,ey])}
+      else tips.push([ex,ey]);
+    })(100,186,J(0,4),56,0);
+    tips.forEach(([tx,ty])=>{for(let q=0;q<4;q++){const fx=tx+J(0,7),fy=ty+J(0,6)-2;const d=blob(fx,fy,J(2.6,.5),6,.3);line(d);fill(d,'gyp')}});
+  },
+  /* hydrangea: a soft scalloped mophead with a few loose four-petal florets drawn on it, room between them */
+  hyd(K){const{J,L,leaf,fill,blob,line,r}=K;const lobed=(cx,cy,R,n,ph)=>{const pts=[],m=n*4;for(let i=0;i<m;i++){const t=ph+i/m*6.283,rr=R*(.6+.4*Math.abs(Math.cos(n/2*(t-ph))))+J(0,.35);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)};
+    L([[100,332],[J(101),262],[J(99),196],[J(100),142]]);
+    leaf(100,236,-52,50,20);leaf(100,254,50,44,18);
+    const cx=J(100,1),cy=J(100,1),ph=r()*6;
+    const head=[];for(let i=0;i<30;i++){const t=i/30*6.283,k=1+.045*Math.cos(7*t+ph)+J(0,.01);head.push([cx+Math.cos(t)*48*k,cy+Math.sin(t)*37*k])}
+    const hd=smooth(head,true);line(hd);fill(hd,'hyd');
+    [[0,-2],[-23,-13],[21,-16],[-2,-25],[17,10],[-21,12],[3,19],[32,-2],[-34,-1]].forEach(([dx,dy],i)=>{
+      const fx=cx+J(dx,1.5),fy=cy+J(dy,1.5),s=i<5?J(7.6,.6):J(6.2,.5);
+      line(lobed(fx,fy,s,4,r()*1.6));line(blob(fx,fy,1.1,5,.1))});
+  },
+  all(K){const{J,L,fill,blob}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),92]]);
+    const cx=J(100,1),cy=62;fill(blob(cx,cy,30,12,1.2),'allium');
+    for(let i=0;i<32;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/32)*27,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      for(let p=0;p<3;p++){const t=p*Math.PI/3+a;L([[x-Math.cos(t)*2.7,y-Math.sin(t)*2.7],[x+Math.cos(t)*2.7,y+Math.sin(t)*2.7]])}}
+    for(let i=0;i<5;i++){const a=rad(-50+i*25);L([[cx,92],[cx+Math.sin(a)*14,cy+22-Math.cos(a)*6]])}
+  },
+  bun(K){const{J,L,line,fill,leaf,ell}=K;
+    L([[100,332],[J(98),252],[J(103),172],[J(100),112]]);
+    leaf(100,304,-16,76,5);leaf(100,286,18,58,4);
+    const cx=J(100,1),cy=88;fill(ell(cx,cy,11,23,12,1),'oat');
+    line(ell(cx,cy,10,22,12,.8));
+    for(let i=0;i<26;i++){const t=i/26*6.283;const x0=cx+Math.cos(t)*10,y0=cy+Math.sin(t)*22;const k=J(4,1.4);L([[x0,y0],[x0+Math.cos(t)*k,y0+Math.sin(t)*k*1.4]])}
+  },
+  rose(K){const{J,L,leaf,shape,fill,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),128]]);
+    leaf(100,238,-55,26,10);leaf(100,238,50,24,9);leaf(100,198,-48,22,8);
+    [[284,1],[256,-1],[176,1]].forEach(([y,s])=>L([[100,y],[100+s*4,y-4]]));
+    const cx=J(100,1),cy=J(94,1);
+    const ep=[];const ph=r()*6.28;for(let i=0;i<11;i++){const t=ph+i/11*6.283;ep.push([cx+Math.cos(t)*J(33,2),cy-2+Math.sin(t)*J(30,2)])}
+    fill(smooth(ep,true),'rose');
+    L([[cx-30,cy-4],[cx-24,cy-24],[cx-8,cy-32],[cx+6,cy-28],[cx+20,cy-33],[cx+31,cy-16],[cx+30,cy-4]].map(([x,y])=>[J(x,1),J(y,1)]));
+    shape([[0,30],[-20,25],[-32,6],[-29,-12],[-15,-6],[-5,10]],xf(cx,cy,0),null);
+    shape([[2,30],[22,24],[33,4],[28,-14],[14,-8],[6,8]],xf(cx,cy,0),null);
+    const sp=[];for(let i=0;i<=14;i++){const t=i/14*2.6*Math.PI+r()*.2,rr=3+i*1.05;sp.push([cx+Math.cos(t)*rr,cy-10+Math.sin(t)*rr*.7])}L(sp);
+    [140,180,220].forEach(a=>shape([[-2.4,0],[0,-13],[2.4,0]],xf(cx,cy+30,a+J(0,6)),'green'));
+  },
+  tul(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(103),252],[J(98),172],[J(101),130]]);
+    leaf(100,322,-16,118,19);leaf(100,304,20,92,15);
+    const T=xf(J(101,1),131,J(0,5));
+    shape([[0,0],[-17,-8],[-21,-26],[-18,-47],[-8,-38],[0,-53],[8,-38],[18,-47],[21,-26],[17,-8]],T,'apricot');
+    L([[-2,-6],[-8,-24],[-8,-38]].map(T));L([[3,-6],[9,-26],[8,-38]].map(T));
+  },
+  fre(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),262],[J(101),198],[J(105),164],[J(122),136],[J(146),116],[J(172,1),100]]);
+    leaf(100,322,-10,128,9);
+    const OPEN=[[-.1,0],[-.15,-.42],[-.48,-.76],[-.42,-.98],[-.17,-.9],[0,-1.06],[.17,-.9],[.42,-.98],[.48,-.76],[.15,-.42],[.1,0]];
+    const BUD=[[-.1,0],[-.24,-.5],[0,-1],[.24,-.5],[.1,0]];
+    [[104,168,-24,36,'o'],[115,146,-8,33,'o'],[130,128,8,26,'h'],[148,115,20,18,'h'],[162,106,32,12,'b'],[173,100,46,8,'b']].forEach(([x,y,a,s,t])=>{
+      const T=xf(J(x,1),J(y,1),J(a,5));
+      const sh=t==='o'?OPEN:t==='h'?OPEN.map(([u,v])=>[u*.62,v]):BUD;
+      shape(sh.map(([u,v])=>[u*s,v*s]),T,'cream');
+      if(t==='o')L([[0,-.25*s],[J(0,.6),-.55*s],[0,-.78*s]].map(T));
+    });
+  },
+  sna(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),34]]);
+    leaf(100,292,-30,36,7);leaf(100,266,32,33,7);leaf(100,240,-26,28,6);
+    const FL=[[0,0],[.32,-.46],[.78,-.52],[1.06,-.16],[.98,.24],[.62,.36],[.28,.16]];
+    for(let i=0;i<10;i++){const y=214-i*17.5,s=23-i*1.55,side=i%2?1:-1;
+      if(i<7){const T=xf(100+side*1.5,J(y,1.2),-side*J(16,5));shape(FL.map(([u,v])=>[u*s*side,v*s]),T,'lav');
+        L([[.52*s*side,-.02*s],[.78*s*side,-.1*s],[1.0*s*side,-.06*s]].map(T));}
+      else{const d=blob(100+side*s*.32,y-s*.1,s*.32,7,.7);line(d);fill(d,'lav')}}
+    const d=blob(J(101,.5),34,3.4,6,.5);line(d);fill(d,'lav');
+  },
+  cra(K){const{J,L,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(100),250],[J(101),170],[J(100),80]]);
+    const cx=J(100,1),cy=62;const d=blob(cx,cy,18,12,1);line(d);fill(d,'mustard');
+    [[-8,-8],[0,-11],[8,-8],[-12,0],[-4,-2],[4,-1],[12,1],[-8,7],[0,6],[8,8],[-2,13]].forEach(([dx,dy])=>line(arc(cx+dx+J(0,.8),cy+dy+J(0,.8),2.6,r()*360,210,0)));
+  },
+  euc(K){const{J,L,line,fill,blob}=K;
+    const base=[[100,332],[105,278],[97,214],[104,150],[98,92],[101,46]];
+    L(base.map(([x,y],i)=>i?[J(x),y]:[x,y]));
+    const sx=y=>{for(let i=0;i<base.length-1;i++){const[a,b]=base[i],[c,d]=base[i+1];if(y<=b&&y>=d){const t=(b-y)/(b-d);return a+(c-a)*t}}return 101};
+    [[298,-1,17],[278,1,16.5],[254,-1,15.5],[232,1,15],[210,-1,14],[188,1,13],[167,-1,12],[147,1,11],[128,-1,10],[110,1,9],[93,-1,8],[77,1,7],[62,-1,5.8],[50,1,4.6]]
+    .forEach(([y,side,R])=>{if(K.strip&&y>STRIP)return;const x=sx(y);const rr=J(R,R*.08);const cx=x+side*(rr+J(4,1.2)),cy=J(y-rr*.35,1.5);
+      const d=blob(cx,cy,rr,10,rr*.07+.4);line(d);fill(d,'sage');L([[x,y],[x+side*3,y-1],[cx-side*rr*.35,cy]]);});
+  },
+};
+const CACHE=new Map(),STEMD=new Map();
+/* a zinc florist's bucket, drawn in the same hand; on the shelf it hides the bottom of each stem */
+function bucket(seed,i){
+  const K=kit(seed,.7),{J,L,line,fill}=K;const top=292,bot=344,wt=J(35,1.2),wb=J(27,1);
+  const body=`M${f(100-wt)} ${top} C${f(100-wt+2)} ${top+30} ${f(100-wb-1)} ${bot-22} ${f(100-wb)} ${bot} C88 ${bot+2} 112 ${bot+1} ${f(100+wb)} ${bot} C${f(100+wb+1)} ${bot-22} ${f(100+wt-2)} ${top+30} ${f(100+wt)} ${top} Z`;
+  const tint=['zinc','enamel','zinc','sage2'][i%4];
+  fill(body,tint);line(body);
+  const rim=K.ell(100,top,wt,5.5,10,.4);fill(rim,'rim');line(rim);
+  L([[100-wt+4,top+16],[100,top+18],[100+wt-5,top+15.5]]);
+  L([[100-wb-2,bot-10],[100,bot-8.5],[100+wb+1,bot-10.5]]);
+  L([[100+wt-10,top+22],[100+wt-11,top+38]]);
+  const o=K.out;
+  return `<g>${o.fills.map(p=>`<path d="${p.d}" fill="#FCFCFA"/>`).join('')}</g>`+
+    `<g transform="translate(2 -1.5)" opacity=".92" style="mix-blend-mode:multiply">${o.fills.map(p=>`<path d="${p.d}" fill="${PAL[p.c]}"/>`).join('')}</g>`+
+    o.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+}
+const MAIN={ran:'pink',tul:'apricot',fre:'cream',sna:'lav',lil:'lily',ane:'white',pea:'pea',cal:'white',car:'carn',rose:'rose',hyd:'hyd',all:'allium',bun:'oat',gyp:'gyp',del:'delph',peo:'peony',dah:'dahlia'};
+function draw(k,s,strip,col){
+  const key=k+s+(strip?'s':'')+(col||'');if(CACHE.has(key))return CACHE.get(key);
+  const g=(seed,amt)=>{const K=kit(seed,amt,strip);GEN[k](K);return K.out};
+  const A=g(s,1.1),B=g(s+97,2.4);STEMD.set(k+s+(strip?'s':''),A.lines[0]);
+  const fc=c=>(col&&c===MAIN[k])?col:PAL[c];
+  /* in the bouquet, each stem gets an underlay in the paper's colour so the flower in front covers the one behind */
+  const under=strip?`<g class="under">${A.fills.map(p=>`<path d="${p.d}"/>`).join('')}</g>`:'';
+  const out=under+`<g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply">${B.fills.map(p=>`<path d="${p.d}" fill="${fc(p.c)}"/>`).join('')}</g>`+
+    A.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  CACHE.set(key,out);return out;
+}
+
+/* ---------- the bench ---------- */
+const G=1.68, T={x:330,y:468}, PIVOT=250, MAXN=12, SPREAD=56, SCMIN=.62, SCMAX=1.24;
+const KINDS={
+  ran:{name:'Ranunculus',price:6,hx:100,hy:92,r:40},
+  tul:{name:'Tulip',price:4,hx:101,hy:106,r:26},
+  lil:{name:'Lily',price:7,hx:100,hy:94,r:46},
+  ane:{name:'Anemone',price:5,hx:100,hy:94,r:36},
+  pea:{name:'Sweet pea',price:4,hx:104,hy:132,r:30},
+  cal:{name:'Calla lily',price:7,hx:104,hy:86,r:28},
+  car:{name:'Carnation',price:3,hx:100,hy:102,r:30},
+  rose:{name:'Rose',price:6,hx:100,hy:92,r:34},
+  hyd:{name:'Hydrangea',price:8,hx:100,hy:100,r:44},
+  all:{name:'Allium',price:5,hx:100,hy:62,r:30},
+  bun:{name:'Bunny tail',price:2,hx:100,hy:88,r:16},
+  gyp:{name:'Baby’s breath',price:3,hx:100,hy:100,r:46},
+  del:{name:'Delphinium',price:6,hx:100,hy:120,r:24},
+  peo:{name:'Peony',price:9,hx:100,hy:96,r:44},
+  dah:{name:'Dahlia',price:6,hx:100,hy:96,r:43},
+  fre:{name:'Freesia',price:4,hx:132,hy:128,r:34},
+  sna:{name:'Snapdragon',price:5,hx:100,hy:112,r:24},
+  cra:{name:'Craspedia',price:3,hx:100,hy:62,r:19},
+  euc:{name:'Eucalyptus',price:3,hx:100,hy:150,r:26},
+};
+for(const K of Object.values(KINDS)){const vx=K.hx-100,vy=K.hy-PIVOT;K.a0=Math.atan2(vx,-vy)*180/Math.PI;K.len=Math.hypot(vx,vy)}
+/* today's stems, eight to a page */
+const PAGES=[['rose','tul','cal','hyd','fre','car','sna','euc'],['all','gyp','del','pea','cra','bun','peo','dah']];
+const ALL=PAGES.flat();
+let page=0,SHELF=PAGES[0];
+/* what came in today: one colour each, two for tulip and carnation; every default sits in its own hue */
+const COLORS={
+  rose:[['Red','#D9545E']],
+  hyd:[['Blue','#A9BFEA']],all:[['Purple','#9F7CC9']],bun:[['Natural','#E6D9BE']],gyp:[['White','#F7F4EE']],
+  del:[['Blue','#9EB5E6']],peo:[['Blush','#F4C2C8']],dah:[['Magenta','#E28AB4']],
+  car:[['Pink','#F4B6C6'],['White','#EEE7DA']],
+  cal:[['White','#EEE7DA']],
+  ran:[['Blush','#F2B5B0'],['Butter','#F5DE92']],
+  tul:[['Orange','#F6A86E'],['Plum','#9C7FC4']],
+  pea:[['Lilac','#D6B4E6'],['Pink','#F2B5B0']],
+  lil:[['White','#F4E9DD']],ane:[['White','#EEE7DA']],fre:[['Lemon','#F3E7A0']],
+  sna:[['Lavender','#C3ADEA']],cra:[['Gold','#E9AE2B']],euc:[['Silver','#A9C3B2']],
+};
+const sel={};for(const k of ALL)sel[k]=COLORS[k][0][1];
+const colName=(k,c)=>(COLORS[k].find(x=>x[1]===c)||COLORS[k][0])[0];
+/* today's stock, as the shop would set it each morning */
+const STOCK={del:6,peo:5,dah:7,hyd:4,all:8,bun:18,gyp:25,car:16,tul:14,cal:6,fre:7,pea:10,sna:5,cra:12,euc:20,rose:12,ran:9,lil:6,ane:8};
+const left=k=>STOCK[k]-items.filter(i=>i.k===k).length;
+/* wrapping papers; twine colour is paired with each */
+/* wrapping papers: five textured sheets drawn as quiet SVG patterns (texture never louder than the stems);
+   front = the printed side, back = the plain inside you see when a corner folds over */
+const PAPERS={
+  /* pair: the card colour that sits behind this paper on the keepsake cards — a contrasting hue so the wrapped bunch stands out */
+  kraft:{name:'Kraft',fill:'url(#pp-kraft)',front:'#E2CBA4',back:'#D8C09A',crease:'#C8AD82',twine:'#B4593F',pair:'#BFD0DA'},
+  news:{name:'Newsprint',fill:'url(#pp-news)',front:'#EFEBE3',back:'#E5E0D6',crease:'#CFC9BC',twine:'#394038',pair:'#EFC3BA'},
+  gingham:{name:'Gingham',fill:'url(#pp-gingham)',front:'#F7DCD7',back:'#F4E6E2',crease:'#E5C9C3',twine:'#B4593F',pair:'#BFD3B8'},
+  dots:{name:'Dots',fill:'url(#pp-dots)',front:'#E6EDDF',back:'#DCE5D3',crease:'#BFCDB4',twine:'#B4593F',pair:'#F2CBAE'},
+  stripes:{name:'Stripes',fill:'url(#pp-stripes)',front:'#E9E3F3',back:'#ECE8F4',crease:'#D2C9E3',twine:'#394038',pair:'#F0DC9C'},
+};
+let paperId='kraft';const PP=()=>PAPERS[paperId];
+(function(){
+  const r=rng(77),J=(v,a)=>v+(r()-.5)*2*a,F=v=>Math.round(v*10)/10;let o='';
+  const pat=(id,w,h,base,inner)=>{o+=`<pattern id="${id}" width="${w}" height="${h}" patternUnits="userSpaceOnUse"><rect width="${w}" height="${h}" fill="${base}"/>${inner}</pattern>`};
+  const many=(n,fn)=>Array.from({length:n},fn).join('');
+  pat('pp-kraft',220,220,'#E2CBA4',many(30,()=>{const x=r()*220,y=r()*220,s=1+r()*2,dark=r()>.3;
+    return `<path d="M${F(x)} ${F(y)} q${F(s)} ${F(J(0,s))} ${F(s*1.6)} ${F(J(0,s*.6))} q${F(-s*.4)} ${F(s)} ${F(-s*1.4)} ${F(s*.4)}z" fill="${dark?'#A88A5E':'#F2E3C8'}" opacity="${dark?.55:.9}"/>`}));
+  pat('pp-news',280,160,'#EFEBE3',many(3,(_,i)=>{let s='',x=14;const y=30+i*46;while(x<260){const w=14+r()*36;s+=`<path d="M${F(x)} ${F(y+J(0,1))} L${F(x+w)} ${F(y+J(0,1))}" stroke="#B4B5AE" stroke-width="1.8" stroke-linecap="round" opacity=".5"/>`;x+=w+11+r()*11}return s}));
+  pat('pp-gingham',112,112,'#FCF3F0',`<path d="M0 ${F(28+J(0,1.4))} C37 ${F(27+J(0,2))} 75 ${F(29+J(0,2))} 112 28" stroke="#F0B9B4" stroke-width="22" opacity=".28" fill="none"/><path d="M${F(28+J(0,1.4))} 0 C${F(27+J(0,2))} 37 ${F(29+J(0,2))} 75 28 112" stroke="#F0B9B4" stroke-width="22" opacity=".28" fill="none"/>`);
+  const dot=(cx,cy)=>{const p=[[cx-4,cy-4],[cx+4,cy-5],[cx+5,cy+3],[cx-3,cy+5]].map(([x,y])=>[J(x,1),J(y,1)]);return `<path d="M${F(p[0][0])} ${F(p[0][1])} Q${F(p[1][0])} ${F(p[1][1]-2)} ${F(p[1][0])} ${F(p[1][1])} Q${F(p[2][0]+2)} ${F(p[2][1])} ${F(p[2][0])} ${F(p[2][1])} Q${F(p[3][0])} ${F(p[3][1]+2)} ${F(p[3][0])} ${F(p[3][1])} Q${F(p[0][0]-2)} ${F(p[0][1])} ${F(p[0][0])} ${F(p[0][1])}Z" fill="#B3CABB"/>`};
+  pat('pp-dots',100,100,'#E6EDDF',dot(20,20)+dot(70,70));
+  pat('pp-stripes',76,220,'#F3F0F8',`<path d="M19 0 C15 55 23 110 19 165 S16 205 19 220" stroke="#CFC4EA" stroke-width="13" fill="none" opacity=".45"/>`);
+  document.querySelector('#paper defs').insertAdjacentHTML('beforeend',o);
+})();
+
+
+let items=[],nextId=1,state='build',pinchP=0;
+const svg=$('#paper'),layerStems=$('#stems'),layerGhost=$('#ghost');
+const cl=v=>Math.max(0,Math.min(1,v));
+const ez=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const rand=()=>Math.floor(Math.random()*1e6);
+
+/* shelf */
+function buildShelf(){$('#shelf').innerHTML=SHELF.map((k,i)=>`<div class="item" data-k="${k}">
+  <button class="pick" type="button" data-k="${k}">
+    <svg viewBox="0 0 200 340" aria-hidden="true"></svg>
+    <span class="row"><span class="nm">${KINDS[k].name}</span><span class="dots" aria-hidden="true"></span><span class="pr">$${KINDS[k].price}</span></span></button>
+  <div class="meta"><span class="left"></span>
+  <div class="swatches" role="group" aria-label="${KINDS[k].name} colour">${COLORS[k].length>1?COLORS[k].map(([n,c])=>`<button class="sw" type="button" data-k="${k}" data-c="${c}" title="${n}" aria-label="${n}" style="background:${c}"></button>`).join(''):''}</div></div>
+</div>`).join('');renderShelf();
+  $('#pgNum').textContent=`p. ${page+1} of ${PAGES.length}`;
+  $('#pgPrev').disabled=page===0;$('#pgNext').disabled=page===PAGES.length-1;
+}
+function goPage(p){
+  if(p<0||p>=PAGES.length||p===page)return;
+  const s=$('#shelf'),dir=p>page?1:-1;s.style.setProperty('--dir',dir);s.classList.add('out');
+  setTimeout(()=>{page=p;SHELF=PAGES[p];buildShelf();s.classList.remove('out');s.classList.add('in');requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.remove('in')))},170);
+}
+function renderShelf(){
+  SHELF.forEach(k=>{
+    const it=document.querySelector(`.item[data-k="${k}"]`),n=left(k);if(!it)return;
+    it.querySelector('svg').innerHTML=draw(k,4100+ALL.indexOf(k)*37,false,sel[k]);
+    it.classList.toggle('out',n<=0);
+    const l=it.querySelector('.left');l.textContent=n<=0?'sold out today':n<=5?`only ${n} left!`:'';l.classList.toggle('low',n>0&&n<=5);
+    it.querySelector('.pick').setAttribute('aria-label',n<=0?`${KINDS[k].name}, sold out today`:`Add a ${colName(k,sel[k]).toLowerCase()} ${KINDS[k].name.toLowerCase()}, $${KINDS[k].price}, ${n} left`);
+    it.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===sel[k]));
+  });
+}
+$('#shelf').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b)return;sel[b.dataset.k]=b.dataset.c;renderShelf()});
+$('#today').innerHTML=`<b>${new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</b> · fresh today, changes daily`;
+$('#rings').innerHTML=Array.from({length:14},(_,i)=>`<svg viewBox="0 0 44 16"><path d="M3 ${f(8+(i%3-1)*.7)} C3 2.2 41 ${f(1.6+(i%2)*.8)} 41 8 C41 ${f(13.6-(i%2)*.6)} 3 14 3 ${f(8+(i%3-1)*.7)}"/></svg>`).join('');
+$('#mark').innerHTML=`<svg viewBox="0 0 200 340">${draw('fre',2024)}</svg>`;
+buildShelf();
+$('#pgPrev').addEventListener('click',()=>goPage(page-1));
+$('#pgNext').addEventListener('click',()=>goPage(page+1));
+/* paper picker */
+$('#papers').innerHTML=`<p class="ph">choose a paper</p>`+Object.entries(PAPERS).map(([id,p],i)=>`<button class="pp" type="button" data-p="${id}" aria-label="${p.name} paper" aria-pressed="${id===paperId}"><svg viewBox="0 0 70 50" aria-hidden="true"><path class="loop" d="M10 30 C4 12 30 3 54 7 C70 10 70 36 50 44 C30 50 8 44 6 26 C5 18 12 12 20 9"/><g class="sheet"><path d="M14 13 C28 ${11-i%2} 44 10 56 ${9+i%2} C57 19 57 29 58 39 C44 40 30 41 16 42 C15 32 15 22 14 13 Z" fill="${p.fill}" stroke="#394038" stroke-width="1.3" stroke-linejoin="round"/><path d="M47 ${10+i%2} L56 ${19+i%2}" fill="none" stroke="#394038" stroke-width="1" opacity=".5"/></g></svg><span>${p.name}</span></button>`).join('');
+$('#papers').addEventListener('click',e=>{const b=e.target.closest('.pp');if(!b||state==='ordered')return;setPaper(b.dataset.p)});
+const mq=matchMedia('(max-width:820px)');
+const setHow=()=>{$('#howto').textContent=mq.matches?'Tap a stem to add it, or drag it up onto the paper. Tap a flower on the paper to bring it forward.':'Drag or click a stem to add it. Click a flower on the paper to bring it forward; Shift-click sends it back.'};
+setHow();mq.addEventListener?.('change',setHow);
+
+/* placement rule: the stem tail locks to the tie point; the head goes where you put it, inside a fan */
+function placeFor(k,pt){
+  const K=KINDS[k];const vx=pt.x-T.x,vy=pt.y-T.y;
+  const a=Math.atan2(vx,-vy)*180/Math.PI;
+  let rot=Math.max(-SPREAD,Math.min(SPREAD,a-K.a0));
+  const sc=Math.max(SCMIN,Math.min(SCMAX,Math.hypot(vx,vy)/(K.len*G)));
+  return {rot:nudge(k,rot,sc),sc};
+}
+/* gentle spacing: if a head would sit mostly on top of another, ease it a few degrees aside */
+function headAt(k,rot,sc){const K=KINDS[k],a=(rot+K.a0)*Math.PI/180,d=K.len*G*sc;return [T.x+Math.sin(a)*d,T.y-Math.cos(a)*d]}
+function nudge(k,rot,sc){
+  const K=KINDS[k];let shift=0;
+  for(let pass=0;pass<3;pass++){
+    const h=headAt(k,rot+shift,sc);let moved=false;
+    for(const o of items){const ho=headAt(o.k,o.rot,o.sc),need=(K.r*sc+KINDS[o.k].r*o.sc)*G*.62;
+      const dx=h[0]-ho[0],dy=h[1]-ho[1],dd=Math.hypot(dx,dy);
+      if(dd<need){const dir=Math.sign(dx)||(rot>=0?1:-1);shift+=dir*Math.min(3,(need-dd)/(K.len*G*sc)*57.3*.5);moved=true}}
+    if(!moved)break;
+  }
+  shift=Math.max(-7,Math.min(7,shift));
+  return Math.max(-SPREAD,Math.min(SPREAD,rot+shift));
+}
+function autoPlace(k){
+  const used=items.map(i=>i.rot+KINDS[i.k].a0);
+  let best=(Math.random()-.5)*10;
+  if(used.length){let bs=-1e9;for(let a=-46;a<=46;a+=2){const m=Math.min(...used.map(u=>Math.abs(u-a)));const s=m-Math.abs(a)*.12+Math.random()*2.5;if(s>bs){bs=s;best=a}}}
+  return {rot:Math.max(-SPREAD,Math.min(SPREAD,best-KINDS[k].a0)),sc:.9+Math.random()*.16};
+}
+/* each stem passes the tie a few px apart (not all through one point), and is cut off at the tie;
+   below it, the stems run together as one neat bundle */
+const neck=it=>it.rot*.16*(1-.5*pinchP);
+const tf=it=>`translate(${f(T.x+neck(it))} ${T.y}) rotate(${f(it.rot*(1-.22*pinchP))}) scale(${(G*it.sc*(1-.04*pinchP)).toFixed(3)}) translate(-100 -${PIVOT})`;
+function stemMarkup(it,cls=''){const K=KINDS[it.k];
+  return `<g class="pl ${cls}" data-id="${it.id||''}" transform="${tf(it)}"><g clip-path="url(#above)"><g class="${it.fresh?'pop':''}">${draw(it.k,it.seed,true,it.col)}</g></g>${cls?'':`<circle class="hit" cx="${K.hx}" cy="${K.hy}" r="36"/>`}</g>`}
+/* stacking: by default shorter stems sit in front; a stem you click (or move) comes to the front */
+const order=()=>[...items].sort((a,b)=>(a.z||0)-(b.z||0)||KINDS[b.k].len*b.sc-KINDS[a.k].len*a.sc);
+const topZ=()=>Math.max(0,...items.map(i=>i.z||0))+1, bottomZ=()=>Math.min(0,...items.map(i=>i.z||0))-1;
+function restack(id,back){
+  const it=items.find(i=>i.id===id);if(!it||state!=='build')return;
+  it.z=back?bottomZ():topZ();it.fresh=true;renderStems();
+  say(back?`Moved the ${KINDS[it.k].name.toLowerCase()} to the back.`:`Moved the ${KINDS[it.k].name.toLowerCase()} to the front.`);
+}
+const layerTails=document.getElementById('tails');
+/* where each drawn stem actually crosses the tie line, and which way it is heading there */
+const probe=el('path',{},document.querySelector('#paper defs'));
+const SE=new Map();
+function stemEnd(k,seed){
+  const key=k+seed;if(SE.has(key))return SE.get(key);
+  draw(k,seed,true);probe.setAttribute('d',STEMD.get(key+'s'));
+  const Ln=probe.getTotalLength();let lo=0,hi=Ln;
+  for(let i=0;i<22;i++){const m=(lo+hi)/2;if(probe.getPointAtLength(m).y>PIVOT)lo=m;else hi=m}
+  const p=probe.getPointAtLength(hi),q=probe.getPointAtLength(Math.max(0,hi-8));
+  const r={x:p.x,y:p.y,dx:q.x-p.x,dy:q.y-p.y};SE.set(key,r);return r;
+}
+function renderTails(){
+  const byRot=[...items].sort((a,b)=>a.rot-b.rot);
+  layerTails.innerHTML=byRot.map((it,i)=>{
+    const e=stemEnd(it.k,it.seed),a=it.rot*(1-.22*pinchP)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),sc=G*it.sc*(1-.04*pinchP);
+    const lx=(e.x-100)*sc,ly=(e.y-PIVOT)*sc;
+    const x0=T.x+neck(it)+lx*c-ly*s,y0=T.y+lx*s+ly*c;
+    let dx=e.dx*c-e.dy*s,dy=e.dx*s+e.dy*c;const dl=Math.hypot(dx,dy)||1;dx/=dl;dy/=dl;
+    const x1=T.x+(i-(byRot.length-1)/2)*2.2+neck(it)*.3,y1=T.y+108+((it.seed%9)-4)*.8;
+    return `<path d="M${f(x0)} ${f(y0)} C${f(x0+dx*30)} ${f(y0+dy*30)} ${f(x1)} ${f(T.y+58)} ${f(x1)} ${f(y1)}"/>`}).join('');
+}
+let tipShown=false;
+function tipOnce(){if(tipShown)return;tipShown=true;say('Tip: click a flower on the paper to bring it forward.')}
+function renderStems(){if(items.some(i=>i.fresh&&i.id>3))tipOnce();layerStems.innerHTML=order().map(it=>stemMarkup(it)).join('');renderTails();items.forEach(i=>i.fresh=false);updateUI()}
+function updateStemTransforms(){layerStems.querySelectorAll('.pl').forEach(g=>{const it=items.find(i=>i.id==g.dataset.id);if(it)g.setAttribute('transform',tf(it))});renderTails()}
+
+/* ---------- paper: a tilted sheet with two creases; the lower corners fold up across the stems ---------- */
+const BASE={TL:[78,70],TR:[520,26],BR:[578,608],BL:[136,652],F1:[104,330],E1:[300,636],F2:[551,340],E2:[360,630]};
+/* the wrapped shape is fitted to the bunch: paper top sits just under the tallest heads,
+   both creases run to one cone tip under the tie, and each folded corner lands where we want it */
+let WR=null;
+function reflect(P,A,B){const ux=B[0]-A[0],uy=B[1]-A[1],Ln=Math.hypot(ux,uy),nx=ux/Ln,ny=uy/Ln;
+  const pr=(P[0]-A[0])*nx+(P[1]-A[1])*ny,px=A[0]+nx*pr,py=A[1]+ny*pr;return [2*px-P[0],2*py-P[1]]}
+function computeWrapped(){
+  const heads=items.map(it=>{const K=KINDS[it.k];const a=(it.rot*.78+K.a0)*Math.PI/180;const d=K.len*G*it.sc*.96;return [T.x+Math.sin(a)*d,T.y-Math.cos(a)*d]});
+  const minY=Math.min(...heads.map(h=>h[1])),minX=Math.min(...heads.map(h=>h[0])),maxX=Math.max(...heads.map(h=>h[0]));
+  const Lx=Math.max(40,Math.min(minX-40,T.x-125)),Rx=Math.min(590,Math.max(maxX+40,T.x+125));
+  const topY=Math.max(30,Math.min(minY+40,T.y-200));
+  const TL=[Lx,topY+12],TR=[Rx,topY-10];
+  const F1=[Lx+26,T.y-34],F2=[Rx-26,T.y-48];
+  const E=[T.x+2,T.y+86];
+  const DL=[T.x+62,T.y-12],DR=[T.x-56,T.y-40];
+  return {TL,TR,F1,F2,E1:E,E2:E,BL:reflect(DL,F1,E),BR:reflect(DR,F2,E)};
+}
+function gat(k,g){const a=BASE[k];if(!WR||g<=0)return a;const b=WR[k];return [a[0]+(b[0]-a[0])*g,a[1]+(b[1]-a[1])*g]}
+function lineX(A,B,y){return A[0]+(B[0]-A[0])*(y-A[1])/(B[1]-A[1])}
+function layoutTwine(){
+  const y=T.y+30,xl=lineX(WR.F1,WR.E1,y)-6,xr=lineX(WR.F2,WR.E2,y)+6,cx=(xl+xr)/2+4;
+  $('#band').setAttribute('d',`M${f(xl)} ${f(y-4)} C${f(xl+40)} ${f(y+8)} ${f(cx-30)} ${f(y+10)} ${f(cx)} ${f(y+5)} C${f(cx+30)} ${f(y)} ${f(xr-40)} ${f(y-6)} ${f(xr)} ${f(y-14)}`);
+  $('#bow').setAttribute('d',`M${f(cx)} ${f(y+2)} C${f(cx-30)} ${f(y-32)} ${f(cx-54)} ${f(y-6)} ${f(cx-34)} ${f(y+6)} C${f(cx-24)} ${f(y+12)} ${f(cx-8)} ${f(y+8)} ${f(cx)} ${f(y+3)} M${f(cx+2)} ${f(y+2)} C${f(cx+30)} ${f(y-34)} ${f(cx+62)} ${f(y-10)} ${f(cx+44)} ${f(y+5)} C${f(cx+34)} ${f(y+13)} ${f(cx+14)} ${f(y+9)} ${f(cx+3)} ${f(y+4)} M${f(cx-1)} ${f(y+5)} C${f(cx-8)} ${f(y+26)} ${f(cx-14)} ${f(y+42)} ${f(cx-28)} ${f(y+62)} M${f(cx+4)} ${f(y+5)} C${f(cx+13)} ${f(y+24)} ${f(cx+20)} ${f(y+38)} ${f(cx+38)} ${f(y+52)}`);
+  const tx=cx+22,ty=y+70;
+  $('#tagString').setAttribute('d',`M${f(cx+2)} ${f(y+5)} C${f(cx+8)} ${f(y+30)} ${f(tx+2)} ${f(ty-20)} ${f(tx+10)} ${f(ty+20)}`);
+  $('#tagBody').setAttribute('transform',`translate(${f(tx)} ${f(ty)}) rotate(9)`);
+  measure();
+}
+const WOB={};
+function edge(a,b,key){const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],Ln=Math.hypot(dx,dy)||1;
+  const k=WOB[key]??(WOB[key]=(Math.random()-.5)*6);return `Q${f(mx-dy/Ln*k)} ${f(my+dx/Ln*k)} ${f(b[0])} ${f(b[1])}`}
+const M=p=>`M${f(p[0])} ${f(p[1])}`, Lt=p=>`L${f(p[0])} ${f(p[1])}`;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e}
+const sheet=$('#sheet');
+const S={fill:el('path',{fill:'#EDE4D3'},sheet),grain:el('path',{filter:'url(#grain)'},sheet),
+  edge:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round','stroke-linejoin':'round'},sheet),
+  crease:el('path',{fill:'none',stroke:'#CDBFA4','stroke-width':1.2,'stroke-linecap':'round'},sheet)};
+function makeFlap(){const g=el('g',{});return {g,fill:el('path',{},g),grain:el('path',{filter:'url(#grain)'},g),
+  edge:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round','stroke-linejoin':'round'},g),
+  fold:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round'},g)}}
+const FL={L:makeFlap(),R:makeFlap()};
+$('#backL').appendChild(FL.L.g);$('#backR').appendChild(FL.R.g);
+function foldPt(F,E,C,th){const ux=E[0]-F[0],uy=E[1]-F[1],Ln=Math.hypot(ux,uy),nx=ux/Ln,ny=uy/Ln;
+  const pr=(C[0]-F[0])*nx+(C[1]-F[1])*ny,px=F[0]+nx*pr,py=F[1]+ny*pr,c=Math.cos(th);
+  return [[px+(C[0]-px)*c,py+(C[1]-py)*c-Math.sin(th)*18],c]}
+function setFlap(fl,F,E,C0,th,k1,k2,side){
+  const [C,c]=foldPt(F,E,C0,th);
+  const d=`${M(F)}${edge(F,C,k1)}${edge(C,E,k2)}${Lt(F)}Z`;
+  fl.fill.setAttribute('d',d);fl.grain.setAttribute('d',d);
+  fl.fill.setAttribute('fill',c<0?PP().back:PP().fill);
+  fl.edge.setAttribute('d',`${M(F)}${edge(F,C,k1)}${edge(C,E,k2)}`);
+  fl.fold.setAttribute('d',`${M(F)}${Lt(E)}`);fl.fold.setAttribute('opacity',cl(th/1.2).toFixed(2));
+  const want=th>.001?$(side==='L'?'#frontL':'#frontR'):$(side==='L'?'#backL':'#backR');
+  if(fl.g.parentNode!==want)want.appendChild(fl.g);
+}
+let curPaper=[0,0,0];
+function setPaper(id){
+  paperId=id;const p=PP();
+  svg.style.setProperty('--wrap',p.front);
+  $('#twine').setAttribute('stroke',p.twine);$('#tagString').setAttribute('stroke',p.twine);
+  document.querySelectorAll('.pp').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===id));
+  const pn=document.getElementById('pname');if(pn)pn.textContent=p.name;
+  drawPaper(...curPaper);
+}
+function drawPaper(g,lf,rf){
+  curPaper=[g,lf,rf];S.fill.setAttribute('fill',PP().fill);S.crease.setAttribute('stroke',PP().crease);
+  const P={};for(const k in BASE)P[k]=gat(k,g);
+  const hex=`${M(P.TL)}${edge(P.TL,P.TR,'t')}${edge(P.TR,P.F2,'r1')}${Lt(P.E2)}${edge(P.E2,P.E1,'b')}${Lt(P.F1)}${edge(P.F1,P.TL,'l1')}Z`;
+  S.fill.setAttribute('d',hex);S.grain.setAttribute('d',hex);
+  S.edge.setAttribute('d',`${M(P.F1)}${edge(P.F1,P.TL,'l1')}${edge(P.TL,P.TR,'t')}${edge(P.TR,P.F2,'r1')}${M(P.E2)}${edge(P.E2,P.E1,'b')}`);
+  S.crease.setAttribute('d',`${M(P.F1)}${Lt(P.E1)}${M(P.F2)}${Lt(P.E2)}`);
+  setFlap(FL.L,P.F1,P.E1,P.BL,lf*Math.PI,'l2','b2','L');
+  setFlap(FL.R,P.F2,P.E2,P.BR,rf*Math.PI,'r2','b3','R');
+}
+S.crease.setAttribute('stroke','#CDBFA4');
+
+/* twine */
+const band=$('#band'),bow=$('#bow'),twine=$('#twine'),tag=$('#tag');
+let bandL=0,bowL=0;
+function measure(){bandL=band.getTotalLength();bowL=bow.getTotalLength();band.style.strokeDasharray=bandL;bow.style.strokeDasharray=bowL}
+
+/* ---------- wrap timeline (played forward to wrap, backward to unwrap) ---------- */
+const TOTAL=2300;
+function frameAt(t){return{pinch:ez(cl(t/520)),g:ez(cl((t-120)/1250)),lf:ez(cl((t-300)/720)),rf:ez(cl((t-780)/720)),tw:cl((t-1420)/820)}}
+function apply(fr){
+  pinchP=fr.pinch;updateStemTransforms();drawPaper(fr.g,fr.lf,fr.rf);
+  const bp=cl(fr.tw*1.7),wp=cl(fr.tw*1.7-.7);
+  band.style.strokeDashoffset=bandL*(1-bp);bow.style.strokeDashoffset=bowL*(1-wp);
+  twine.setAttribute('opacity',fr.tw>0?1:0);
+}
+function play(forward,done){
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dur=reduce?1:(forward?TOTAL:TOTAL*.55);const t0=performance.now();
+  (function step(now){const p=Math.min(1,(now-t0)/dur);apply(frameAt((forward?p:1-p)*TOTAL));p<1?requestAnimationFrame(step):done()})(t0);
+}
+
+/* ---------- UI state ---------- */
+let msgTimer;
+function say(t,keep){$('#msg').textContent=t;clearTimeout(msgTimer);if(!keep)msgTimer=setTimeout(()=>{$('#msg').textContent=''},3200)}
+const total=()=>items.reduce((s,i)=>s+KINDS[i.k].price,0);
+function updateUI(){
+  const n=items.length;renderShelf();
+  $('#count').textContent=`${n} stem${n===1?'':'s'}`;$('#total').textContent=`$${total()}`;
+  $('#hintText').style.display=(n||state!=='build')?'none':'';
+  $('#ring').style.display=state==='build'?'':'none';
+  svg.classList.toggle('locked',state!=='build');
+  let h='';
+  if(state==='build'){if(n)h+=`<button class="link" id="bClear" type="button">Clear</button>`;h+=`<button class="primary" id="bWrap" type="button" ${n?'':'disabled'}>${n===1?'Wrap stem':'Wrap bouquet'}</button>`}
+  else if(state==='wrapped')h=`<button class="link" id="bUnwrap" type="button">Unwrap</button><button class="primary" id="bOrder" type="button">Buy this bunch · $${total()}</button>`;
+  else if(state==='checkout')h=`<button class="link" id="bBack" type="button">Back</button><button class="primary" id="bPlace" type="submit" form="viewCheckout">Place order · $${total()}</button>`;
+  else if(state==='ordered')h=`<button class="link" id="bNew" type="button">Start another bunch</button>`;
+  else h=`<button class="primary" type="button" disabled>${state==='wrapping'?'Wrapping…':'Unwrapping…'}</button>`;
+  $('#actions').innerHTML=h;showView();
+  $('#bClear')?.addEventListener('click',()=>{items=[];renderStems();say('Paper cleared.')});
+  $('#bWrap')?.addEventListener('click',wrap);
+  $('#bUnwrap')?.addEventListener('click',unwrap);
+  $('#bOrder')?.addEventListener('click',goCheckout);
+  $('#bBack')?.addEventListener('click',()=>{state='wrapped';updateUI()});
+  $('#bNew')?.addEventListener('click',()=>{items=[];tag.classList.remove('on');pinchP=0;apply(frameAt(0));state='build';resetCheckout();renderStems();say('')});
+}
+function wrap(){if(!items.length)return;state='wrapping';updateUI();say('');
+  WR=computeWrapped();layoutTwine();
+  const n=items.length;$('#tagText').textContent=`${n} stem${n===1?'':'s'}`;
+  play(true,()=>{state='wrapped';tag.classList.remove('on');void tag.getBBox();tag.classList.add('on');updateUI();setTimeout(()=>$('#bOrder')?.focus({preventScroll:true}),50)})}
+function unwrap(){state='unwrapping';tag.classList.remove('on');updateUI();play(false,()=>{state='build';updateUI();say('Unwrapped. Keep arranging.')})}
+
+/* ---------- buying: wrap → Buy → checkout on the left → Place order → booked. The wrapped bunch stays on the paper throughout. ---------- */
+const co={day:'Today',time:'2–4',pay:'pickup',no:''};
+const views={shop:$('#viewShop'),checkout:$('#viewCheckout'),done:$('#viewDone')};
+function showView(){
+  const v=state==='checkout'?'checkout':state==='ordered'?'done':'shop';
+  for(const k in views)views[k].hidden=k!==v;
+  $('#dlBtn').hidden=!['wrapped','checkout','ordered'].includes(state);
+  $('#papers').style.visibility=state==='ordered'?'hidden':'';
+}
+function chipGroup(id,key){$(id).addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;co[key]=b.dataset.v;$(id).querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b))})}
+chipGroup('#coDay','day');chipGroup('#coTime','time');chipGroup('#coPay','pay');
+$('#viewCheckout').addEventListener('submit',e=>{e.preventDefault();placeOrder()});
+/* Buy leads to the shop's "opening soon" page: no checkout, no order, no payment; a colophon says it's a concept */
+function goCheckout(){
+  const art=$('#cArt');art.innerHTML='';const c=bouquetClone();c.setAttribute('preserveAspectRatio','xMidYMid meet');art.appendChild(c);
+  /* swap the plain sketch for the card itself once it's drawn */
+  showCard(nextStyle());
+  const counts=new Map();items.forEach(it=>counts.set(it.k,(counts.get(it.k)||0)+1));
+  $('#cSum').textContent=`Your bunch: ${[...counts].map(([k,n])=>`${n} ${KINDS[k].name.toLowerCase()}`).join(', ')}, wrapped in ${PP().name.toLowerCase()} paper · $${total()}.`;
+  $('#concept').hidden=false;document.body.classList.add('modal-open');setTimeout(()=>$('#cH').focus({preventScroll:true}),60);
+}
+function closeConcept(){$('#concept').hidden=true;document.body.classList.remove('modal-open')}
+$('#cBack').addEventListener('click',()=>{closeConcept();$('#bOrder')?.focus({preventScroll:true})});
+$('#cSave').addEventListener('click',()=>savePicture(true));
+$('#cShuffle').addEventListener('click',()=>showCard(nextStyle()));
+$('#cNew').addEventListener('click',()=>{closeConcept();items=[];tag.classList.remove('on');pinchP=0;apply(frameAt(0));state='build';renderStems();say('')});
+$('#concept').addEventListener('keydown',e=>{if(e.key==='Escape')closeConcept()});
+function placeOrder(){
+  const name=$('#coName').value.trim();
+  if(!name){$('#coName').setAttribute('aria-invalid','true');$('#coErr').textContent='Add a name so we know whose bunch it is.';$('#coName').focus();return}
+  $('#coName').removeAttribute('aria-invalid');$('#coErr').textContent='';
+  co.no=String(1000+Math.floor(Math.random()*9000));
+  const counts=new Map();items.forEach(it=>counts.set(it.k,(counts.get(it.k)||0)+1));
+  const stems=[...counts].map(([k,n])=>`${n} ${KINDS[k].name.toLowerCase()}`).join(', ');
+  const note=$('#coNote').value.trim();
+  $('#doneH').textContent=`Thank you, ${name.split(' ')[0]}.`;
+  $('#doneDl').innerHTML=
+    `<dt>Order</dt><dd class="big">No. ${co.no}</dd>`+
+    `<dt>Pick up</dt><dd>${co.day}, ${co.time} pm<br>By the Stem, 12 Elm St</dd>`+
+    `<dt>Bunch</dt><dd>${stems}<br>${PP().name} paper</dd>`+
+    (note?`<dt>Note</dt><dd>“${note.replace(/</g,'&lt;')}”</dd>`:'')+
+    `<dt>${co.pay==='now'?'Paid':'To pay'}</dt><dd class="big">$${total()}${co.pay==='now'?'':' <small style="font:400 15px var(--f-ui);color:var(--muted)">at pickup</small>'}</dd>`+
+    `<dt></dt><dd style="color:var(--muted);font-size:15px">${$('#coPhone').value.trim()?'We’ll text you when it’s ready.':'It’ll be ready at the counter.'}</dd>`;
+  state='ordered';updateUI();say('');
+}
+function resetCheckout(){['#coName','#coPhone','#coNote'].forEach(s=>$(s).value='');$('#coErr').textContent=''}
+
+/* a picture of the bunch to keep: the wrapped sketch on a card with the shop's name */
+function bouquetClone(noTag){
+  const c=svg.cloneNode(true);c.removeAttribute('id');
+  ['#hint','#ghost'].forEach(s=>c.querySelector(s)?.remove());
+  if(noTag)c.querySelector('#tag')?.remove();
+  c.querySelectorAll('.hit').forEach(n=>n.remove());
+  c.querySelectorAll('[id]').forEach(n=>{const t=n.tagName.toLowerCase();if(t!=='filter'&&t!=='clippath'&&t!=='pattern')n.removeAttribute('id')});
+  const tg=document.getElementById('tag'),was=tg.style.display;if(noTag)tg.style.display='none';
+  const bb=svg.getBBox();tg.style.display=was;const p=22;
+  c.setAttribute('viewBox',`${f(bb.x-p)} ${f(bb.y-p)} ${f(bb.width+2*p)} ${f(bb.height+2*p)}`);
+  return c;
+}
+function svgImage(str){return new Promise((res,rej)=>{const url=URL.createObjectURL(new Blob([str],{type:'image/svg+xml'}));const im=new Image();im.onload=()=>{res(im);setTimeout(()=>URL.revokeObjectURL(url),1000)};im.onerror=rej;im.src=url})}
+function wobLine(ctx,x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.quadraticCurveTo((x1+x2)/2+(Math.random()-.5)*3,(y1+y2)/2+(Math.random()-.5)*3,x2,y2);ctx.stroke()}
+/* ---------- keepsake cards: six styles, a different one each time; every style uses the bunch as it was wrapped ---------- */
+const CARD_STYLES=['classic','polaroid','tag','framed','polaroidKraft','tagKraft'],N_STYLES=CARD_STYLES.length;
+let cardStyle=CARD_STYLES[Math.floor(Math.random()*N_STYLES)],lastCard=null;
+/* a different style from the one shown, every time */
+const nextStyle=()=>{const i=CARD_STYLES.indexOf(cardStyle);cardStyle=CARD_STYLES[(i+1+Math.floor(Math.random()*(N_STYLES-1)))%N_STYLES];return cardStyle};
+function stemNames(){const seen=[];items.forEach(it=>{const n=KINDS[it.k].name.toLowerCase();if(!seen.includes(n))seen.push(n)});
+  return seen.length<2?(seen[0]||''):seen.slice(0,-1).join(', ')+' & '+seen[seen.length-1]}
+const INKC='#394038',MUTED='#7A8077',RUST='#B4593F',BG='#F3EFE6';
+async function bunchImage(maxW,maxH){
+  const c=bouquetClone(true);c.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const vb=c.getAttribute('viewBox').split(' ').map(Number),s=Math.min(maxW/vb[2],maxH/vb[3]);
+  c.setAttribute('width',f(vb[2]*s));c.setAttribute('height',f(vb[3]*s));
+  const st=document.createElementNS(NS,'style');st.textContent='.under path{fill:#FAF6EE}text{font-family:cursive}';c.insertBefore(st,c.firstChild);
+  return {im:await svgImage(new XMLSerializer().serializeToString(c)),w:vb[2]*s,h:vb[3]*s};
+}
+async function paperTexture(w,h){
+  const id=PP().fill.slice(5,-1),p=document.getElementById(id);
+  /* the card is drawn much bigger than the bench, so the texture is scaled up to keep the same quiet density */
+  const def=p?new XMLSerializer().serializeToString(p).replace('<pattern ','<pattern patternTransform="scale(2)" '):'';
+  return svgImage(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><defs>${def}</defs><rect width="${w}" height="${h}" fill="${p?`url(#${id})`:PP().front}"/></svg>`);
+}
+function wobRect(ctx,x,y,w,h){wobLine(ctx,x,y,x+w,y+1);wobLine(ctx,x+w,y,x+w-1,y+h);wobLine(ctx,x+w,y+h,x,y+h-1);wobLine(ctx,x,y+h,x+1,y)}
+function grain(ctx,x,y,w,h){ctx.save();ctx.globalAlpha=.05;ctx.fillStyle=INKC;for(let i=0;i<w*h/110;i++)ctx.fillRect(x+Math.random()*w,y+Math.random()*h,1.4,1.4);ctx.restore()}
+const longDate=()=>new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+const shortDate=()=>new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'}).toLowerCase();
+function fitFont(ctx,text,size,min,maxW,face='Nanum Pen Script'){let s=size;while(s>min){ctx.font=`${s}px "${face}"`;if(ctx.measureText(text).width<maxW)break;s-=2}return s}
+
+/* every card: plain ground, the wrapped bunch as the one textured thing, and three levels of text only —
+   the flowers (largest, by hand), the shop's name, the date (smallest, muted) */
+function shade(hex,amt){const n=parseInt(hex.slice(1),16),m=c=>Math.round(c*(1-amt));return `rgb(${m(n>>16)},${m(n>>8&255)},${m(n&255)})`}
+function softTint(hex,amt){const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,m=c=>Math.round(c+(255-c)*amt);return `rgb(${m(r)},${m(g)},${m(b)})`}
+/* 1. classic: cream card, offset print, a soft wash of the paper's colour behind the bunch */
+async function drawClassic(ctx,W,H){
+  /* the ground behind the card is the paper's own colour, a little deeper, so the cream card stands out clearly */
+  ctx.fillStyle=PP().pair;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const m=70,cw=W-2*m,ch=H-2*m;
+  ctx.fillStyle='rgba(244,201,166,.5)';ctx.fillRect(m+12,m-9,cw,ch);
+  ctx.fillStyle='#FFFDF7';ctx.fillRect(m,m,cw,ch);grain(ctx,m,m,cw,ch);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,m,m,cw,ch);
+  ctx.textAlign='center';ctx.fillStyle=INKC;ctx.font='58px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,m+110);
+  const tw=ctx.measureText('By the Stem').width;ctx.strokeStyle=RUST;ctx.lineWidth=2.6;wobLine(ctx,W/2-tw/2+4,m+124,W/2+tw/2+2,m+121);
+  const cx=W/2,cy=m+560;ctx.save();ctx.fillStyle=softTint(PP().pair,.55);ctx.beginPath();
+  for(let i=0;i<=28;i++){const t=i/28*Math.PI*2,r=360+Math.sin(t*3+1.3)*14+Math.cos(t*5)*8;const x=cx+Math.cos(t)*r,y=cy+Math.sin(t)*r*.94;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}
+  ctx.closePath();ctx.fill();ctx.restore();
+  const b=await bunchImage(cw-120,820);ctx.drawImage(b.im,cx-b.w/2,cy-b.h/2,b.w,b.h);
+  const names=stemNames();ctx.fillStyle=INKC;fitFont(ctx,names,70,40,cw-160);ctx.fillText(names,W/2,m+ch-120);
+  ctx.fillStyle=MUTED;ctx.font='26px "Patrick Hand"';ctx.fillText(longDate(),W/2,m+ch-70);
+}
+/* 2. polaroid: white instant-photo frame; the photo is a plain tint of the paper colour so only the bunch carries texture */
+async function drawPolaroid(ctx,W,H){
+  ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const fw=860,fh=1090;ctx.save();ctx.translate(W/2,H/2+14);ctx.rotate(-.03);
+  const x=-fw/2,y=-fh/2;
+  ctx.fillStyle='rgba(57,64,56,.09)';ctx.fillRect(x+12,y+16,fw,fh);
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(x,y,fw,fh);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,x,y,fw,fh);
+  const pw=760,ph=790,px=x+50,py=y+50;
+  ctx.fillStyle=softTint(PP().pair,.15);ctx.fillRect(px,py,pw,ph);grain(ctx,px,py,pw,ph);
+  ctx.globalAlpha=.5;ctx.lineWidth=1.4;wobRect(ctx,px,py,pw,ph);ctx.globalAlpha=1;
+  const b=await bunchImage(pw-60,ph-50);ctx.drawImage(b.im,px+(pw-b.w)/2,py+(ph-b.h)/2,b.w,b.h);
+  const names=stemNames();ctx.textAlign='center';ctx.fillStyle=INKC;fitFont(ctx,names,66,38,fw-120);ctx.fillText(names,0,y+fh-128);
+  ctx.fillStyle=MUTED;ctx.font='26px "Patrick Hand"';ctx.fillText(`By the Stem · ${longDate()}`,0,y+fh-76);
+  ctx.restore();
+  ctx.save();ctx.translate(W/2-20,H/2-fh/2+22);ctx.rotate(-.07);ctx.fillStyle='rgba(244,201,166,.8)';ctx.fillRect(-120,-30,240,60);ctx.restore();
+}
+/* 3. gift tag: a florist's tag with a hole and a loop of twine; the bunch fills the tag */
+async function drawTag(ctx,W,H){
+  ctx.fillStyle=PP().pair;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const L=120,R=W-120,T=190,B=H-70,cut=140,poly=[[L+cut,T],[R-cut,T],[R,T+cut],[R,B],[L,B],[L,T+cut]];
+  const path=(dx,dy)=>{ctx.beginPath();poly.forEach(([px,py],i)=>{i?ctx.lineTo(px+dx,py+dy):ctx.moveTo(px+dx,py+dy)});ctx.closePath()};
+  ctx.fillStyle='rgba(244,201,166,.45)';path(12,-9);ctx.fill();
+  ctx.fillStyle='#FBF6EC';path(0,0);ctx.fill();
+  ctx.save();path(0,0);ctx.clip();grain(ctx,L,T,R-L,B-T);ctx.restore();
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';
+  poly.forEach((p,i)=>{const q=poly[(i+1)%poly.length];wobLine(ctx,p[0],p[1],q[0],q[1])});
+  const hx=W/2,hy=T+64;ctx.strokeStyle=RUST;ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.bezierCurveTo(hx-60,hy-80,hx-170,hy-140,hx-250,-10);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(hx+6,hy);ctx.bezierCurveTo(hx+70,hy-90,hx+150,hy-130,hx+220,-10);ctx.stroke();
+  ctx.fillStyle=BG;ctx.beginPath();ctx.arc(hx,hy,20,0,Math.PI*2);ctx.fill();ctx.strokeStyle=INKC;ctx.lineWidth=2.2;ctx.stroke();
+  const b=await bunchImage(R-L-120,780);ctx.drawImage(b.im,W/2-b.w/2,T+110+(780-b.h)/2,b.w,b.h);
+  const names=stemNames();ctx.textAlign='center';ctx.fillStyle=INKC;fitFont(ctx,names,64,38,R-L-120);ctx.fillText(names,W/2,B-150);
+  ctx.font='40px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,B-92);
+  ctx.fillStyle=MUTED;ctx.font='24px "Patrick Hand"';ctx.fillText(longDate(),W/2,B-50);
+}
+/* 4. classic, framed: cream card with an inner rule, on the paper's contrasting colour */
+async function drawFramed(ctx,W,H){
+  ctx.fillStyle=PP().pair;ctx.fillRect(0,0,W,H);grain(ctx,0,0,W,H);
+  const m=70,cw=W-2*m,ch=H-2*m;
+  ctx.fillStyle='#FFFDF7';ctx.fillRect(m,m,cw,ch);grain(ctx,m,m,cw,ch);
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,m,m,cw,ch);
+  ctx.globalAlpha=.55;ctx.lineWidth=1.4;wobRect(ctx,m+26,m+26,cw-52,ch-52);ctx.globalAlpha=1;
+  ctx.textAlign='left';ctx.fillStyle=INKC;ctx.font='46px "Nanum Pen Script"';ctx.fillText('By the Stem',m+70,m+118);
+  ctx.textAlign='right';ctx.fillStyle=MUTED;ctx.font='24px "Patrick Hand"';ctx.fillText(longDate(),m+cw-70,m+114);
+  const b=await bunchImage(cw-180,860);ctx.drawImage(b.im,W/2-b.w/2,m+170+(860-b.h)/2,b.w,b.h);
+  ctx.textAlign='center';ctx.fillStyle=INKC;const names=stemNames();fitFont(ctx,names,68,40,cw-180);ctx.fillText(names,W/2,m+ch-90);
+}
+/* 5. polaroid clipped on kraft */
+async function drawPolaroidKraft(ctx,W,H){
+  const id='pp-kraft',p=document.getElementById(id);
+  const def=new XMLSerializer().serializeToString(p).replace('<pattern ','<pattern patternTransform="scale(2.4)" ');
+  ctx.drawImage(await svgImage(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs>${def}</defs><rect width="${W}" height="${H}" fill="url(#${id})"/></svg>`),0,0,W,H);
+  const fw=840,fh=1070;ctx.save();ctx.translate(W/2+10,H/2+10);ctx.rotate(.04);
+  const x=-fw/2,y=-fh/2;
+  ctx.fillStyle='rgba(57,64,56,.16)';ctx.fillRect(x+14,y+18,fw,fh);
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(x,y,fw,fh);ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';wobRect(ctx,x,y,fw,fh);
+  const pw=740,ph=770,px=x+50,py=y+50;
+  ctx.fillStyle=softTint(PP().pair,.15);ctx.fillRect(px,py,pw,ph);grain(ctx,px,py,pw,ph);
+  ctx.globalAlpha=.5;ctx.lineWidth=1.4;wobRect(ctx,px,py,pw,ph);ctx.globalAlpha=1;
+  const b=await bunchImage(pw-60,ph-50);ctx.drawImage(b.im,px+(pw-b.w)/2,py+(ph-b.h)/2,b.w,b.h);
+  const names=stemNames();ctx.textAlign='center';ctx.fillStyle=INKC;fitFont(ctx,names,64,38,fw-120);ctx.fillText(names,0,y+fh-124);
+  ctx.fillStyle=MUTED;ctx.font='26px "Patrick Hand"';ctx.fillText(`By the Stem · ${longDate()}`,0,y+fh-74);
+  /* a paperclip */
+  ctx.strokeStyle='#8E918A';ctx.lineWidth=5;ctx.beginPath();
+  ctx.moveTo(x+90,y-40);ctx.lineTo(x+90,y+70);ctx.bezierCurveTo(x+90,y+100,x+130,y+100,x+130,y+70);ctx.lineTo(x+130,y-60);
+  ctx.bezierCurveTo(x+130,y-95,x+70,y-95,x+70,y-60);ctx.lineTo(x+70,y+40);ctx.stroke();
+  ctx.restore();
+}
+/* 6. kraft gift tag with white twine */
+async function drawTagKraft(ctx,W,H){
+  ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);
+  const L=120,R=W-120,T=190,B=H-70,cut=140,poly=[[L+cut,T],[R-cut,T],[R,T+cut],[R,B],[L,B],[L,T+cut]];
+  const path=()=>{ctx.beginPath();poly.forEach(([px,py],i)=>{i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.closePath()};
+  const id='pp-kraft',p=document.getElementById(id);
+  const def=new XMLSerializer().serializeToString(p).replace('<pattern ','<pattern patternTransform="scale(2.2)" ');
+  const tex=await svgImage(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs>${def}</defs><rect width="${W}" height="${H}" fill="url(#${id})"/></svg>`);
+  ctx.save();path();ctx.clip();ctx.drawImage(tex,0,0,W,H);ctx.restore();
+  ctx.strokeStyle=INKC;ctx.lineWidth=2.4;ctx.lineCap='round';poly.forEach((p2,i)=>{const q=poly[(i+1)%poly.length];wobLine(ctx,p2[0],p2[1],q[0],q[1])});
+  const hx=W/2,hy=T+64;ctx.strokeStyle='#FFFDF7';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.bezierCurveTo(hx-60,hy-80,hx-170,hy-140,hx-250,-10);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(hx+6,hy);ctx.bezierCurveTo(hx+70,hy-90,hx+150,hy-130,hx+220,-10);ctx.stroke();
+  ctx.strokeStyle=INKC;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(hx-6,hy);ctx.bezierCurveTo(hx-60,hy-80,hx-170,hy-140,hx-250,-10);ctx.stroke();
+  ctx.fillStyle=BG;ctx.beginPath();ctx.arc(hx,hy,20,0,Math.PI*2);ctx.fill();ctx.lineWidth=2.2;ctx.stroke();
+  ctx.fillStyle=softTint(PP().pair,.35);ctx.beginPath();ctx.ellipse(W/2,T+500,330,370,0,0,Math.PI*2);ctx.fill();
+  const b=await bunchImage(R-L-120,780);ctx.drawImage(b.im,W/2-b.w/2,T+110+(780-b.h)/2,b.w,b.h);
+  const names=stemNames();ctx.textAlign='center';ctx.fillStyle=INKC;fitFont(ctx,names,64,38,R-L-120);ctx.fillText(names,W/2,B-150);
+  ctx.font='40px "Nanum Pen Script"';ctx.fillText('By the Stem',W/2,B-92);
+  ctx.fillStyle='#6B5A40';ctx.font='24px "Patrick Hand"';ctx.fillText(longDate(),W/2,B-50);
+}
+async function makeCard(style=cardStyle){
+  await Promise.all(['84px "Nanum Pen Script"','24px "Patrick Hand"'].map(s=>document.fonts?.load(s)));
+  const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+  await ({classic:drawClassic,polaroid:drawPolaroid,tag:drawTag,framed:drawFramed,polaroidKraft:drawPolaroidKraft,tagKraft:drawTagKraft}[style]||drawClassic)(ctx,W,H);
+  lastCard=cv;return cv;
+}
+/* show the card on the concept page; "Another card" redraws it in a different style */
+function showCard(style){
+  const art=$('#cArt');
+  makeCard(style).then(cv=>{if($('#concept').hidden)return;art.innerHTML=`<img src="${cv.toDataURL('image/png')}" alt="Your bunch, as a ${({tag:'gift tag',tagKraft:'kraft gift tag',polaroidKraft:'polaroid',framed:'framed'})[style]||style} card from By the Stem">`}).catch(()=>{});
+}
+async function savePicture(useShown){
+  const btn=$('#dlBtn');btn.disabled=true;
+  try{
+    const cv=(useShown===true&&lastCard)?lastCard:await makeCard(nextStyle());
+    /* in the claude.ai viewer the page asks to save the file (the viewer confirms); elsewhere it shows the picture to save by hand */
+    const dl=await dlCap;
+    if(dl){
+      const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+      try{await dl.save({filename:'by-the-stem-bunch.png',data:blob});say('Saved a picture of your bunch.');btn.disabled=false;return}
+      catch(e){if(e&&e.code==='declined'){btn.disabled=false;return}}
+    }
+    $('#dlImg').src=cv.toDataURL('image/png');$('#dlPop').hidden=false;$('#dlX').focus();
+  }catch(err){say('Couldn’t make the picture this time. Try the save icon again.')}
+  btn.disabled=false;
+}
+const dlCap=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(()=>null):Promise.resolve(null);
+$('#dlBtn').addEventListener('click',()=>savePicture(false));
+$('#dlX').addEventListener('click',()=>{$('#dlPop').hidden=true;$('#dlBtn').focus()});
+$('#dlPop').addEventListener('click',e=>{if(e.target.id==='dlPop'){$('#dlPop').hidden=true}});
+$('#dlPop').addEventListener('keydown',e=>{if(e.key==='Escape')$('#dlPop').hidden=true});
+
+/* ---------- drag ---------- */
+let drag=null;
+function svgPt(x,y){const p=svg.createSVGPoint();p.x=x;p.y=y;return p.matrixTransform(svg.getScreenCTM().inverse())}
+function overPaper(x,y){const r=svg.getBoundingClientRect();return x>r.left-12&&x<r.right+12&&y>r.top-12&&y<r.bottom+12}
+function shelfScale(){const s=document.querySelector('.item svg').getBoundingClientRect();return Math.max(.3,s.width/200)}
+function begin(e,src,k,seed,id,capEl){
+  if(state!=='build'||(e.pointerType==='mouse'&&e.button!==0))return false;
+  drag={src,k,seed,id,pid:e.pointerId,sx:e.clientX,sy:e.clientY,started:false,touch:e.pointerType==='touch'};
+  try{capEl.setPointerCapture(e.pointerId)}catch(_){}
+  return true;
+}
+function startDrag(e){
+  drag.started=true;
+  if(drag.src==='paper'){drag.prev=items.find(i=>i.id===drag.id);items=items.filter(i=>i.id!==drag.id);renderStems()}
+  const ss=shelfScale(),K=KINDS[drag.k];
+  const c=document.createElement('div');c.className='float';
+  c.style.width=200*ss+'px';c.style.height=340*ss+'px';c.style.transformOrigin=`${K.hx*ss}px ${K.hy*ss}px`;
+  c.innerHTML=`<svg viewBox="0 0 200 340">${draw(drag.k,drag.seed,false,drag.col)}</svg>`;
+  document.body.appendChild(c);document.body.classList.add('dragging');
+  drag.clone=c;drag.ss=ss;$('#hintText').style.display='none';
+}
+function moveDrag(e){
+  const x=e.clientX,y=e.clientY,K=KINDS[drag.k],ss=drag.ss,c=drag.clone;
+  const r=svg.getBoundingClientRect();
+  const dist=Math.hypot(Math.max(r.left-x,0,x-r.right),Math.max(r.top-y,0,y-r.bottom));
+  const target=svg.getScreenCTM().a*G/ss;const s=1+(target-1)*(1-cl(dist/260));
+  c.style.transform=`translate(${x-K.hx*ss}px,${y-K.hy*ss}px) scale(${s.toFixed(3)}) rotate(${(x-drag.sx)*.02}deg)`;
+  if(overPaper(x,y)){
+    drag.place=placeFor(drag.k,svgPt(x,y));
+    layerGhost.innerHTML=stemMarkup({k:drag.k,seed:drag.seed,col:drag.col,...drag.place},'ghosted');
+    c.style.opacity=0;svg.classList.add('hot');
+  }else{drag.place=null;layerGhost.innerHTML='';c.style.opacity=1;svg.classList.remove('hot')}
+}
+function endDrag(commit){
+  const d=drag;drag=null;
+  layerGhost.innerHTML='';svg.classList.remove('hot');document.body.classList.remove('dragging');
+  if(d.clone){const c=d.clone;c.style.opacity=0;setTimeout(()=>c.remove(),150)}
+  if(commit&&d.place){
+    if(items.length>=MAXN){say(`The paper holds ${MAXN} stems. Wrap it, or drag one off.`)}
+    else if(d.src==='shelf'&&left(d.k)<=0)say(`${KINDS[d.k].name} is sold out today.`);
+    else items.push({id:d.id||nextId++,k:d.k,seed:d.seed,col:d.col,...d.place,z:d.src==='paper'?topZ():0,fresh:true});
+  }else if(d.src==='paper'){
+    if(commit)say(`Took the ${KINDS[d.k].name.toLowerCase()} off the paper.`);else if(d.prev)items.push(d.prev);
+  }
+  renderStems();
+}
+function addAuto(k){
+  if(state!=='build')return;
+  if(items.length>=MAXN){say(`The paper holds ${MAXN} stems. Wrap it, or drag one off.`);return}
+  if(left(k)<=0){say(`${KINDS[k].name} is sold out today.`);return}
+  const p=autoPlace(k);p.rot=nudge(k,p.rot,p.sc);
+  items.push({id:nextId++,k,seed:rand(),col:sel[k],...p,fresh:true});renderStems();
+}
+$('#shelf').addEventListener('pointerdown',e=>{
+  const b=e.target.closest('.pick');if(!b)return;const k=b.dataset.k;
+  if(left(k)<=0){say(`${KINDS[k].name} is sold out today.`);return}
+  if(begin(e,'shelf',k,rand(),null,b)){drag.col=sel[k];if(e.pointerType==='mouse')e.preventDefault()}
+});
+$('#shelf').addEventListener('click',e=>{const b=e.target.closest('.pick');if(b&&e.detail===0)addAuto(b.dataset.k)});
+layerStems.addEventListener('pointerdown',e=>{
+  const g=e.target.closest('.pl');if(!g)return;const it=items.find(i=>i.id==g.dataset.id);if(!it)return;
+  if(begin(e,'paper',it.k,it.seed,it.id,svg)){drag.col=it.col;e.preventDefault()}
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;
+  if(!drag.started){
+    if(drag.src==='shelf'&&drag.touch){
+      if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)){drag=null;return}
+      if(!(dy<-10&&Math.abs(dy)>Math.abs(dx)))return;
+    }else if(Math.hypot(dx,dy)<5)return;
+    startDrag(e);
+  }
+  moveDrag(e);
+});
+window.addEventListener('pointerup',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  if(!drag.started){const d=drag;drag=null;if(d.src==='shelf')addAuto(d.k);else restack(d.id,e.shiftKey);return}
+  endDrag(true);
+});
+window.addEventListener('pointercancel',()=>{if(drag){if(drag.started)endDrag(false);else drag=null}});
+
+/* ---------- start: a small example bunch so the first frame shows what the bench does ---------- */
+$('#ring').setAttribute('cy',T.y);
+drawPaper(0,0,0);measure();
+items=[{id:nextId++,k:'sna',seed:rand(),col:sel.sna,rot:7,sc:1.04},{id:nextId++,k:'rose',seed:rand(),col:sel.rose,rot:-12,sc:.86},{id:nextId++,k:'fre',seed:rand(),col:sel.fre,rot:-52,sc:1.02}];
+renderStems();
+say('A bunch to start from. Drag or click a stem to add more.',true);
+/* ---------- flower chooser: three airier redraws (before / after) and eight new flowers to pick from ---------- */
+Object.assign(PAL,{wine:'#9C3D4E',sun:'#F4C64F',sunc:'#7A5236',coral:'#F2876A',lavd:'#B9A2DC',thistle:'#A7BCD2',scab:'#DDB0C8',daisy:'#FFFDF5',yolk:'#F2C94C',bell:'#FBF8EF'});
+Object.assign(MAIN,{del2:'delph',all2:'allium',gyp2:'gyp',cos:'wine',dai:'daisy',sun:'sun',pop:'coral',lav:'lavd',lov:'bell',thi:'thistle',sca:'scab'});
+/* one closed outline with n round lobes: a whole floret in a single line */
+const lobedK=(J,cx,cy,R,n,ph)=>{const pts=[],m=n*4;for(let i=0;i<m;i++){const t=ph+i/m*6.283,rr=R*(.6+.4*Math.abs(Math.cos(n/2*(t-ph))))+J(0,.3);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)};
+Object.assign(GEN,{
+  /* delphinium: six open florets well apart, the stem showing between them, buds to the tip */
+  del2(K){const{J,L,leaf,blob,line,fill,r}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),40]]);
+    leaf(100,292,-36,32,10);leaf(100,270,38,28,9);
+    for(let i=0;i<6;i++){const y=210-i*25,s=11.5-i*.9,side=i%2?1:-1,fx=100+side*J(s+3,.8),fy=J(y,1);
+      L([[100,fy+6],[fx-side*s*.5,fy+2]]);
+      const d=lobedK(J,fx,fy,s,5,r()*6);line(d);fill(d,'delph');line(blob(fx,fy,1.6,5,.15))}
+    [[76,1,4.6],[64,-1,3.8],[54,1,3],[46,-1,2.4]].forEach(([y,side,s])=>{const fx=100+side*J(5,.6),fy=J(y,1);
+      L([[100,fy+3.5],[fx,fy+1]]);const d=blob(fx,fy,s,6,.3);line(d);fill(d,'delph')});
+  },
+  /* allium: one round head with a dozen small star florets spaced over it */
+  all2(K){const{J,L,line,fill,blob}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),92]]);
+    const cx=J(100,1),cy=62,hd=blob(cx,cy,30,12,1.2);fill(hd,'allium');line(hd);
+    for(let i=0;i<12;i++){const a=i*2.39996,rr=Math.sqrt((i+.6)/12)*21,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      for(let p=0;p<3;p++){const t=p*Math.PI/3+a;L([[x-Math.cos(t)*3,y-Math.sin(t)*3],[x+Math.cos(t)*3,y+Math.sin(t)*3]])}}
+  },
+  /* baby's breath: open forking sprays, one or two tiny flowers at each tip */
+  gyp2(K){const{J,L,line,fill,blob,r}=K;
+    L([[100,332],[J(100),262],[J(101),196],[100,186]]);
+    const tips=[];
+    (function br(x,y,ang,len,dep){const a=rad(ang),ex=x+Math.sin(a)*len,ey=y-Math.cos(a)*len;
+      L([[x,y],[(x+ex)/2+J(0,2),(y+ey)/2],[ex,ey]]);
+      if(dep<3){br(ex,ey,ang-J(30,7),len*.72,dep+1);br(ex,ey,ang+J(30,7),len*.72,dep+1)}else tips.push([ex,ey]);
+    })(100,186,J(0,4),54,0);
+    tips.forEach(([tx,ty])=>{const n=r()<.4?3:2,offs=[[0,-1],[J(-5,1),J(-4,1)],[J(5,1),J(-3,1)]];for(let q=0;q<n;q++){const d=blob(tx+offs[q][0],ty+offs[q][1],J(3.1,.4),6,.3);line(d);fill(d,'gyp')}});
+  },
+  /* chocolate cosmos: eight notched petals round a dark button, thread-fine leaves */
+  cos(K){const{J,L,shape,blob,line,fill}=K;
+    L([[100,332],[J(98),262],[J(102),190],[J(100),112]]);
+    [[268,-1],[226,1]].forEach(([y,s])=>{L([[100,y],[100+s*14,y-14],[100+s*24,y-30]]);L([[100+s*14,y-14],[100+s*26,y-12]])});
+    const cx=J(100,1),cy=J(96,1),o=J(0,20);
+    for(let k=0;k<8;k++)shape([[-5,-5],[-10,-17],[-8,-29],[-3,-33],[0,-29],[3,-33],[8,-29],[10,-17],[5,-5]],xf(cx,cy,o+k*45+J(0,4)),'wine');
+    const d=blob(cx,cy,7.5,8,.6);line(d);fill(d,'dark');
+  },
+  /* chamomile: a light spray of small white daisies with yellow middles */
+  dai(K){const{J,L,line,fill,blob,leaf,r}=K;
+    L([[100,332],[J(100),262],[J(99),196],[J(100),150]]);
+    leaf(100,284,-40,20,4);leaf(100,250,42,18,4);
+    [[100,150,100,98,12],[100,168,72,124,9.5],[100,170,128,118,10],[100,190,62,156,8],[100,196,136,152,8.5]].forEach(([x0,y0,x,y,R])=>{
+      L([[x0,y0],[(x0+x)/2+J(0,3),(y0+y)/2],[x,y+R*.4]]);
+      const p=lobedK(J,x,y,R,10,r()*6);line(p);fill(p,'daisy');const c=blob(x,y,R*.36,7,.3);line(c);fill(c,'yolk')});
+  },
+  /* sunflower: one big head, a single ring of petals, a brown middle */
+  sun(K){const{J,L,leaf,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),130]]);
+    leaf(100,250,-58,44,20);leaf(100,214,56,40,18);
+    const cx=J(100,1),cy=J(94,1),p=lobedK(J,cx,cy,40,14,r()*6);line(p);fill(p,'sun');
+    const c=blob(cx,cy,16,10,.8);line(c);fill(c,'sunc');
+    for(let i=0;i<2;i++)line(arc(cx+J(0,2),cy+J(0,2),6+i*4,r()*360,220,.1));
+  },
+  /* poppy: a loose coral cup on a curving stem, with a nodding bud */
+  pop(K){const{J,L,shape,blob,line,fill}=K;
+    L([[100,332],[J(96),270],[J(104),206],[J(98),150],[J(101),118]]);
+    L([[99,236],[J(84),214],[J(78),194],[J(82,1),182]]);const b=blob(84,176,6,7,.5);line(b);fill(b,'green');
+    const T=xf(J(101,1),118,J(0,4));
+    shape([[0,4],[-14,2],[-27,-6],[-30,-22],[-21,-36],[-8,-31],[0,-40],[9,-32],[22,-37],[30,-21],[27,-6],[14,2]],T,'coral');
+    L([[-12,-4],[-15,-20],[-11,-31]].map(T));L([[12,-4],[15,-21],[10,-31]].map(T));
+    const c=blob(...T([0,-24]),4.5,6,.4);line(c);fill(c,'dark');
+  },
+  /* lavender: a straight wand with little whorls of buds, spaced up the top third */
+  lav(K){const{J,L,leaf,blob,line,fill}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),56]]);
+    leaf(100,312,-14,52,4,'sage');leaf(100,306,16,46,4,'sage');
+    for(let i=0;i<8;i++){const y=150-i*12.5,s=4.6-i*.3;[-1,1].forEach(sd=>{const d=blob(100+sd*J(s*.9,.4),J(y,1),s,6,.4);line(d);fill(d,'lavd')})}
+  },
+  /* lily of the valley: an arching stem of small white bells and one broad leaf */
+  lov(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),250],[J(101),186],[J(110),140],[J(128,1),112],[J(150,1),98]]);
+    leaf(100,326,-10,150,24,'green');
+    [[103,174],[109,150],[118,130],[131,113],[143,104],[152,99]].forEach(([x,y],i)=>{const s=1-i*.09,by=y+13*s;
+      L([[x,y],[x+J(1,.6),by-4]]);
+      shape([[-6,0],[-7,7],[-9,11],[-4,10],[0,12],[4,10],[9,11],[7,7],[6,0],[0,-2]].map(([u,v])=>[u*s,v*s]),xf(x+1,by-3,J(0,6)),'bell')});
+  },
+  /* sea holly: steel-blue cones on a spiky ruff, branching into three heads */
+  thi(K){const{J,L,line,fill,ell,shape}=K;
+    L([[100,332],[J(100),262],[J(101),196],[J(100),106]]);
+    L([[100,184],[J(86),160],[J(76,1),136]]);L([[100,176],[J(114),152],[J(126,1),130]]);
+    [[100,92,1],[76,124,.72],[126,118,.76]].forEach(([x,y,s])=>{
+      for(let i=0;i<6;i++)shape([[-4,0],[-1.5,-12*s],[0,-19*s],[1.5,-12*s],[4,0]],xf(x,y+9*s,-95+i*38+J(0,4)),'thistle');
+      const h=ell(x,y,8*s,11*s,10,.4);line(h);fill(h,'thistle')});
+  },
+  /* scabiosa: a frilled flat ring round a domed pincushion, on a wiry stem */
+  sca(K){const{J,L,line,fill,blob,leaf,r}=K;
+    L([[100,332],[J(97),262],[J(103),190],[J(100),116]]);
+    leaf(100,272,-48,22,5);leaf(100,240,50,20,5);
+    const cx=J(100,1),cy=J(100,1),p=lobedK(J,cx,cy,27,12,r()*6);line(p);fill(p,'scab');
+    const d=blob(cx,cy,12,9,.6);line(d);fill(d,'scab');
+    [[-4,-4],[4,-3],[0,3],[-5,4],[5,5]].forEach(([dx,dy])=>line(blob(cx+dx,cy+dy,1.3,5,.1)));
+  },
+});
+const FL_REDO=[['Delphinium','del','del2'],['Allium','all','all2'],['Baby’s breath','gyp','gyp2']];
+const FL_NEW=[['cos','Chocolate cosmos'],['dai','Chamomile'],['sun','Sunflower'],['pop','Poppy'],['lav','Lavender'],['lov','Lily of the valley'],['thi','Sea holly'],['sca','Scabiosa']];
+const fsvg=(k,s)=>`<svg viewBox="0 0 200 340" aria-hidden="true">${draw(k,s,false)}</svg>`;
+const flEl=document.createElement('div');flEl.className='fl';
+flEl.innerHTML=`<header class="fl-h"><h1>Choose the flowers</h1><p>Tell me which new ones to put on the shelf, and which to take off. Each new flower is drawn large and at shelf size.</p></header>
+<h2>Redrawn, lighter</h2>
+<div class="fl-redo">${FL_REDO.map(([n,a,b])=>`<figure><div class="pair"><div><div class="big">${fsvg(a,11)}</div><span>before</span></div><div class="arrow">→</div><div><div class="big">${fsvg(b,11)}</div><span>after</span></div></div><figcaption>${n}</figcaption></figure>`).join('')}</div>
+<h2>New flowers to choose from</h2>
+<div class="fl-new">${FL_NEW.map(([k,n],i)=>`<figure><div class="one"><div class="big">${fsvg(k,11)}</div><div class="sm">${fsvg(k,23)}</div></div><figcaption><b>${i+1}</b> ${n}</figcaption></figure>`).join('')}</div>`;
+document.body.appendChild(flEl);
+
+})();
+</script>

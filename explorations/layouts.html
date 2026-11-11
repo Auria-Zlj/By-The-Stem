@@ -1,0 +1,477 @@
+<title>By the Stem Layouts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: a contact sheet of five page layouts, two to a row, each drawn at the same 960×600 size. Single light look: ink on paper. */
+:root{--ink:#394038;--muted:#7A8077;--bg:#F5F5F1;--sheet:#FCFCFA;--twine:#B4593F;
+  --f-hand:"Nanum Pen Script","Bradley Hand",cursive;--f-ui:"Patrick Hand","Comic Neue",cursive}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:18px;line-height:1.35}
+.wrap{max-width:1500px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+h1{font:400 56px/1 var(--f-hand);margin:0}
+.lede{margin:8px 0 28px;color:var(--muted);max-width:70ch}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 28px}
+figure{margin:0;display:grid;gap:10px}
+figure svg{width:100%;height:auto;display:block;background:var(--sheet);border:1px solid #E3E2DB;border-radius:4px}
+figcaption{display:grid;gap:2px}
+figcaption b{font:400 30px/1 var(--f-hand)}
+figcaption span{color:var(--muted);font-size:17px}
+.under path{fill:#FAF6EE}
+.h{font-family:var(--f-hand)}
+.u{font-family:var(--f-ui)}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+
+<div class="wrap">
+  <h1>Ways to lay out the counter</h1>
+  <p class="lede">Same stems, same paper, same hand. Each frame is a whole screen at laptop size. Round two changes how the stems show up, so the page never has to hold all of them at once.</p>
+  <h2 class="h" style="font-weight:400;font-size:40px;margin:0 0 14px">Making the menu (E) work</h2>
+  <div class="grid" id="gridE"></div>
+  <h2 class="h" style="font-weight:400;font-size:40px;margin:48px 0 14px">Round two</h2>
+  <div class="grid" id="grid2"></div>
+  <h2 class="h" style="font-weight:400;font-size:40px;margin:48px 0 14px">Round one</h2>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const INK='#394038';
+const PAL={pink:'#F2B5B0',cream:'#F3E7A0',lav:'#C3ADEA',green:'#A9C89B',sage:'#A9C3B2',mustard:'#E9AE2B',apricot:'#F6A86E',
+  white:'#EEE7DA',dark:'#5A6258',pea:'#D6B4E6',lily:'#F4E9DD',pollen:'#C9744F',bud:'#CFE0B8',carn:'#F4B6C6',rose:'#D9545E',hyd:'#A9BFEA',allium:'#9F7CC9',oat:'#E6D9BE',gyp:'#F7F4EE',delph:'#9EB5E6',peony:'#F4C2C8',dahlia:'#E28AB4',zinc:'#DCE2DE',enamel:'#EFE7D6',sage2:'#D9E4D3',rim:'#C8D0CA'};
+
+/* ---------- drawing kit (style A: fine line, misregistered fill) ---------- */
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f=v=>(Math.round(v*10)/10);
+function smooth(pts,closed){
+  const n=pts.length;const P=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;const segs=closed?n:n-1;
+  for(let i=0;i<segs;i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
+    d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`}
+  return closed?d+'Z':d;
+}
+const rad=d=>d*Math.PI/180;
+function xf(ox,oy,ang){const a=ang*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return([x,y])=>[ox+x*c-y*s,oy+x*s+y*c]}
+const STRIP=212; /* in a bouquet, leaves below this line are stripped, like a florist would */
+function kit(seed,amt,strip){
+  const r=rng(seed);const J=(v,a=amt)=>v+(r()-.5)*2*a;
+  const out={lines:[],fills:[]};
+  const line=d=>out.lines.push(d);const fill=(d,c)=>out.fills.push({d,c});
+  const L=pts=>line(smooth(pts,false));
+  function leaf(ox,oy,ang,len,w,c='green'){
+    const T=xf(ox,oy,J(ang,4));if(strip&&oy>STRIP)return;const Ln=J(len,len*.06),W=J(w,w*.1);
+    const p=[[0,0],[W,-Ln*.45],[J(0,1),-Ln],[-W,-Ln*.52]].map(T);
+    const d=`M${f(p[0][0])} ${f(p[0][1])}Q${f(p[1][0])} ${f(p[1][1])} ${f(p[2][0])} ${f(p[2][1])}Q${f(p[3][0])} ${f(p[3][1])} ${f(p[0][0])} ${f(p[0][1])}Z`;
+    line(d);fill(d,c);L([[0,0],[J(W*.08,.6),-Ln*.5],[0,-Ln*.82]].map(T));
+  }
+  function blob(cx,cy,R,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;const rr=R+J(0,wob);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)}
+  function ell(cx,cy,rx,ry,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;pts.push([cx+Math.cos(t)*(rx+J(0,wob)),cy+Math.sin(t)*(ry+J(0,wob))])}return smooth(pts,true)}
+  function arc(cx,cy,R,a0,span,scal){const pts=[];const steps=Math.max(4,Math.round(span/26));const ph=r()*6;for(let i=0;i<=steps;i++){const t=(a0+span*i/steps)*Math.PI/180;const rr=R*(1+scal*Math.sin(6*t+ph))+J(0,amt*.8);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,false)}
+  function shape(local,T,c){const d=smooth(local.map(([x,y])=>T([J(x,amt*.6),J(y,amt*.6)])),true);line(d);if(c)fill(d,c);return d}
+  return {r,J,out,line,L,fill,leaf,blob,ell,arc,shape,strip};
+}
+const GEN={
+  ran(K){const{J,L,fill,leaf,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(98),192],[J(100),134]]);
+    leaf(100,256,-50,36,13);leaf(100,222,44,30,11);
+    const cx=J(100,1.5),cy=J(92,1.5);
+    fill(blob(cx,cy,40,11,3.2),'pink');
+    [[5,330,0],[13,300,0],[22,290,.03],[31,300,.05],[41,315,.06]].forEach(([R,sp,sc])=>K.line(arc(cx+J(0,1.8),cy+J(0,1.8),R,r()*360,sp-40+r()*40,sc)));
+    L([[100,134],[J(93),129],[J(88,1),126]]);L([[100,134],[J(107),129],[J(112,1),126]]);
+  },
+  lil(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(101),262],[J(99),190],[J(101),126]]);
+    [[296,-1],[278,1],[258,-1],[238,1],[218,-1],[198,1],[180,-1]].forEach(([y,s],i)=>leaf(100,y,s*J(36,6),34-i*1.6,5));
+    L([[100,170],[J(112),148],[J(123,1.5),131]]);
+    shape([[-5,0],[-7,-14],[0,-32],[7,-14],[5,0]],xf(123,131,J(26,4)),'bud');
+    const cx=J(100,1),cy=J(94,1),o=J(-8,8);
+    for(let k=0;k<6;k++){const s=k%2?.84:1,T=xf(cx,cy,o+k*60+J(0,5));
+      shape([[-7,0],[-13,-18],[-10,-34],[J(0,1.5),-48],[10,-34],[13,-18],[7,0]].map(([x,y])=>[x*s,y*s]),T,'lily');
+      L([[0,-7],[J(0,1),-22*s],[0,-38*s]].map(T));}
+    for(let i=0;i<6;i++){const a=(o+30+i*60+J(0,10))*Math.PI/180,len=J(25,3),ex=cx+Math.sin(a)*len,ey=cy-Math.cos(a)*len;
+      L([[cx,cy],[cx+Math.sin(a)*len*.5+J(0,1.5),cy-Math.cos(a)*len*.5],[ex,ey]]);const d=blob(ex,ey,2.8,6,.4);line(d);fill(d,'pollen')}
+  },
+  ane(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(98),260],[J(102),190],[J(100),130]]);
+    leaf(100,160,-62,26,8);leaf(100,160,58,24,8);leaf(100,162,-14,20,6);
+    const cx=J(100,1),cy=J(94,1),o=J(0,15);
+    for(let k=0;k<6;k++)shape([[-9,0],[-17,-16],[-13,-31],[0,-37],[13,-31],[17,-16],[9,0]],xf(cx,cy,o+k*60+J(0,6)),'white');
+    const d=blob(cx,cy,10,8,.8);line(d);fill(d,'dark');
+    for(let i=0;i<16;i++){const t=i/16*6.283,a=12,b=J(17,1.5);L([[cx+Math.cos(t)*a,cy+Math.sin(t)*a],[cx+Math.cos(t)*b,cy+Math.sin(t)*b]])}
+  },
+  pea(K){const{J,L,line,fill,leaf,blob,shape,r}=K;
+    L([[100,332],[J(96),262],[J(103),196],[J(99),136],[J(103),94]]);
+    leaf(100,248,-58,28,10);leaf(100,248,56,26,10);
+    const sp=[[100,214],[112,208]];const ccx=J(124,1),ccy=J(198,1);
+    for(let i=0;i<=12;i++){const th=Math.PI*1.15+i/12*1.8*6.283,rr=9*(1-i/14);sp.push([ccx+Math.cos(th)*rr,ccy+Math.sin(th)*rr])}
+    L(sp);
+    [[101,116,1,15],[100,142,-1,16],[101,170,1,14]].forEach(([x,y,side,R])=>{
+      const fx=x+side*J(20,2),fy=y-J(14,2);
+      L([[x,y],[x+side*10,y-5],[fx-side*6,fy+6]]);
+      const ph=r()*6,loc=[];for(let i=0;i<14;i++){const t=i/14*6.283,rr=R*(1+.1*Math.sin(7*t+ph));loc.push([Math.cos(t)*rr,Math.sin(t)*rr*.9])}
+      shape(loc,xf(fx,fy,0),'pea');
+      shape([[-7,0],[-3,6],[5,5],[8,-1],[0,2]],xf(fx,fy+R*.75,-side*20),'pea');
+    });
+    const b=blob(103,90,4,6,.5);line(b);fill(b,'green');
+  },
+  cal(K){const{J,L,shape}=K;
+    L([[100,332],[J(101),250],[J(99),170],[J(102),122]]);
+    const T=xf(102,124,J(8,4));
+    shape([[0,0],[-9,-18],[-17,-42],[-14,-58],[-2,-64],[16,-74],[13,-52],[10,-22]],T,'white');
+    L([[-15,-54],[-4,-51],[8,-55],[15,-68]].map(T));
+    shape([[-2,-16],[-3,-34],[0,-43],[3,-34],[2,-16]],T,'mustard');
+  },
+  car(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(100),262],[J(101),196],[J(100),128]]);
+    leaf(100,262,-38,30,4);leaf(100,262,40,30,4);leaf(100,200,-42,26,3.5);leaf(100,200,44,26,3.5);
+    const T=xf(J(100,1),128,J(0,4));
+    shape([[-6,0],[-8,-22],[8,-22],[6,0]],T,'green');
+    const pts=[[-9,-22]];const n=17;
+    for(let i=0;i<=n;i++){const t=Math.PI+i/n*Math.PI,rr=(i%2?30:23)+J(0,2.5);pts.push([Math.cos(t)*rr*1.05,-24+Math.sin(t)*rr*.95])}
+    pts.push([9,-22]);shape(pts,T,'carn');
+    L([[-14,-30],[-4,-40],[2,-33]].map(T));L([[5,-44],[13,-35]].map(T));L([[-6,-24],[0,-30],[7,-25]].map(T));
+  },
+  peo(K){const{J,L,leaf,shape,fill,ell,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),134]]);
+    leaf(100,252,-52,40,15);leaf(100,234,-20,34,11);leaf(100,214,50,40,14);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy-2,42,36,12,2.5),'peony');
+    [-72,-36,0,36,72].forEach(a=>shape([[-12,0],[-21,-16],[-15,-34],[0,-39],[15,-34],[21,-16],[12,0]],xf(cx,cy+22,J(a,5)),null));
+    [-30,0,30].forEach(a=>shape([[-9,0],[-15,-12],[-11,-25],[0,-29],[11,-25],[15,-12],[9,0]],xf(cx,cy-2,J(a,6)),null));
+    for(let i=0;i<3;i++)K.line(arc(cx+J(0,5),cy-12+J(0,3),J(6+i*3,1.5),r()*360,200,.12));
+  },
+  dah(K){const{J,L,leaf,shape,fill,blob,line}=K;
+    L([[100,332],[J(99),262],[J(102),196],[J(100),136]]);
+    leaf(100,246,-55,34,12);leaf(100,246,55,32,12);
+    const cx=J(100,1),cy=J(96,1);
+    fill(blob(cx,cy,43,14,1.5),'dahlia');
+    [[30,14,1],[21,11,.8],[12,8,.62]].forEach(([R,n,s],ri)=>{const o=ri*13+J(0,8);
+      for(let i=0;i<n;i++){const a=o+i*360/n;shape([[-6,0],[-7,-9],[0,-14],[7,-9],[6,0]].map(([x,y])=>[x*s,y*s]),xf(cx+Math.sin(rad(a))*R,cy-Math.cos(rad(a))*R,a),null)}});
+    line(blob(cx,cy,5,6,.5));
+  },
+  del(K){const{J,L,leaf,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),30]]);
+    leaf(100,292,-36,32,10);leaf(100,272,38,30,10);leaf(100,252,-30,26,8);
+    for(let i=0;i<12;i++){const y=214-i*15.5,s=13-i*.8,side=[0,-1,1][i%3],fx=100+side*s*.95,fy=J(y,1.5);
+      if(i<9){for(let p=0;p<5;p++){const t=rad(p*72+J(0,8));const d=blob(fx+Math.cos(t)*s*.55,fy+Math.sin(t)*s*.55,s*.45,6,.4);line(d);fill(d,'delph')}
+        line(blob(fx,fy,s*.18,5,.1))}
+      else{const d=blob(fx,fy,s*.42,6,.3);line(d);fill(d,'delph')}}
+  },
+  gyp(K){const{J,L,line,fill,blob}=K;
+    L([[100,332],[J(100),262],[J(101),196],[100,186]]);
+    const tips=[];
+    (function br(x,y,ang,len,dep){
+      const a=rad(ang),ex=x+Math.sin(a)*len,ey=y-Math.cos(a)*len;
+      L([[x,y],[(x+ex)/2+J(0,2.5),(y+ey)/2],[ex,ey]]);
+      if(dep<3){br(ex,ey,ang-J(24,6),len*.76,dep+1);br(ex,ey,ang+J(24,6),len*.76,dep+1);if(dep===1)tips.push([ex,ey])}
+      else tips.push([ex,ey]);
+    })(100,186,J(0,4),56,0);
+    tips.forEach(([tx,ty])=>{for(let q=0;q<4;q++){const fx=tx+J(0,7),fy=ty+J(0,6)-2;const d=blob(fx,fy,J(2.6,.5),6,.3);line(d);fill(d,'gyp')}});
+  },
+  hyd(K){const{J,L,leaf,fill,ell,blob,line,r}=K;
+    L([[99,332],[J(100),262],[J(98),196],[J(99),142]]);L([[102,332],[J(103),262],[J(101),196],[J(102),142]]);
+    leaf(100,236,-52,50,20);leaf(100,254,50,44,18);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy,50,38,12,2.5),'hyd');
+    for(let i=0;i<22;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/22),fx=cx+Math.cos(a)*rr*42,fy=cy+Math.sin(a)*rr*31,s=J(4.4,.6),o=r()*1.6;
+      for(let p=0;p<4;p++){const t=o+p*Math.PI/2;line(blob(fx+Math.cos(t)*s,fy+Math.sin(t)*s,s*.75,5,.3))}}
+  },
+  all(K){const{J,L,fill,blob}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),92]]);
+    const cx=J(100,1),cy=62;fill(blob(cx,cy,30,12,1.2),'allium');
+    for(let i=0;i<32;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/32)*27,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      for(let p=0;p<3;p++){const t=p*Math.PI/3+a;L([[x-Math.cos(t)*2.7,y-Math.sin(t)*2.7],[x+Math.cos(t)*2.7,y+Math.sin(t)*2.7]])}}
+    for(let i=0;i<5;i++){const a=rad(-50+i*25);L([[cx,92],[cx+Math.sin(a)*14,cy+22-Math.cos(a)*6]])}
+  },
+  bun(K){const{J,L,line,fill,leaf,ell}=K;
+    L([[100,332],[J(98),252],[J(103),172],[J(100),112]]);
+    leaf(100,304,-16,76,5);leaf(100,286,18,58,4);
+    const cx=J(100,1),cy=88;fill(ell(cx,cy,11,23,12,1),'oat');
+    line(ell(cx,cy,10,22,12,.8));
+    for(let i=0;i<26;i++){const t=i/26*6.283;const x0=cx+Math.cos(t)*10,y0=cy+Math.sin(t)*22;const k=J(4,1.4);L([[x0,y0],[x0+Math.cos(t)*k,y0+Math.sin(t)*k*1.4]])}
+  },
+  rose(K){const{J,L,leaf,shape,fill,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),128]]);
+    leaf(100,238,-55,26,10);leaf(100,238,50,24,9);leaf(100,198,-48,22,8);
+    [[284,1],[256,-1],[176,1]].forEach(([y,s])=>L([[100,y],[100+s*4,y-4]]));
+    const cx=J(100,1),cy=J(94,1);
+    const ep=[];const ph=r()*6.28;for(let i=0;i<11;i++){const t=ph+i/11*6.283;ep.push([cx+Math.cos(t)*J(33,2),cy-2+Math.sin(t)*J(30,2)])}
+    fill(smooth(ep,true),'rose');
+    L([[cx-30,cy-4],[cx-24,cy-24],[cx-8,cy-32],[cx+6,cy-28],[cx+20,cy-33],[cx+31,cy-16],[cx+30,cy-4]].map(([x,y])=>[J(x,1),J(y,1)]));
+    shape([[0,30],[-20,25],[-32,6],[-29,-12],[-15,-6],[-5,10]],xf(cx,cy,0),null);
+    shape([[2,30],[22,24],[33,4],[28,-14],[14,-8],[6,8]],xf(cx,cy,0),null);
+    const sp=[];for(let i=0;i<=14;i++){const t=i/14*2.6*Math.PI+r()*.2,rr=3+i*1.05;sp.push([cx+Math.cos(t)*rr,cy-10+Math.sin(t)*rr*.7])}L(sp);
+    [140,180,220].forEach(a=>shape([[-2.4,0],[0,-13],[2.4,0]],xf(cx,cy+30,a+J(0,6)),'green'));
+  },
+  tul(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(103),252],[J(98),172],[J(101),130]]);
+    leaf(100,322,-16,118,19);leaf(100,304,20,92,15);
+    const T=xf(J(101,1),131,J(0,5));
+    shape([[0,0],[-17,-8],[-21,-26],[-18,-47],[-8,-38],[0,-53],[8,-38],[18,-47],[21,-26],[17,-8]],T,'apricot');
+    L([[-2,-6],[-8,-24],[-8,-38]].map(T));L([[3,-6],[9,-26],[8,-38]].map(T));
+  },
+  fre(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),262],[J(101),198],[J(105),164],[J(122),136],[J(146),116],[J(172,1),100]]);
+    leaf(100,322,-10,128,9);
+    const OPEN=[[-.1,0],[-.15,-.42],[-.48,-.76],[-.42,-.98],[-.17,-.9],[0,-1.06],[.17,-.9],[.42,-.98],[.48,-.76],[.15,-.42],[.1,0]];
+    const BUD=[[-.1,0],[-.24,-.5],[0,-1],[.24,-.5],[.1,0]];
+    [[104,168,-24,36,'o'],[115,146,-8,33,'o'],[130,128,8,26,'h'],[148,115,20,18,'h'],[162,106,32,12,'b'],[173,100,46,8,'b']].forEach(([x,y,a,s,t])=>{
+      const T=xf(J(x,1),J(y,1),J(a,5));
+      const sh=t==='o'?OPEN:t==='h'?OPEN.map(([u,v])=>[u*.62,v]):BUD;
+      shape(sh.map(([u,v])=>[u*s,v*s]),T,'cream');
+      if(t==='o')L([[0,-.25*s],[J(0,.6),-.55*s],[0,-.78*s]].map(T));
+    });
+  },
+  sna(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),34]]);
+    leaf(100,292,-30,36,7);leaf(100,266,32,33,7);leaf(100,240,-26,28,6);
+    const FL=[[0,0],[.32,-.46],[.78,-.52],[1.06,-.16],[.98,.24],[.62,.36],[.28,.16]];
+    for(let i=0;i<10;i++){const y=214-i*17.5,s=23-i*1.55,side=i%2?1:-1;
+      if(i<7){const T=xf(100+side*1.5,J(y,1.2),-side*J(16,5));shape(FL.map(([u,v])=>[u*s*side,v*s]),T,'lav');
+        L([[.52*s*side,-.02*s],[.78*s*side,-.1*s],[1.0*s*side,-.06*s]].map(T));}
+      else{const d=blob(100+side*s*.32,y-s*.1,s*.32,7,.7);line(d);fill(d,'lav')}}
+    const d=blob(J(101,.5),34,3.4,6,.5);line(d);fill(d,'lav');
+  },
+  cra(K){const{J,L,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(100),250],[J(101),170],[J(100),80]]);
+    const cx=J(100,1),cy=62;const d=blob(cx,cy,18,12,1);line(d);fill(d,'mustard');
+    [[-8,-8],[0,-11],[8,-8],[-12,0],[-4,-2],[4,-1],[12,1],[-8,7],[0,6],[8,8],[-2,13]].forEach(([dx,dy])=>line(arc(cx+dx+J(0,.8),cy+dy+J(0,.8),2.6,r()*360,210,0)));
+  },
+  euc(K){const{J,L,line,fill,blob}=K;
+    const base=[[100,332],[105,278],[97,214],[104,150],[98,92],[101,46]];
+    L(base.map(([x,y],i)=>i?[J(x),y]:[x,y]));
+    const sx=y=>{for(let i=0;i<base.length-1;i++){const[a,b]=base[i],[c,d]=base[i+1];if(y<=b&&y>=d){const t=(b-y)/(b-d);return a+(c-a)*t}}return 101};
+    [[298,-1,17],[278,1,16.5],[254,-1,15.5],[232,1,15],[210,-1,14],[188,1,13],[167,-1,12],[147,1,11],[128,-1,10],[110,1,9],[93,-1,8],[77,1,7],[62,-1,5.8],[50,1,4.6]]
+    .forEach(([y,side,R])=>{if(K.strip&&y>STRIP)return;const x=sx(y);const rr=J(R,R*.08);const cx=x+side*(rr+J(4,1.2)),cy=J(y-rr*.35,1.5);
+      const d=blob(cx,cy,rr,10,rr*.07+.4);line(d);fill(d,'sage');L([[x,y],[x+side*3,y-1],[cx-side*rr*.35,cy]]);});
+  },
+};
+const CACHE=new Map(),STEMD=new Map();
+/* a zinc florist's bucket, drawn in the same hand; on the shelf it hides the bottom of each stem */
+function bucket(seed,i){
+  const K=kit(seed,.7),{J,L,line,fill}=K;const top=292,bot=344,wt=J(35,1.2),wb=J(27,1);
+  const body=`M${f(100-wt)} ${top} C${f(100-wt+2)} ${top+30} ${f(100-wb-1)} ${bot-22} ${f(100-wb)} ${bot} C88 ${bot+2} 112 ${bot+1} ${f(100+wb)} ${bot} C${f(100+wb+1)} ${bot-22} ${f(100+wt-2)} ${top+30} ${f(100+wt)} ${top} Z`;
+  const tint=['zinc','enamel','zinc','sage2'][i%4];
+  fill(body,tint);line(body);
+  const rim=K.ell(100,top,wt,5.5,10,.4);fill(rim,'rim');line(rim);
+  L([[100-wt+4,top+16],[100,top+18],[100+wt-5,top+15.5]]);
+  L([[100-wb-2,bot-10],[100,bot-8.5],[100+wb+1,bot-10.5]]);
+  L([[100+wt-10,top+22],[100+wt-11,top+38]]);
+  const o=K.out;
+  return `<g>${o.fills.map(p=>`<path d="${p.d}" fill="#FCFCFA"/>`).join('')}</g>`+
+    `<g transform="translate(2 -1.5)" opacity=".92" style="mix-blend-mode:multiply">${o.fills.map(p=>`<path d="${p.d}" fill="${PAL[p.c]}"/>`).join('')}</g>`+
+    o.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+}
+const MAIN={ran:'pink',tul:'apricot',fre:'cream',sna:'lav',lil:'lily',ane:'white',pea:'pea',cal:'white',car:'carn',rose:'rose',hyd:'hyd',all:'allium',bun:'oat',gyp:'gyp',del:'delph',peo:'peony',dah:'dahlia'};
+function draw(k,s,strip,col){
+  const key=k+s+(strip?'s':'')+(col||'');if(CACHE.has(key))return CACHE.get(key);
+  const g=(seed,amt)=>{const K=kit(seed,amt,strip);GEN[k](K);return K.out};
+  const A=g(s,1.1),B=g(s+97,2.4);STEMD.set(k+s+(strip?'s':''),A.lines[0]);
+  const fc=c=>(col&&c===MAIN[k])?col:PAL[c];
+  /* in the bouquet, each stem gets an underlay in the paper's colour so the flower in front covers the one behind */
+  const under=strip?`<g class="under">${A.fills.map(p=>`<path d="${p.d}"/>`).join('')}</g>`:'';
+  const out=under+`<g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply">${B.fills.map(p=>`<path d="${p.d}" fill="${fc(p.c)}"/>`).join('')}</g>`+
+    A.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  CACHE.set(key,out);return out;
+}
+
+/* ---------- mock-up helpers (960 × 600 frames) ---------- */
+let SEED=11;
+const R=()=>{SEED=(SEED*9301+49297)%233280;return SEED/233280};
+const jit=(v,a)=>v+(R()-.5)*2*a;
+function wob(pts,closed=true,j=1.2){const p=pts.map(([x,y])=>[jit(x,j),jit(y,j)]);let d=`M${f(p[0][0])} ${f(p[0][1])}`;
+  const n=closed?p.length:p.length-1;for(let i=0;i<n;i++){const a=p[i],b=p[(i+1)%p.length];const mx=(a[0]+b[0])/2+jit(0,j*1.4),my=(a[1]+b[1])/2+jit(0,j*1.4);d+=`Q${f(mx)} ${f(my)} ${f(b[0])} ${f(b[1])}`}return closed?d+'Z':d}
+const rectP=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+const ln=(pts,o='')=>`<path d="${wob(pts,false,.8)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" ${o}/>`;
+const box=(x,y,w,h,fill='none',o='')=>`<path d="${wob(rectP(x,y,w,h))}" fill="${fill}" stroke="${INK}" stroke-width="1.3" stroke-linejoin="round" ${o}/>`;
+const T=(x,y,s,size,cls='u',anchor='start',rot=0,fill=INK)=>`<text x="${x}" y="${y}" class="${cls}" font-size="${size}" text-anchor="${anchor}" fill="${fill}" transform="rotate(${rot} ${x} ${y})">${s}</text>`;
+/* a stem standing with its base at (x,y), h px tall, optionally rotated about its base */
+function stem(k,x,y,h,rot=0,seed=1){const s=h/340;return `<g transform="translate(${f(x)} ${f(y)}) rotate(${rot}) translate(${f(-100*s)} ${f(-332*s)})"><svg width="${f(200*s)}" height="${f(340*s)}" viewBox="0 0 200 340" overflow="visible">${draw(k,seed)}</svg></g>`}
+/* the wrapping paper with a small bunch tied at (cx,ty) */
+function paperBunch(cx,cy,w,h,rot,S=1){
+  const x=cx-w/2,y=cy-h/2;let o=`<g transform="rotate(${rot} ${cx} ${cy})">${box(x,y,w,h,'#EDE4D3')}`+
+    `<path d="M${f(x+6)} ${f(y+h*.48)} L${f(cx-6)} ${f(y+h-4)} M${f(x+w-6)} ${f(y+h*.5)} L${f(cx+8)} ${f(y+h-6)}" stroke="#CDBFA4" stroke-width="1" fill="none"/></g>`;
+  const tx=cx,ty=cy+h*.2,u=.62*S*h/340;
+  [['sna',8,1.05],['rose',-14,.86],['fre',-46,1],['euc',30,.82]].forEach(([k,a,sc],i)=>{const s=u*sc;
+    o+=`<g transform="translate(${f(tx)} ${f(ty)}) rotate(${a}) translate(${f(-100*s)} ${f(-250*s)})"><svg width="${f(200*s)}" height="${f(250*s)}" viewBox="0 0 200 250" overflow="hidden">${draw(k,300+i,true)}</svg></g>`});
+  for(let i=0;i<4;i++)o+=ln([[tx+(i-1.5)*1.6,ty],[tx+(i-1.5)*2.2,ty+h*.2]]);
+  return o;
+}
+function tagL(x,y,label,price,rot=-2){const w=label.length*7.4+price.length*7+26;return `<g transform="rotate(${rot} ${x} ${y})"><path d="${wob([[x-w/2+8,y-10],[x+w/2,y-10],[x+w/2,y+10],[x-w/2+8,y+10],[x-w/2,y]],true,.6)}" fill="#FFFDF6" stroke="${INK}" stroke-width="1.1"/>`+
+  T(x+4,y+5,`${label} <tspan fill="#7A8077">${price}</tspan>`,14,'u','middle')+`</g>`}
+function receipt(x,y,w,h,rot=-1.5,title='your bunch'){
+  let teeth='';const n=Math.round(w/12);for(let i=0;i<=n;i++)teeth+=`${f(x+w-i*w/n)} ${i%2?y+h:y+h-8} `;
+  return `<g transform="rotate(${rot} ${x+w/2} ${y+h/2})"><path d="M${x} ${y} L${x+w} ${y} L${x+w} ${y+h-8} L${teeth} L${x} ${y+h-8} Z" fill="#FFFDF6" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>`+
+    T(x+14,y+30,title,24,'h')+T(x+14,y+58,'3 stems',16)+T(x+w-14,y+60,'$15',28,'h','end')+
+    ln([[x+12,y+68],[x+w-12,y+68]],'stroke-dasharray="3 4" opacity=".6"')+button(x+14,y+80,w-28,32,'Wrap bouquet')+`</g>`}
+function button(x,y,w,h,label){return `<rect x="${x+6}" y="${y+2}" width="${w-8}" height="${h-6}" rx="3" fill="#F4C9A6" transform="translate(4 -3)"/>`+ln([[x-2,y+2],[x+w+2,y]])+ln([[x+w,y-2],[x+w+1,y+h+2]])+ln([[x+w+2,y+h],[x-2,y+h+1]])+ln([[x+1,y+h+3],[x,y-3]])+T(x+w/2,y+h/2+6,label,16,'u','middle')}
+function sign(x,y,size=46){return T(x,y,'By the Stem',size,'h')+`<path d="M${x+2} ${y+10} C${x+60} ${y+7} ${x+120} ${y+12} ${x+size*4.2} ${y+8}" fill="none" stroke="#B4593F" stroke-width="1.5" stroke-linecap="round"/>`}
+const SH=['rose','tul','cal','hyd','fre','car','sna','euc'];
+const NM={rose:['Rose','$6'],tul:['Tulip','$4'],cal:['Calla lily','$7'],hyd:['Hydrangea','$8'],fre:['Freesia','$4'],car:['Carnation','$3'],sna:['Snapdragon','$5'],euc:['Eucalyptus','$3']};
+const PAPS=['#EDE4D3','#F4DFD8','#DFE7D7','#D9C09B'];
+const frame=inner=>`<svg viewBox="0 0 960 600" role="img">${inner}</svg>`;
+
+/* ---------- A. the counter (tighter) ---------- */
+function A(){let o=sign(40,72)+T(40,102,'Flowers by the stem. Pick one, or make a bunch.',15);
+  o+=`<g transform="rotate(2.5 840 70)">${box(770,36,160,64,'#FFFDF6')}${T(784,62,'Sunday, Nov 8',20,'h','start',0,'#B4593F')}${T(784,86,'the shelf changes daily',18,'h')}</g>`;
+  o+=T(70,236,'paper',22,'h');PAPS.forEach((c,i)=>{o+=box(70,250+i*34,34,24,c)});
+  o+=paperBunch(470,262,230,300,-6,.95);
+  o+=receipt(740,250,170,130);
+  o+=ln([[30,428],[930,426]]);
+  SH.forEach((k,i)=>{const x=120+i*103;o+=stem(k,x,548,118,0,40+i)+tagL(x,562,...NM[k],i%2?2:-2)});
+  o+=T(56,520,'←',22,'u','middle','0','#C9CCC4')+T(904,520,'→',22,'u','middle')+T(904,540,'more',18,'h','middle');
+  return frame(o)}
+
+/* ---------- B. the table from above: stems laid flat beside the paper ---------- */
+function B(){let o=`<path d="${wob([[24,24],[936,20],[940,580],[20,584]],true,2)}" fill="#F6F2EA" stroke="none"/>`;
+  for(let i=0;i<6;i++)o+=ln([[40,120+i*80],[920,118+i*80+jit(0,3)]],'opacity=".12"');
+  o+=sign(48,74,44)+T(48,102,'Flowers by the stem.',15);
+  SH.forEach((k,i)=>{const y=150+i*52;o+=stem(k,388,y,150,-90+jit(0,4),60+i)+tagL(420,y+2,...NM[k],jit(0,3))});
+  o+=paperBunch(640,300,250,320,7,1);
+  o+=`<g transform="rotate(-6 860 520)">${box(800,470,120,26,'#EDE4D3')}${box(806,478,120,26,'#F4DFD8')}${box(812,486,120,26,'#DFE7D7')}</g>`+T(800,460,'paper',20,'h');
+  o+=receipt(760,96,160,126,4);
+  return frame(o)}
+
+/* ---------- C. the shop window ---------- */
+function C(){let o='';
+  const sc=12;for(let i=0;i<sc;i++){const x=i*80;o+=`<path d="M${x} 0 L${x+80} 0 L${x+80} 60 Q${x+60} 84 ${x+40} 60 Q${x+20} 84 ${x} 60 Z" fill="${i%2?'#FCFCFA':'#F4C9A6'}" stroke="${INK}" stroke-width="1.2" stroke-linejoin="round"/>`}
+  o+=box(330,92,300,54,'#FFFDF6')+T(480,130,'By the Stem',40,'h','middle');
+  o+=box(60,166,840,410,'none','stroke-width="1.6"')+ln([[60,512],[900,510]])+ln([[480,166],[481,250]],'opacity=".25"');
+  o+=paperBunch(470,330,200,250,-5,.9);
+  SH.forEach((k,i)=>{const x=110+i*102;o+=stem(k,x,508,104,0,80+i)+tagL(x,530,...NM[k],i%2?2:-2)});
+  o+=ln([[780,166],[792,206]])+ln([[880,166],[868,206]])+`<g transform="rotate(3 830 260)">${box(760,206,150,108,'#FFFDF6')}${T(774,234,'your bunch',22,'h')}${T(774,260,'3 stems',15)}${T(896,262,'$15',26,'h','end')}${button(774,276,122,28,'Wrap bouquet')}</g>`;
+  o+=T(110,200,'paper:',20,'h');PAPS.forEach((c,i)=>{o+=box(170+i*36,184,28,20,c)});
+  o+=T(56,594,'Flowers by the stem. Pick one, or make a bunch.',15);
+  return frame(o)}
+
+/* ---------- D. the open sketchbook ---------- */
+function D(){let o=box(40,40,430,530,'#FFFDF6')+box(490,40,430,530,'#FFFDF6');
+  for(let i=0;i<13;i++)o+=`<ellipse cx="480" cy="${66+i*39}" rx="14" ry="5" fill="none" stroke="${INK}" stroke-width="1.2"/>`;
+  o+=sign(70,96,40)+T(70,128,'today’s stems · Sun, Nov 8',22,'h','start',0,'#B4593F');
+  SH.forEach((k,i)=>{const c=i%4,r=Math.floor(i/4),x=110+c*96,y=300+r*210;o+=stem(k,x,y-28,128,0,90+i)+T(x,y-8,NM[k][0],15,'u','middle')+T(x,y+10,NM[k][1],15,'u','middle','0','#7A8077')});
+  o+=paperBunch(705,270,220,280,-4,.9);
+  o+=ln([[530,470],[880,468]],'stroke-dasharray="3 4" opacity=".6"')+T(530,500,'3 stems',18)+T(880,504,'$15',32,'h','end')+button(530,520,150,32,'Wrap bouquet');
+  PAPS.forEach((c,i)=>{o+=box(740+i*36,526,26,20,c)});
+  return frame(o)}
+
+/* ---------- E. the menu board ---------- */
+function E(){let o=sign(48,76,46)+T(48,104,'Flowers by the stem. Pick one, or make a bunch.',15);
+  o+=T(60,160,'today’s stems',30,'h')+ln([[60,170],[330,168]],'stroke="#B4593F"');
+  SH.forEach((k,i)=>{const y=212+i*44;o+=stem(k,74,y+12,58,0,120+i)+T(100,y,NM[k][0],20)+`<path d="M${f(100+NM[k][0].length*9+8)} ${y} L310 ${y}" stroke="${INK}" stroke-dasharray="1 5" stroke-linecap="round" stroke-width="1.4"/>`+T(352,y,NM[k][1],26,'h','end')});
+  o+=paperBunch(610,300,250,330,-5,1.02);
+  o+=receipt(790,380,140,130,-2,'yours');
+  o+=T(790,120,'paper',20,'h');PAPS.forEach((c,i)=>{o+=box(790+i*34,132,26,20,c)});
+  return frame(o)}
+
+/* ---------- F. the ring: stems laid in a circle around the paper ---------- */
+function F(){let o=sign(40,72,44)+T(40,100,'Flowers by the stem.',15);
+  const cx=480,cy=318;
+  SH.forEach((k,i)=>{const a=-160+i*(320/7),r=jit(150,6),bx=cx+Math.sin(a*Math.PI/180)*r,by=cy-Math.cos(a*Math.PI/180)*r*.82;
+    o+=stem(k,bx,by,128,a,140+i);
+    const tx=cx+Math.sin(a*Math.PI/180)*(r+150),ty=cy-Math.cos(a*Math.PI/180)*(r+150)*.82+8;o+=tagL(tx,Math.min(Math.max(ty,40),585),...NM[k],jit(0,3))});
+  o+=paperBunch(cx,cy+40,170,220,-4,.78);
+  o+=receipt(770,430,160,126,-2);
+  o+=T(60,470,'paper',20,'h');PAPS.forEach((c,i)=>{o+=box(60+i*34,482,26,20,c)});
+  return frame(o)}
+
+/* ---------- round two: change how the stems appear, not just the frame ---------- */
+function noteTotal(x,y,w){return ln([[x,y],[x+w,y]],'stroke-dasharray="3 4" opacity=".6"')+T(x,y+28,'3 stems',17)+T(x+w,y+32,'$15',30,'h','end')+button(x+w-150,y+46,150,32,'Wrap bouquet')}
+
+/* G. one stem at a time, like a specimen card */
+function G(){let o=sign(40,64,38)+T(40,90,'Flowers by the stem.',14);
+  o+=stem('rose',220,540,400,0,201);
+  o+=T(360,262,'Rose',64,'h')+T(362,296,'$6 a stem',20)+T(362,328,'deep red, opens slowly over a few days',17,'u','start',0,'#7A8077');
+  o+=button(362,356,180,38,'Add to paper');
+  o+=T(70,330,'←',30,'u','middle',0,'#A9ADA5')+T(380,452,'→ next: Tulip',22,'h');
+  SH.forEach((k,i)=>{const x=372+i*30;o+=stem(k,x,560,52,0,210+i)});
+  o+=`<path d="M352 520 C352 500 392 498 392 520 C392 548 352 550 354 524" fill="none" stroke="#B4593F" stroke-width="1.5"/>`;
+  o+=T(372,584,'1 of 16',14,'u','start',0,'#7A8077');
+  o+=paperBunch(760,250,220,290,-5,.92)+noteTotal(650,440,250);
+  return frame(o)}
+
+/* H. the drawer: the page is just the paper until you open today's stems */
+function H(){let o=sign(40,64,40)+T(40,92,'Flowers by the stem. Pick one, or make a bunch.',14);
+  o+=paperBunch(480,232,220,280,-4,.92);
+  o+=`<g transform="rotate(-2 820 150)">${box(740,96,170,96,'#FFFDF6')}${T(756,124,'your bunch',22,'h')}${T(756,150,'3 stems',15)}${T(896,152,'$15',26,'h','end')}${T(756,178,'wrap it →',18,'h','start',0,'#B4593F')}</g>`;
+  o+=`<path d="${wob([[0,600],[0,404],[960,398],[960,600]],true,1.5)}" fill="#FFFDF6" stroke="${INK}" stroke-width="1.3"/>`;
+  o+=`<path d="${wob([[400,404],[412,372],[548,370],[560,402]],false,1)}" fill="#FFFDF6" stroke="${INK}" stroke-width="1.3"/>`+T(480,394,'today’s stems ↓',20,'h','middle');
+  SH.forEach((k,i)=>{const x=110+i*106;o+=stem(k,x,560,118,0,220+i)+tagL(x,576,...NM[k],i%2?2:-2)});
+  return frame(o)}
+
+/* I. scattered on the table, no grid, labels only on hover */
+function I(){let o=sign(40,64,40)+T(40,92,'Flowers by the stem.',14);
+  const P=[['rose',150,330,-28,150],['tul',250,470,-62,150],['cal',330,250,18,160],['hyd',120,560,-80,140],['fre',420,420,52,150],['car',300,580,-100,130],['sna',470,250,-12,170],['euc',520,560,74,150]];
+  P.forEach(([k,x,y,r,h],i)=>{o+=stem(k,x,y,h,r,230+i)});
+  o+=tagL(352,150,'Calla lily','$7',-4)+`<path d="M346 162 C344 180 340 196 334 210" fill="none" stroke="${INK}" stroke-width="1" stroke-dasharray="2 3"/>`;
+  o+=paperBunch(760,260,230,300,6,.95)+noteTotal(650,450,250);
+  return frame(o)}
+
+/* J. walk along the stall: big stems in a long row you scroll sideways */
+function J(){let o=sign(40,64,40)+T(40,92,'Flowers by the stem. Pick one, or make a bunch.',14);
+  o+=paperBunch(800,170,170,220,-5,.75)+T(700,330,'3 stems · $15',18)+T(700,356,'wrap it →',20,'h','start',0,'#B4593F');
+  SH.slice(0,6).forEach((k,i)=>{const x=110+i*170;o+=stem(k,x,546,250,0,240+i)+tagL(x,566,...NM[k],i%2?2:-2)});
+  o+=`<defs><linearGradient id="fadeJ" x1="0" x2="1"><stop offset="0" stop-color="#FCFCFA" stop-opacity="0"/><stop offset="1" stop-color="#FCFCFA"/></linearGradient></defs><rect x="820" y="380" width="140" height="220" fill="url(#fadeJ)"/>`;
+  o+=T(900,520,'more →',22,'h','middle');
+  return frame(o)}
+
+/* ---------- making E work: the menu, with the flowers easier to see ---------- */
+const HEAD={rose:[100,92],tul:[101,106],cal:[106,84],hyd:[100,100],fre:[130,126],car:[100,102],sna:[100,110],euc:[100,140]};
+const HUE={rose:'#D9545E',tul:'#F6A86E',cal:'#E9DFC9',hyd:'#A9BFEA',fre:'#EBD872',car:'#F4B6C6',sna:'#C3ADEA',euc:'#A9C3B2'};
+function head(k,x,y,size,seed){const [hx,hy]=HEAD[k],w=k==='sna'||k==='euc'?150:110;return `<svg x="${f(x-size/2)}" y="${f(y-size/2)}" width="${size}" height="${size}" viewBox="${hx-w/2} ${hy-w/2} ${w} ${w}" overflow="hidden">${draw(k,seed)}</svg>`}
+function menuRow(x,y,k,w,size=22){const [n,p]=NM[k];return T(x,y,n,size)+`<path d="M${f(x+n.length*size*.42+8)} ${y} L${x+w-40} ${y}" stroke="${INK}" stroke-dasharray="1 5" stroke-linecap="round" stroke-width="1.4"/>`+T(x+w,y+2,p,size+6,'h','end')}
+
+/* E1: text-only menu with plenty of air; the stem you point at is drawn big beside it */
+function E1(){let o=sign(48,72,44)+T(48,100,'Flowers by the stem.',15);
+  o+=T(60,166,'today’s stems',30,'h')+ln([[60,176],[300,174]],'stroke="#B4593F"');
+  SH.forEach((k,i)=>{const y=222+i*42;if(i===0)o+=`<rect x="56" y="${y-16}" width="${NM[k][0].length*9.5+12}" height="12" fill="#F4C9A6" opacity=".8" transform="rotate(-1 56 ${y})"/>`;o+=menuRow(62,y,k,270)});
+  o+=T(66,580,'← p. 1 of 2 →',18,'h','start',0,'#7A8077');
+  o+=stem('rose',470,548,400,0,301)+T(470,580,'Rose · deep red, opens slowly',16,'u','middle',0,'#7A8077');
+  o+=paperBunch(790,240,200,260,-5,.85)+noteTotal(680,430,230);
+  return frame(o)}
+
+/* E2: fewer rows, each led by a big flower head */
+function E2(){let o=sign(48,72,44)+T(48,100,'Flowers by the stem.',15);
+  o+=T(60,160,'today’s stems',30,'h');
+  SH.slice(0,6).forEach((k,i)=>{const y=218+i*62;o+=head(k,96,y-8,58,310+i)+menuRow(140,y,k,300,24)});
+  o+=T(140,600-10,'p. 1 of 3 →',18,'h','start',0,'#7A8077');
+  o+=paperBunch(700,270,230,300,-5,.95)+noteTotal(590,460,250);
+  return frame(o)}
+
+/* E3: no pictures in the list; each name gets a swash in its own colour */
+function E3(){let o=sign(48,72,44)+T(48,100,'Flowers by the stem.',15);
+  o+=T(60,160,'today’s stems',30,'h');
+  SH.forEach((k,i)=>{const y=216+i*46,[n,p]=NM[k];o+=`<path d="M58 ${y+5} C${90} ${y+1} ${60+n.length*13} ${y+7} ${66+n.length*14} ${y+2}" fill="none" stroke="${HUE[k]}" stroke-width="9" stroke-linecap="round" opacity=".85"/>`+T(62,y,n,30,'h')+T(360,y,p,28,'h','end')});
+  o+=stem('tul',470,500,300,-8,320)+stem('hyd',520,520,280,10,321);
+  o+=paperBunch(790,250,200,260,-5,.85)+noteTotal(680,430,230);
+  return frame(o)}
+
+const CONE=[
+  ['E1 · Menu with a big preview','The list is words only, with room to breathe. Point at a line and that stem is drawn big next to it, so you always see one flower properly.',E1],
+  ['E2 · Fewer lines, bigger heads','Six lines a page, each led by the flower head drawn large, so the list reads as flowers first and prices second.',E2],
+  ['E3 · Names in their own colour','No pictures in the list at all: each name is written big with a swash in that flower’s colour. A couple of stems stand beside it for mood.',E3],
+  ['E · As it was','The first menu-board sketch, for comparison.',E],
+];
+
+const CON2=[
+  ['G · One stem at a time','The left side shows one stem big, like a specimen card: its name, price, a line about it, and an Add button. Flip through with arrows or the little row of thumbnails.',G],
+  ['H · The drawer','At rest the page is only the sign, the paper and your total. A tab at the bottom opens today’s stems as a drawer; close it to admire the bunch.',H],
+  ['I · Scattered on the table','No grid and no labels sitting around. Stems lie at loose angles like they were just put down; a tag appears only when you point at one.',I],
+  ['J · Walk along the stall','Fewer, bigger stems in one long row that scrolls sideways, like walking past the buckets. The paper waits in the corner.',J],
+];
+
+const CON=[
+  ['A · The counter','What you have now, scaled down: sign top left, paper on the counter, paper stack and receipt either side, stems along the bottom.',A],
+  ['B · The table from above','Looking down at the florist’s bench. Stems lie flat on the left like they were just unwrapped from the market bundle; you pull one across to the paper.',B],
+  ['C · The shop window','A striped awning and the shop window. Stems stand on the sill, the receipt hangs on a string like an open sign.',C],
+  ['D · The open sketchbook','A spiral sketchbook: today’s stems as a page of studies on the left, the paper on the right, the total written at the bottom like a note.',D],
+  ['E · The menu board','A hand-lettered price list on the left (name, dots, price) with a tiny drawing of each stem; the paper gets the most room.',E],
+  ['F · The ring','Stems laid in a loose circle on the table with the paper in the middle, heads pointing out like a wreath you take from.',F],
+];
+const fig=([t,d,fn])=>{SEED=7;return `<figure>${fn()}<figcaption><b>${t}</b><span>${d}</span></figcaption></figure>`};
+document.getElementById('gridE').innerHTML=CONE.map(fig).join('');
+document.getElementById('grid2').innerHTML=CON2.map(fig).join('');
+document.getElementById('grid').innerHTML=CON.map(fig).join('');
+})();
+</script>

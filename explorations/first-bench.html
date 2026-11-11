@@ -1,0 +1,851 @@
+<title>By the Stem</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,50..100;1,9..144,300..500,50..100&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Nanum+Pen+Script&display=swap">
+<style>
+/* Layout: the shop's wrapping bench. Name + today's stems on the left, the widest gap in the middle, a tilted sheet of paper on the right that the bunch grows on. Deliberately one light look: it is a sheet of paper on a white counter. */
+:root{
+  --counter:#FCFCFA;   /* the clean white counter */
+  --ink:#394038;       /* olive-grey drawing ink, also text */
+  --muted:#7A8077;
+  --paper:#EDE4D3;     /* oat wrapping paper */
+  --twine:#B4593F;
+  --hair:#E4E2DA;
+  --f-display:"Fraunces","Iowan Old Style",Georgia,serif;
+  --f-ui:"DM Sans","Helvetica Neue",Arial,sans-serif;
+  --f-hand:"Nanum Pen Script","Bradley Hand","Segoe Print",cursive;
+}
+body{background:var(--counter);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5}
+.app{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:min(4.5vh,48px) min(4vh,40px);
+  display:grid;grid-template-columns:minmax(0,6.2fr) minmax(24px,1.2fr) minmax(0,6.6fr);grid-template-rows:auto 1fr;row-gap:min(5.5vh,52px)}
+.brand{grid-column:1;grid-row:1;display:grid;gap:8px;align-content:start}
+.brand h1{font-family:var(--f-display);font-weight:400;font-size:clamp(40px,4.6vw,58px);line-height:1;letter-spacing:-.012em;margin:0;font-variation-settings:"SOFT" 100,"opsz" 144}
+.brand h1 em{font-style:italic;font-weight:300}
+.brand p{margin:0;font-size:17px}
+
+.shelf{grid-column:1;grid-row:2;align-self:start;display:grid;gap:10px}
+.shelf .stems{margin-top:min(1.2vh,12px)}
+.shelf h2{font:600 12px/1 var(--f-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0}
+.stems{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:min(3vh,32px) 12px;transition:opacity .17s ease,transform .17s ease}
+.stems.out{opacity:0;transform:translateX(calc(var(--dir,1) * -14px))}
+.stems.in{opacity:0;transform:translateX(calc(var(--dir,1) * 14px));transition:none}
+.pager{display:flex;align-items:center;gap:10px;margin-top:min(2vh,16px);font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pg{appearance:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--ink);background:none;color:var(--ink);font:500 15px/1 var(--f-ui);cursor:pointer;display:grid;place-items:center;transition:background .15s,color .15s}
+.pg:hover:not(:disabled){background:var(--ink);color:var(--counter)}
+.pg:disabled{border-color:var(--hair);color:#C9CCC4;cursor:default}
+.pg:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.today{margin:-4px 0 4px;color:var(--muted);font-size:13.5px;max-width:80ch;text-wrap:pretty}
+.today b{color:var(--ink);font-weight:500}
+.item{display:grid;justify-items:center;gap:6px;align-content:start}
+.pick{appearance:none;background:none;border:0;padding:4px 0;margin:0;color:var(--ink);font:inherit;cursor:grab;display:grid;justify-items:center;gap:2px;border-radius:8px;touch-action:pan-x;-webkit-user-select:none;user-select:none;width:100%}
+.item.out .pick{cursor:not-allowed;opacity:.38}
+.item .left{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.item .left.low{color:var(--twine)}
+.swatches{display:flex;gap:5px;justify-content:center;min-height:18px}
+.sw{appearance:none;width:18px;height:18px;border-radius:50%;border:1px solid var(--ink);padding:0;cursor:pointer;box-shadow:inset 0 0 0 2px var(--counter)}
+.sw[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--counter),0 0 0 1.5px var(--ink)}
+.sw:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.papers{display:flex;align-items:center;gap:2px;margin-right:auto;margin-left:22px;padding-left:22px;border-left:1px solid var(--hair)}
+.papers .lbl{font-size:13.5px;color:var(--muted);margin-right:6px}
+.papers .pname{font-size:13.5px;margin-left:6px}
+.pp{appearance:none;display:inline-grid;place-items:center;background:none;border:1px solid transparent;border-radius:50%;padding:3px;cursor:pointer}
+.pp i{width:16px;height:16px;border-radius:50%;border:1px solid var(--ink)}
+.pp[aria-pressed="true"]{border-color:var(--ink)}
+.pp:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.papers .free{flex-basis:100%;text-align:right;color:var(--muted);font-size:12.5px}
+.item svg{width:auto;max-width:100%;height:min(16vh,180px);aspect-ratio:200/340;overflow:visible;transition:transform .45s cubic-bezier(.3,1.6,.5,1);transform-origin:50% 97%}
+.item:nth-child(1) svg{transform:rotate(-3deg)}
+.item:nth-child(2) svg{transform:translateY(10px) rotate(2deg)}
+.item:nth-child(3) svg{transform:rotate(-1deg)}
+.item:nth-child(4) svg{transform:translateY(6px) rotate(2deg)}
+.item:nth-child(5) svg{transform:rotate(-2deg)}
+.item:nth-child(6) svg{transform:translateY(8px) rotate(3deg)}
+.item:nth-child(7) svg{transform:translateY(4px) rotate(-2deg)}
+.item:nth-child(8) svg{transform:rotate(2deg)}
+.item:nth-child(9) svg{transform:translateY(8px) rotate(-3deg)}
+.item:nth-child(10) svg{transform:rotate(2deg)}
+.item:nth-child(11) svg{transform:translateY(6px) rotate(-2deg)}
+.item:nth-child(12) svg{transform:translateY(3px) rotate(3deg)}
+.item .nm{font-size:14px;line-height:1.25;text-align:center}
+.item .pr,.item .left{font-size:12px}
+.sw{width:15px;height:15px}
+.item:hover svg{transform:translateY(-6px) rotate(-4deg)}
+.item:nth-child(even):hover svg{transform:translateY(-6px) rotate(4deg)}
+.item .nm{font-weight:500;font-size:14px;margin-top:4px}
+.item .pr{color:var(--muted);font-size:13.5px;font-variant-numeric:tabular-nums}
+.pick:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.howto{display:none;margin:6px 0 0;color:var(--muted);font-size:13.5px}
+
+/* the bench spans exactly the shelf's height: paper top meets "Today's stems", the tally meets the last row */
+.bench{grid-column:3;grid-row:2;align-self:stretch;display:flex;flex-direction:column;min-width:0;min-height:0;position:relative}
+.paperwrap{position:relative;flex:1;min-height:0}
+#paper{position:absolute;inset:0;display:block;width:100%;height:100%;touch-action:none;overflow:visible}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 4px 0;border-top:1px solid var(--hair);margin-top:14px}
+.tally{display:flex;gap:8px;align-items:baseline;font-variant-numeric:tabular-nums;font-size:16px}
+.tally .dot{color:var(--muted)}
+.tally #total{font-weight:600}
+.actions{display:flex;gap:6px;align-items:center}
+.primary{font:500 15px/1 var(--f-ui);color:var(--counter);background:var(--ink);border:0;border-radius:999px;padding:13px 22px;cursor:pointer;transition:transform .15s}
+.primary:hover:not(:disabled){transform:translateY(-1px)}
+.primary:disabled{background:#C9CCC4;cursor:default}
+.link{font:500 15px/1 var(--f-ui);color:var(--ink);background:none;border:0;padding:13px 12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.primary:focus-visible,.link:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.msg{position:absolute;top:100%;left:4px;right:4px;margin:12px 0 0;color:var(--muted);font-size:14px}
+
+/* paper scene */
+#paper{--wrap:#EDE4D3}
+#paper .under path{fill:#FAF6EE}
+#paper .hit{fill:transparent;pointer-events:all;cursor:grab}
+#paper .pl{pointer-events:none}
+#paper.locked .hit{pointer-events:none}
+#paper .ghosted{opacity:.36}
+#paper .pop{animation:pop .5s cubic-bezier(.3,1.5,.5,1) both;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes pop{from{opacity:.25;transform:translateY(-14px)}}
+#ring{fill:none;stroke:#B6AA92;stroke-width:1.2;stroke-dasharray:3 4;transition:stroke .2s}
+#paper.hot #ring{stroke:var(--ink);stroke-dasharray:none}
+#hintText{font:500 15px var(--f-ui);fill:#A39A86}
+#tag{opacity:0;transform-box:fill-box;transform-origin:20% 0%}
+#tag.on{animation:tag 1.1s cubic-bezier(.25,1.3,.45,1) forwards}
+@keyframes tag{0%{opacity:0;transform:translateY(-46px) rotate(-22deg)}35%{opacity:1}60%{transform:translateY(0) rotate(9deg)}80%{transform:rotate(-4deg)}100%{opacity:1;transform:rotate(0)}}
+#tagText{font-family:var(--f-hand);font-size:31px;fill:var(--ink)}
+
+.float{position:fixed;left:0;top:0;pointer-events:none;z-index:50;transition:opacity .12s}
+.float svg{display:block;width:100%;height:100%;overflow:visible}
+body.dragging,body.dragging *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
+
+/* ---- hand-drawn UI: the chrome is drawn with the same olive ink, and printed with the same offset fill, as the stems ---- */
+:root{--wob:255px 18px 225px 18px/18px 225px 18px 255px;--wobc:52% 48% 55% 45%/47% 53% 46% 54%;--print:#F4C9A6}
+.shelf h2{font:italic 400 20px/1 var(--f-display);letter-spacing:0;text-transform:none;color:var(--ink);font-variation-settings:"SOFT" 100}
+.primary{position:relative;isolation:isolate;color:var(--ink);border:0;border-radius:0;padding:13px 24px;transition:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 44' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C50 2.6 110 5.6 159 3.6 M155.5 .8 C157.4 16 156.2 30 156.8 43.4 M159 40.2 C110 42.2 50 40.4 1.2 41.4 M4.6 43.6 C2.8 30 4.2 16 5.6 .6' fill='none' stroke='%23394038' stroke-width='1.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center/100% 100%}
+.primary::before{content:"";position:absolute;inset:4px 5px;z-index:-1;border-radius:3px 6px 4px 5px;background:var(--print);transform:translate(5px,-4px) rotate(-.8deg);transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.primary:hover:not(:disabled){transform:none}
+.primary:hover:not(:disabled)::before{transform:translate(0,0) rotate(0)}
+.primary:disabled{color:#A9ADA5;opacity:.6}
+.primary:disabled::before{background:#EFEFEA}
+.link{text-decoration:none;padding:13px 4px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='4' viewBox='0 0 12 4'%3E%3Cpath d='M0 2.2 Q3 .4 6 2.2 T12 2.2' fill='none' stroke='%23394038' stroke-width='1.1'/%3E%3C/svg%3E") repeat-x 0 calc(100% - 7px)/12px 4px}
+.link:hover{background-position-x:6px}
+.foot{border-top:0;padding-top:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 6' preserveAspectRatio='none'%3E%3Cpath d='M1 3.2 C80 1.6 160 4.4 240 3 S420 1.8 520 3.6 S590 2.6 599 3' fill='none' stroke='%23394038' stroke-opacity='.5' stroke-width='1.2' vector-effect='non-scaling-stroke' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 0 0/100% 6px}
+.papers{border-left:0;position:relative}
+.papers::before{content:"";position:absolute;left:0;top:50%;width:6px;height:22px;transform:translateY(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 22'%3E%3Cpath d='M3 1 C2 6 4 10 3 14 S2.4 19 3.2 21' fill='none' stroke='%23394038' stroke-opacity='.5' stroke-width='1.1' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/6px 22px}
+.pp{border-radius:var(--wobc)}
+.pp i{border-radius:var(--wobc);border-width:1.2px}
+.pp[aria-pressed="true"]{border:1.3px solid var(--ink)}
+.sw{border-radius:var(--wobc);border-width:1.2px}
+.pg{border-radius:var(--wobc);border-width:1.3px}
+.pg svg{width:18px;height:12px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#pgPrev svg{transform:scaleX(-1)}
+.pg:hover:not(:disabled){background:var(--print);color:var(--ink)}
+.brand h1 .mark{display:inline-block;width:.6em;height:1.02em;vertical-align:-.14em;margin-left:.06em;transform:rotate(10deg)}
+.brand h1 .mark svg{width:100%;height:100%;overflow:visible}
+
+@media (max-width:820px){
+  html,body{height:100%}
+  .app{display:flex;flex-direction:column;height:100%;padding-block:12px 0;box-sizing:border-box}
+  .brand{gap:2px}
+  .brand h1{font-size:30px}
+  .brand p{font-size:13.5px;color:var(--muted)}
+  .bench{order:2;flex:1;min-height:0;display:flex;flex-direction:column;position:static}
+  .paperwrap{flex:1;min-height:0}
+  #paper{height:100%;max-height:none}
+  .foot{padding-top:10px}
+  .msg{position:static;margin-top:4px;min-height:1.3em;font-size:13px}
+  .shelf{order:3;margin:0 calc(-1 * max(16px,env(safe-area-inset-right,0px))) 0 0;padding-bottom:max(10px,env(safe-area-inset-bottom,0px));gap:6px}
+  .shelf h2{display:none}
+  .stems{display:flex;overflow-x:auto;gap:2px;padding:6px 16px 4px 0;scrollbar-width:none;touch-action:pan-x}
+  .stems::-webkit-scrollbar{display:none}
+  .item{flex:0 0 84px}
+  .item svg{max-width:none;height:108px;width:auto}
+  .item .nm{font-size:12.5px}.item .pr{font-size:12px}
+  .howto{display:block;font-size:12.5px;margin:0}
+  .today{font-size:12px;margin:0;max-width:none}
+  .papers{margin-left:10px;padding-left:10px;gap:2px}
+  .papers .lbl,.papers .free{display:none}
+  .pp{padding:5px 9px 5px 5px;font-size:12.5px}
+  .sw{width:15px;height:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  .item svg,.primary{transition:none}
+  #paper .pop,#tag.on{animation-duration:.01s}
+}
+</style>
+
+<div class="app">
+  <header class="brand">
+    <h1>By the <em>Stem</em><span class="mark" id="mark" aria-hidden="true"></span></h1>
+    <p>Flowers by the stem. Pick one, or make a bunch.</p>
+  </header>
+
+  <section class="shelf" aria-labelledby="shelfH">
+    <h2 id="shelfH">Today’s stems</h2>
+    <p class="today" id="today">Picked up from the market this morning. The table changes every day with what’s in the shop.</p>
+    <div class="stems" id="shelf"></div>
+    <nav class="pager" aria-label="More stems">
+      <button class="pg" id="pgPrev" type="button" aria-label="Previous stems"><svg viewBox="0 0 20 12" aria-hidden="true"><path d="M2 6.5 C7 5.6 12 6.4 18 5.8 M13 1.8 C15 3.6 16.5 4.8 18 5.8 C16 7 14.6 8.4 13.2 10.4"/></svg></button>
+      <span id="pgNum" aria-live="polite">1 / 2</span>
+      <button class="pg" id="pgNext" type="button" aria-label="More stems"><svg viewBox="0 0 20 12" aria-hidden="true"><path d="M2 6.5 C7 5.6 12 6.4 18 5.8 M13 1.8 C15 3.6 16.5 4.8 18 5.8 C16 7 14.6 8.4 13.2 10.4"/></svg></button>
+    </nav>
+    <p class="howto" id="howto">Drag a stem onto the paper, or click one to add it.</p>
+  </section>
+
+  <section class="bench" aria-label="Wrapping paper">
+    <div class="paperwrap">
+      <svg id="paper" viewBox="0 18 600 652" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Wrapping paper with your bouquet">
+        <defs>
+          <filter id="grain" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="7" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 .42  0 0 0 0 .36  0 0 0 0 .26  0 0 0 -1 .58" result="c"/>
+            <feComposite in="c" in2="SourceAlpha" operator="in"/>
+          </filter>
+          <filter id="fibre" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency=".012 .22" numOctaves="2" seed="3" result="n"/>
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 .98  0 0 0 0 .93  0 0 0 -2.2 1.25" result="c"/>
+            <feComposite in="c" in2="SourceAlpha" operator="in"/>
+          </filter>
+          <filter id="lift" x="-15%" y="-15%" width="130%" height="135%">
+            <feDropShadow dx="0" dy="2.5" stdDeviation="3" flood-color="#394038" flood-opacity=".16"/>
+          </filter>
+          <clipPath id="above" clipPathUnits="userSpaceOnUse"><rect x="-300" y="-400" width="800" height="650"/></clipPath>
+        </defs>
+        <g id="sheet"></g>
+        <g id="backL"></g><g id="backR"></g>
+        <g id="hint"><circle id="ring" cx="330" cy="455" r="15"/><text id="hintText" x="330" y="300" text-anchor="middle">Drop a stem here</text></g>
+        <g id="tails" fill="none" stroke="#394038" stroke-width="1.4" stroke-linecap="round"></g>
+        <g id="stems"></g>
+        <g id="ghost"></g>
+        <g id="frontL" filter="url(#lift)"></g><g id="frontR" filter="url(#lift)"></g>
+        <g id="twine" opacity="0" fill="none" stroke="#B4593F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path id="band" d="M232 480 C268 492 300 494 330 489 C364 484 396 474 426 462"/>
+          <path id="bow" d="M330 486 C300 452 276 478 296 490 C306 496 322 492 330 487 M332 486 C360 450 392 474 374 489 C364 497 344 493 333 488 M329 489 C322 510 316 526 302 546 M334 489 C343 508 350 522 368 536"/>
+        </g>
+        <g id="tag">
+          <path id="tagString" d="M333 489 C340 520 348 540 356 560" fill="none" stroke="#B4593F" stroke-width="1.6" stroke-linecap="round"/>
+          <g id="tagBody" transform="translate(346 548) rotate(9)">
+            <path d="M2 10 L12 0 H112 Q116 0 116 4 V52 Q116 56 112 56 H12 L2 46 Z" fill="#F4ECDC" stroke="#394038" stroke-width="1.3" stroke-linejoin="round"/>
+            <circle cx="13" cy="28" r="3.6" fill="#FCFCFA" stroke="#394038" stroke-width="1.2"/>
+            <text id="tagText" x="26" y="38">3 stems</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="foot">
+      <div class="tally"><span id="count">0 stems</span><span class="dot">·</span><span id="total">$0</span></div>
+      <div class="papers" role="group" aria-label="Choose wrapping paper" id="papers"></div>
+      <div class="actions" id="actions"></div>
+    </div>
+    <p class="msg" id="msg" aria-live="polite"></p>
+  </section>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const INK='#394038';
+const PAL={pink:'#F2B5B0',cream:'#F3E7A0',lav:'#C3ADEA',green:'#A9C89B',sage:'#A9C3B2',mustard:'#E9AE2B',apricot:'#F6A86E',
+  white:'#EEE7DA',dark:'#5A6258',pea:'#D6B4E6',lily:'#F4E9DD',pollen:'#C9744F',bud:'#CFE0B8',carn:'#F4B6C6',rose:'#D9545E',hyd:'#A9BFEA',allium:'#9F7CC9',oat:'#E6D9BE',gyp:'#F7F4EE',delph:'#9EB5E6',peony:'#F4C2C8',dahlia:'#E28AB4'};
+
+/* ---------- drawing kit (style A: fine line, misregistered fill) ---------- */
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f=v=>(Math.round(v*10)/10);
+function smooth(pts,closed){
+  const n=pts.length;const P=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;const segs=closed?n:n-1;
+  for(let i=0;i<segs;i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
+    d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`}
+  return closed?d+'Z':d;
+}
+const rad=d=>d*Math.PI/180;
+function xf(ox,oy,ang){const a=ang*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return([x,y])=>[ox+x*c-y*s,oy+x*s+y*c]}
+const STRIP=212; /* in a bouquet, leaves below this line are stripped, like a florist would */
+function kit(seed,amt,strip){
+  const r=rng(seed);const J=(v,a=amt)=>v+(r()-.5)*2*a;
+  const out={lines:[],fills:[]};
+  const line=d=>out.lines.push(d);const fill=(d,c)=>out.fills.push({d,c});
+  const L=pts=>line(smooth(pts,false));
+  function leaf(ox,oy,ang,len,w,c='green'){
+    const T=xf(ox,oy,J(ang,4));if(strip&&oy>STRIP)return;const Ln=J(len,len*.06),W=J(w,w*.1);
+    const p=[[0,0],[W,-Ln*.45],[J(0,1),-Ln],[-W,-Ln*.52]].map(T);
+    const d=`M${f(p[0][0])} ${f(p[0][1])}Q${f(p[1][0])} ${f(p[1][1])} ${f(p[2][0])} ${f(p[2][1])}Q${f(p[3][0])} ${f(p[3][1])} ${f(p[0][0])} ${f(p[0][1])}Z`;
+    line(d);fill(d,c);L([[0,0],[J(W*.08,.6),-Ln*.5],[0,-Ln*.82]].map(T));
+  }
+  function blob(cx,cy,R,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;const rr=R+J(0,wob);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)}
+  function ell(cx,cy,rx,ry,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;pts.push([cx+Math.cos(t)*(rx+J(0,wob)),cy+Math.sin(t)*(ry+J(0,wob))])}return smooth(pts,true)}
+  function arc(cx,cy,R,a0,span,scal){const pts=[];const steps=Math.max(4,Math.round(span/26));const ph=r()*6;for(let i=0;i<=steps;i++){const t=(a0+span*i/steps)*Math.PI/180;const rr=R*(1+scal*Math.sin(6*t+ph))+J(0,amt*.8);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,false)}
+  function shape(local,T,c){const d=smooth(local.map(([x,y])=>T([J(x,amt*.6),J(y,amt*.6)])),true);line(d);if(c)fill(d,c);return d}
+  return {r,J,out,line,L,fill,leaf,blob,ell,arc,shape,strip};
+}
+const GEN={
+  ran(K){const{J,L,fill,leaf,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(98),192],[J(100),134]]);
+    leaf(100,256,-50,36,13);leaf(100,222,44,30,11);
+    const cx=J(100,1.5),cy=J(92,1.5);
+    fill(blob(cx,cy,40,11,3.2),'pink');
+    [[5,330,0],[13,300,0],[22,290,.03],[31,300,.05],[41,315,.06]].forEach(([R,sp,sc])=>K.line(arc(cx+J(0,1.8),cy+J(0,1.8),R,r()*360,sp-40+r()*40,sc)));
+    L([[100,134],[J(93),129],[J(88,1),126]]);L([[100,134],[J(107),129],[J(112,1),126]]);
+  },
+  lil(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(101),262],[J(99),190],[J(101),126]]);
+    [[296,-1],[278,1],[258,-1],[238,1],[218,-1],[198,1],[180,-1]].forEach(([y,s],i)=>leaf(100,y,s*J(36,6),34-i*1.6,5));
+    L([[100,170],[J(112),148],[J(123,1.5),131]]);
+    shape([[-5,0],[-7,-14],[0,-32],[7,-14],[5,0]],xf(123,131,J(26,4)),'bud');
+    const cx=J(100,1),cy=J(94,1),o=J(-8,8);
+    for(let k=0;k<6;k++){const s=k%2?.84:1,T=xf(cx,cy,o+k*60+J(0,5));
+      shape([[-7,0],[-13,-18],[-10,-34],[J(0,1.5),-48],[10,-34],[13,-18],[7,0]].map(([x,y])=>[x*s,y*s]),T,'lily');
+      L([[0,-7],[J(0,1),-22*s],[0,-38*s]].map(T));}
+    for(let i=0;i<6;i++){const a=(o+30+i*60+J(0,10))*Math.PI/180,len=J(25,3),ex=cx+Math.sin(a)*len,ey=cy-Math.cos(a)*len;
+      L([[cx,cy],[cx+Math.sin(a)*len*.5+J(0,1.5),cy-Math.cos(a)*len*.5],[ex,ey]]);const d=blob(ex,ey,2.8,6,.4);line(d);fill(d,'pollen')}
+  },
+  ane(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(98),260],[J(102),190],[J(100),130]]);
+    leaf(100,160,-62,26,8);leaf(100,160,58,24,8);leaf(100,162,-14,20,6);
+    const cx=J(100,1),cy=J(94,1),o=J(0,15);
+    for(let k=0;k<6;k++)shape([[-9,0],[-17,-16],[-13,-31],[0,-37],[13,-31],[17,-16],[9,0]],xf(cx,cy,o+k*60+J(0,6)),'white');
+    const d=blob(cx,cy,10,8,.8);line(d);fill(d,'dark');
+    for(let i=0;i<16;i++){const t=i/16*6.283,a=12,b=J(17,1.5);L([[cx+Math.cos(t)*a,cy+Math.sin(t)*a],[cx+Math.cos(t)*b,cy+Math.sin(t)*b]])}
+  },
+  pea(K){const{J,L,line,fill,leaf,blob,shape,r}=K;
+    L([[100,332],[J(96),262],[J(103),196],[J(99),136],[J(103),94]]);
+    leaf(100,248,-58,28,10);leaf(100,248,56,26,10);
+    const sp=[[100,214],[112,208]];const ccx=J(124,1),ccy=J(198,1);
+    for(let i=0;i<=12;i++){const th=Math.PI*1.15+i/12*1.8*6.283,rr=9*(1-i/14);sp.push([ccx+Math.cos(th)*rr,ccy+Math.sin(th)*rr])}
+    L(sp);
+    [[101,116,1,15],[100,142,-1,16],[101,170,1,14]].forEach(([x,y,side,R])=>{
+      const fx=x+side*J(20,2),fy=y-J(14,2);
+      L([[x,y],[x+side*10,y-5],[fx-side*6,fy+6]]);
+      const ph=r()*6,loc=[];for(let i=0;i<14;i++){const t=i/14*6.283,rr=R*(1+.1*Math.sin(7*t+ph));loc.push([Math.cos(t)*rr,Math.sin(t)*rr*.9])}
+      shape(loc,xf(fx,fy,0),'pea');
+      shape([[-7,0],[-3,6],[5,5],[8,-1],[0,2]],xf(fx,fy+R*.75,-side*20),'pea');
+    });
+    const b=blob(103,90,4,6,.5);line(b);fill(b,'green');
+  },
+  cal(K){const{J,L,shape}=K;
+    L([[100,332],[J(101),250],[J(99),170],[J(102),122]]);
+    const T=xf(102,124,J(8,4));
+    shape([[0,0],[-9,-18],[-17,-42],[-14,-58],[-2,-64],[16,-74],[13,-52],[10,-22]],T,'white');
+    L([[-15,-54],[-4,-51],[8,-55],[15,-68]].map(T));
+    shape([[-2,-16],[-3,-34],[0,-43],[3,-34],[2,-16]],T,'mustard');
+  },
+  car(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(100),262],[J(101),196],[J(100),128]]);
+    leaf(100,262,-38,30,4);leaf(100,262,40,30,4);leaf(100,200,-42,26,3.5);leaf(100,200,44,26,3.5);
+    const T=xf(J(100,1),128,J(0,4));
+    shape([[-6,0],[-8,-22],[8,-22],[6,0]],T,'green');
+    const pts=[[-9,-22]];const n=17;
+    for(let i=0;i<=n;i++){const t=Math.PI+i/n*Math.PI,rr=(i%2?30:23)+J(0,2.5);pts.push([Math.cos(t)*rr*1.05,-24+Math.sin(t)*rr*.95])}
+    pts.push([9,-22]);shape(pts,T,'carn');
+    L([[-14,-30],[-4,-40],[2,-33]].map(T));L([[5,-44],[13,-35]].map(T));L([[-6,-24],[0,-30],[7,-25]].map(T));
+  },
+  peo(K){const{J,L,leaf,shape,fill,ell,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),134]]);
+    leaf(100,252,-52,40,15);leaf(100,234,-20,34,11);leaf(100,214,50,40,14);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy-2,42,36,12,2.5),'peony');
+    [-72,-36,0,36,72].forEach(a=>shape([[-12,0],[-21,-16],[-15,-34],[0,-39],[15,-34],[21,-16],[12,0]],xf(cx,cy+22,J(a,5)),null));
+    [-30,0,30].forEach(a=>shape([[-9,0],[-15,-12],[-11,-25],[0,-29],[11,-25],[15,-12],[9,0]],xf(cx,cy-2,J(a,6)),null));
+    for(let i=0;i<3;i++)K.line(arc(cx+J(0,5),cy-12+J(0,3),J(6+i*3,1.5),r()*360,200,.12));
+  },
+  dah(K){const{J,L,leaf,shape,fill,blob,line}=K;
+    L([[100,332],[J(99),262],[J(102),196],[J(100),136]]);
+    leaf(100,246,-55,34,12);leaf(100,246,55,32,12);
+    const cx=J(100,1),cy=J(96,1);
+    fill(blob(cx,cy,43,14,1.5),'dahlia');
+    [[30,14,1],[21,11,.8],[12,8,.62]].forEach(([R,n,s],ri)=>{const o=ri*13+J(0,8);
+      for(let i=0;i<n;i++){const a=o+i*360/n;shape([[-6,0],[-7,-9],[0,-14],[7,-9],[6,0]].map(([x,y])=>[x*s,y*s]),xf(cx+Math.sin(rad(a))*R,cy-Math.cos(rad(a))*R,a),null)}});
+    line(blob(cx,cy,5,6,.5));
+  },
+  del(K){const{J,L,leaf,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),30]]);
+    leaf(100,292,-36,32,10);leaf(100,272,38,30,10);leaf(100,252,-30,26,8);
+    for(let i=0;i<12;i++){const y=214-i*15.5,s=13-i*.8,side=[0,-1,1][i%3],fx=100+side*s*.95,fy=J(y,1.5);
+      if(i<9){for(let p=0;p<5;p++){const t=rad(p*72+J(0,8));const d=blob(fx+Math.cos(t)*s*.55,fy+Math.sin(t)*s*.55,s*.45,6,.4);line(d);fill(d,'delph')}
+        line(blob(fx,fy,s*.18,5,.1))}
+      else{const d=blob(fx,fy,s*.42,6,.3);line(d);fill(d,'delph')}}
+  },
+  gyp(K){const{J,L,line,fill,blob}=K;
+    L([[100,332],[J(100),262],[J(101),196],[100,186]]);
+    const tips=[];
+    (function br(x,y,ang,len,dep){
+      const a=rad(ang),ex=x+Math.sin(a)*len,ey=y-Math.cos(a)*len;
+      L([[x,y],[(x+ex)/2+J(0,2.5),(y+ey)/2],[ex,ey]]);
+      if(dep<3){br(ex,ey,ang-J(24,6),len*.76,dep+1);br(ex,ey,ang+J(24,6),len*.76,dep+1);if(dep===1)tips.push([ex,ey])}
+      else tips.push([ex,ey]);
+    })(100,186,J(0,4),56,0);
+    tips.forEach(([tx,ty])=>{for(let q=0;q<4;q++){const fx=tx+J(0,7),fy=ty+J(0,6)-2;const d=blob(fx,fy,J(2.6,.5),6,.3);line(d);fill(d,'gyp')}});
+  },
+  hyd(K){const{J,L,leaf,fill,ell,blob,line,r}=K;
+    L([[99,332],[J(100),262],[J(98),196],[J(99),142]]);L([[102,332],[J(103),262],[J(101),196],[J(102),142]]);
+    leaf(100,236,-52,50,20);leaf(100,254,50,44,18);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy,50,38,12,2.5),'hyd');
+    for(let i=0;i<22;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/22),fx=cx+Math.cos(a)*rr*42,fy=cy+Math.sin(a)*rr*31,s=J(4.4,.6),o=r()*1.6;
+      for(let p=0;p<4;p++){const t=o+p*Math.PI/2;line(blob(fx+Math.cos(t)*s,fy+Math.sin(t)*s,s*.75,5,.3))}}
+  },
+  all(K){const{J,L,fill,blob}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),92]]);
+    const cx=J(100,1),cy=62;fill(blob(cx,cy,30,12,1.2),'allium');
+    for(let i=0;i<32;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/32)*27,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      for(let p=0;p<3;p++){const t=p*Math.PI/3+a;L([[x-Math.cos(t)*2.7,y-Math.sin(t)*2.7],[x+Math.cos(t)*2.7,y+Math.sin(t)*2.7]])}}
+    for(let i=0;i<5;i++){const a=rad(-50+i*25);L([[cx,92],[cx+Math.sin(a)*14,cy+22-Math.cos(a)*6]])}
+  },
+  bun(K){const{J,L,line,fill,leaf,ell}=K;
+    L([[100,332],[J(98),252],[J(103),172],[J(100),112]]);
+    leaf(100,304,-16,76,5);leaf(100,286,18,58,4);
+    const cx=J(100,1),cy=88;fill(ell(cx,cy,11,23,12,1),'oat');
+    line(ell(cx,cy,10,22,12,.8));
+    for(let i=0;i<26;i++){const t=i/26*6.283;const x0=cx+Math.cos(t)*10,y0=cy+Math.sin(t)*22;const k=J(4,1.4);L([[x0,y0],[x0+Math.cos(t)*k,y0+Math.sin(t)*k*1.4]])}
+  },
+  rose(K){const{J,L,leaf,shape,fill,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),128]]);
+    leaf(100,238,-55,26,10);leaf(100,238,50,24,9);leaf(100,198,-48,22,8);
+    [[284,1],[256,-1],[176,1]].forEach(([y,s])=>L([[100,y],[100+s*4,y-4]]));
+    const cx=J(100,1),cy=J(94,1);
+    const ep=[];const ph=r()*6.28;for(let i=0;i<11;i++){const t=ph+i/11*6.283;ep.push([cx+Math.cos(t)*J(33,2),cy-2+Math.sin(t)*J(30,2)])}
+    fill(smooth(ep,true),'rose');
+    L([[cx-30,cy-4],[cx-24,cy-24],[cx-8,cy-32],[cx+6,cy-28],[cx+20,cy-33],[cx+31,cy-16],[cx+30,cy-4]].map(([x,y])=>[J(x,1),J(y,1)]));
+    shape([[0,30],[-20,25],[-32,6],[-29,-12],[-15,-6],[-5,10]],xf(cx,cy,0),null);
+    shape([[2,30],[22,24],[33,4],[28,-14],[14,-8],[6,8]],xf(cx,cy,0),null);
+    const sp=[];for(let i=0;i<=14;i++){const t=i/14*2.6*Math.PI+r()*.2,rr=3+i*1.05;sp.push([cx+Math.cos(t)*rr,cy-10+Math.sin(t)*rr*.7])}L(sp);
+    [140,180,220].forEach(a=>shape([[-2.4,0],[0,-13],[2.4,0]],xf(cx,cy+30,a+J(0,6)),'green'));
+  },
+  tul(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(103),252],[J(98),172],[J(101),130]]);
+    leaf(100,322,-16,118,19);leaf(100,304,20,92,15);
+    const T=xf(J(101,1),131,J(0,5));
+    shape([[0,0],[-17,-8],[-21,-26],[-18,-47],[-8,-38],[0,-53],[8,-38],[18,-47],[21,-26],[17,-8]],T,'apricot');
+    L([[-2,-6],[-8,-24],[-8,-38]].map(T));L([[3,-6],[9,-26],[8,-38]].map(T));
+  },
+  fre(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),262],[J(101),198],[J(105),164],[J(122),136],[J(146),116],[J(172,1),100]]);
+    leaf(100,322,-10,128,9);
+    const OPEN=[[-.1,0],[-.15,-.42],[-.48,-.76],[-.42,-.98],[-.17,-.9],[0,-1.06],[.17,-.9],[.42,-.98],[.48,-.76],[.15,-.42],[.1,0]];
+    const BUD=[[-.1,0],[-.24,-.5],[0,-1],[.24,-.5],[.1,0]];
+    [[104,168,-24,36,'o'],[115,146,-8,33,'o'],[130,128,8,26,'h'],[148,115,20,18,'h'],[162,106,32,12,'b'],[173,100,46,8,'b']].forEach(([x,y,a,s,t])=>{
+      const T=xf(J(x,1),J(y,1),J(a,5));
+      const sh=t==='o'?OPEN:t==='h'?OPEN.map(([u,v])=>[u*.62,v]):BUD;
+      shape(sh.map(([u,v])=>[u*s,v*s]),T,'cream');
+      if(t==='o')L([[0,-.25*s],[J(0,.6),-.55*s],[0,-.78*s]].map(T));
+    });
+  },
+  sna(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),34]]);
+    leaf(100,292,-30,36,7);leaf(100,266,32,33,7);leaf(100,240,-26,28,6);
+    const FL=[[0,0],[.32,-.46],[.78,-.52],[1.06,-.16],[.98,.24],[.62,.36],[.28,.16]];
+    for(let i=0;i<10;i++){const y=214-i*17.5,s=23-i*1.55,side=i%2?1:-1;
+      if(i<7){const T=xf(100+side*1.5,J(y,1.2),-side*J(16,5));shape(FL.map(([u,v])=>[u*s*side,v*s]),T,'lav');
+        L([[.52*s*side,-.02*s],[.78*s*side,-.1*s],[1.0*s*side,-.06*s]].map(T));}
+      else{const d=blob(100+side*s*.32,y-s*.1,s*.32,7,.7);line(d);fill(d,'lav')}}
+    const d=blob(J(101,.5),34,3.4,6,.5);line(d);fill(d,'lav');
+  },
+  cra(K){const{J,L,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(100),250],[J(101),170],[J(100),80]]);
+    const cx=J(100,1),cy=62;const d=blob(cx,cy,18,12,1);line(d);fill(d,'mustard');
+    [[-8,-8],[0,-11],[8,-8],[-12,0],[-4,-2],[4,-1],[12,1],[-8,7],[0,6],[8,8],[-2,13]].forEach(([dx,dy])=>line(arc(cx+dx+J(0,.8),cy+dy+J(0,.8),2.6,r()*360,210,0)));
+  },
+  euc(K){const{J,L,line,fill,blob}=K;
+    const base=[[100,332],[105,278],[97,214],[104,150],[98,92],[101,46]];
+    L(base.map(([x,y],i)=>i?[J(x),y]:[x,y]));
+    const sx=y=>{for(let i=0;i<base.length-1;i++){const[a,b]=base[i],[c,d]=base[i+1];if(y<=b&&y>=d){const t=(b-y)/(b-d);return a+(c-a)*t}}return 101};
+    [[298,-1,17],[278,1,16.5],[254,-1,15.5],[232,1,15],[210,-1,14],[188,1,13],[167,-1,12],[147,1,11],[128,-1,10],[110,1,9],[93,-1,8],[77,1,7],[62,-1,5.8],[50,1,4.6]]
+    .forEach(([y,side,R])=>{if(K.strip&&y>STRIP)return;const x=sx(y);const rr=J(R,R*.08);const cx=x+side*(rr+J(4,1.2)),cy=J(y-rr*.35,1.5);
+      const d=blob(cx,cy,rr,10,rr*.07+.4);line(d);fill(d,'sage');L([[x,y],[x+side*3,y-1],[cx-side*rr*.35,cy]]);});
+  },
+};
+const CACHE=new Map(),STEMD=new Map();
+const MAIN={ran:'pink',tul:'apricot',fre:'cream',sna:'lav',lil:'lily',ane:'white',pea:'pea',cal:'white',car:'carn',rose:'rose',hyd:'hyd',all:'allium',bun:'oat',gyp:'gyp',del:'delph',peo:'peony',dah:'dahlia'};
+function draw(k,s,strip,col){
+  const key=k+s+(strip?'s':'')+(col||'');if(CACHE.has(key))return CACHE.get(key);
+  const g=(seed,amt)=>{const K=kit(seed,amt,strip);GEN[k](K);return K.out};
+  const A=g(s,1.1),B=g(s+97,2.4);STEMD.set(k+s+(strip?'s':''),A.lines[0]);
+  const fc=c=>(col&&c===MAIN[k])?col:PAL[c];
+  /* in the bouquet, each stem gets an underlay in the paper's colour so the flower in front covers the one behind */
+  const under=strip?`<g class="under">${A.fills.map(p=>`<path d="${p.d}"/>`).join('')}</g>`:'';
+  const out=under+`<g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply">${B.fills.map(p=>`<path d="${p.d}" fill="${fc(p.c)}"/>`).join('')}</g>`+
+    A.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  CACHE.set(key,out);return out;
+}
+
+/* ---------- the bench ---------- */
+const G=1.68, T={x:330,y:468}, PIVOT=250, MAXN=12, SPREAD=56, SCMIN=.62, SCMAX=1.24;
+const KINDS={
+  ran:{name:'Ranunculus',price:6,hx:100,hy:92,r:40},
+  tul:{name:'Tulip',price:4,hx:101,hy:106,r:26},
+  lil:{name:'Lily',price:7,hx:100,hy:94,r:46},
+  ane:{name:'Anemone',price:5,hx:100,hy:94,r:36},
+  pea:{name:'Sweet pea',price:4,hx:104,hy:132,r:30},
+  cal:{name:'Calla lily',price:7,hx:104,hy:86,r:28},
+  car:{name:'Carnation',price:3,hx:100,hy:102,r:30},
+  rose:{name:'Rose',price:6,hx:100,hy:92,r:34},
+  hyd:{name:'Hydrangea',price:8,hx:100,hy:100,r:44},
+  all:{name:'Allium',price:5,hx:100,hy:62,r:30},
+  bun:{name:'Bunny tail',price:2,hx:100,hy:88,r:16},
+  gyp:{name:'Baby’s breath',price:3,hx:100,hy:100,r:46},
+  del:{name:'Delphinium',price:6,hx:100,hy:120,r:24},
+  peo:{name:'Peony',price:9,hx:100,hy:96,r:44},
+  dah:{name:'Dahlia',price:6,hx:100,hy:96,r:43},
+  fre:{name:'Freesia',price:4,hx:132,hy:128,r:34},
+  sna:{name:'Snapdragon',price:5,hx:100,hy:112,r:24},
+  cra:{name:'Craspedia',price:3,hx:100,hy:62,r:19},
+  euc:{name:'Eucalyptus',price:3,hx:100,hy:150,r:26},
+};
+for(const K of Object.values(KINDS)){const vx=K.hx-100,vy=K.hy-PIVOT;K.a0=Math.atan2(vx,-vy)*180/Math.PI;K.len=Math.hypot(vx,vy)}
+/* today's stems, eight to a page */
+const PAGES=[['rose','tul','cal','hyd','fre','car','sna','euc'],['all','gyp','del','pea','cra','bun','peo','dah']];
+const ALL=PAGES.flat();
+let page=0,SHELF=PAGES[0];
+/* what came in today: one colour each, two for tulip and carnation; every default sits in its own hue */
+const COLORS={
+  rose:[['Red','#D9545E']],
+  hyd:[['Blue','#A9BFEA']],all:[['Purple','#9F7CC9']],bun:[['Natural','#E6D9BE']],gyp:[['White','#F7F4EE']],
+  del:[['Blue','#9EB5E6']],peo:[['Blush','#F4C2C8']],dah:[['Magenta','#E28AB4']],
+  car:[['Pink','#F4B6C6'],['White','#EEE7DA']],
+  cal:[['White','#EEE7DA']],
+  ran:[['Blush','#F2B5B0'],['Butter','#F5DE92']],
+  tul:[['Orange','#F6A86E'],['Plum','#9C7FC4']],
+  pea:[['Lilac','#D6B4E6'],['Pink','#F2B5B0']],
+  lil:[['White','#F4E9DD']],ane:[['White','#EEE7DA']],fre:[['Lemon','#F3E7A0']],
+  sna:[['Lavender','#C3ADEA']],cra:[['Gold','#E9AE2B']],euc:[['Silver','#A9C3B2']],
+};
+const sel={};for(const k of ALL)sel[k]=COLORS[k][0][1];
+const colName=(k,c)=>(COLORS[k].find(x=>x[1]===c)||COLORS[k][0])[0];
+/* today's stock, as the shop would set it each morning */
+const STOCK={del:6,peo:5,dah:7,hyd:4,all:8,bun:18,gyp:25,car:16,tul:14,cal:6,fre:7,pea:10,sna:5,cra:12,euc:20,rose:12,ran:9,lil:6,ane:8};
+const left=k=>STOCK[k]-items.filter(i=>i.k===k).length;
+/* wrapping papers; twine colour is paired with each */
+const PAPERS={
+  oat:{name:'Oat',front:'#EDE4D3',back:'#E3D6BE',crease:'#CDBFA4',twine:'#B4593F'},
+  blush:{name:'Blush',front:'#F4DFD8',back:'#EBCDC4',crease:'#D9B6AB',twine:'#7E4842'},
+  sage:{name:'Sage',front:'#DFE7D7',back:'#D0DCC6',crease:'#B6C6A8',twine:'#B4593F'},
+  kraft:{name:'Kraft',front:'#D9C09B',back:'#CBAF88',crease:'#B89B72',twine:'#394038'},
+};
+let paperId='oat';const PP=()=>PAPERS[paperId];
+
+let items=[],nextId=1,state='build',pinchP=0;
+const svg=$('#paper'),layerStems=$('#stems'),layerGhost=$('#ghost');
+const cl=v=>Math.max(0,Math.min(1,v));
+const ez=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const rand=()=>Math.floor(Math.random()*1e6);
+
+/* shelf */
+function buildShelf(){$('#shelf').innerHTML=SHELF.map((k,i)=>`<div class="item" data-k="${k}">
+  <button class="pick" type="button" data-k="${k}">
+    <svg viewBox="0 0 200 340" aria-hidden="true"></svg>
+    <span class="nm">${KINDS[k].name}</span><span class="pr">$${KINDS[k].price}</span><span class="left"></span></button>
+  <div class="swatches" role="group" aria-label="${KINDS[k].name} colour">${COLORS[k].length>1?COLORS[k].map(([n,c])=>`<button class="sw" type="button" data-k="${k}" data-c="${c}" title="${n}" aria-label="${n}" style="background:${c}"></button>`).join(''):''}</div>
+</div>`).join('');renderShelf();
+  $('#pgNum').textContent=`${page+1} / ${PAGES.length}`;
+  $('#pgPrev').disabled=page===0;$('#pgNext').disabled=page===PAGES.length-1;
+}
+function goPage(p){
+  if(p<0||p>=PAGES.length||p===page)return;
+  const s=$('#shelf'),dir=p>page?1:-1;s.style.setProperty('--dir',dir);s.classList.add('out');
+  setTimeout(()=>{page=p;SHELF=PAGES[p];buildShelf();s.classList.remove('out');s.classList.add('in');requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.remove('in')))},170);
+}
+function renderShelf(){
+  SHELF.forEach(k=>{
+    const it=document.querySelector(`.item[data-k="${k}"]`),n=left(k);if(!it)return;
+    it.querySelector('svg').innerHTML=draw(k,4100+ALL.indexOf(k)*37,false,sel[k]);
+    it.classList.toggle('out',n<=0);
+    const l=it.querySelector('.left');l.textContent=n<=0?'Sold out today':n<=5?`Only ${n} left`:'';l.classList.toggle('low',n>0&&n<=5);
+    it.querySelector('.pick').setAttribute('aria-label',n<=0?`${KINDS[k].name}, sold out today`:`Add a ${colName(k,sel[k]).toLowerCase()} ${KINDS[k].name.toLowerCase()}, $${KINDS[k].price}, ${n} left`);
+    it.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===sel[k]));
+  });
+}
+$('#shelf').addEventListener('click',e=>{const b=e.target.closest('.sw');if(!b)return;sel[b.dataset.k]=b.dataset.c;renderShelf()});
+$('#today').innerHTML=`<b>${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</b> · Fresh from the market, changes daily.`;
+$('#mark').innerHTML=`<svg viewBox="0 0 200 340">${draw('fre',2024)}</svg>`;
+buildShelf();
+$('#pgPrev').addEventListener('click',()=>goPage(page-1));
+$('#pgNext').addEventListener('click',()=>goPage(page+1));
+/* paper picker */
+$('#papers').innerHTML=`<span class="lbl">Paper</span>`+Object.entries(PAPERS).map(([id,p])=>`<button class="pp" type="button" data-p="${id}" title="${p.name}" aria-label="${p.name} paper" aria-pressed="${id===paperId}"><i style="background:${p.front}"></i></button>`).join('');
+$('#papers').addEventListener('click',e=>{const b=e.target.closest('.pp');if(!b||state==='ordered')return;setPaper(b.dataset.p)});
+const mq=matchMedia('(max-width:820px)');
+const setHow=()=>{$('#howto').textContent=mq.matches?'Tap a stem to add it, or drag it up onto the paper. Tap a flower on the paper to bring it forward.':'Drag or click a stem to add it. Click a flower on the paper to bring it forward; Shift-click sends it back.'};
+setHow();mq.addEventListener?.('change',setHow);
+
+/* placement rule: the stem tail locks to the tie point; the head goes where you put it, inside a fan */
+function placeFor(k,pt){
+  const K=KINDS[k];const vx=pt.x-T.x,vy=pt.y-T.y;
+  const a=Math.atan2(vx,-vy)*180/Math.PI;
+  let rot=Math.max(-SPREAD,Math.min(SPREAD,a-K.a0));
+  const sc=Math.max(SCMIN,Math.min(SCMAX,Math.hypot(vx,vy)/(K.len*G)));
+  return {rot:nudge(k,rot,sc),sc};
+}
+/* gentle spacing: if a head would sit mostly on top of another, ease it a few degrees aside */
+function headAt(k,rot,sc){const K=KINDS[k],a=(rot+K.a0)*Math.PI/180,d=K.len*G*sc;return [T.x+Math.sin(a)*d,T.y-Math.cos(a)*d]}
+function nudge(k,rot,sc){
+  const K=KINDS[k];let shift=0;
+  for(let pass=0;pass<3;pass++){
+    const h=headAt(k,rot+shift,sc);let moved=false;
+    for(const o of items){const ho=headAt(o.k,o.rot,o.sc),need=(K.r*sc+KINDS[o.k].r*o.sc)*G*.62;
+      const dx=h[0]-ho[0],dy=h[1]-ho[1],dd=Math.hypot(dx,dy);
+      if(dd<need){const dir=Math.sign(dx)||(rot>=0?1:-1);shift+=dir*Math.min(3,(need-dd)/(K.len*G*sc)*57.3*.5);moved=true}}
+    if(!moved)break;
+  }
+  shift=Math.max(-7,Math.min(7,shift));
+  return Math.max(-SPREAD,Math.min(SPREAD,rot+shift));
+}
+function autoPlace(k){
+  const used=items.map(i=>i.rot+KINDS[i.k].a0);
+  let best=(Math.random()-.5)*10;
+  if(used.length){let bs=-1e9;for(let a=-46;a<=46;a+=2){const m=Math.min(...used.map(u=>Math.abs(u-a)));const s=m-Math.abs(a)*.12+Math.random()*2.5;if(s>bs){bs=s;best=a}}}
+  return {rot:Math.max(-SPREAD,Math.min(SPREAD,best-KINDS[k].a0)),sc:.9+Math.random()*.16};
+}
+/* each stem passes the tie a few px apart (not all through one point), and is cut off at the tie;
+   below it, the stems run together as one neat bundle */
+const neck=it=>it.rot*.16*(1-.5*pinchP);
+const tf=it=>`translate(${f(T.x+neck(it))} ${T.y}) rotate(${f(it.rot*(1-.22*pinchP))}) scale(${(G*it.sc*(1-.04*pinchP)).toFixed(3)}) translate(-100 -${PIVOT})`;
+function stemMarkup(it,cls=''){const K=KINDS[it.k];
+  return `<g class="pl ${cls}" data-id="${it.id||''}" transform="${tf(it)}"><g clip-path="url(#above)"><g class="${it.fresh?'pop':''}">${draw(it.k,it.seed,true,it.col)}</g></g>${cls?'':`<circle class="hit" cx="${K.hx}" cy="${K.hy}" r="36"/>`}</g>`}
+/* stacking: by default shorter stems sit in front; a stem you click (or move) comes to the front */
+const order=()=>[...items].sort((a,b)=>(a.z||0)-(b.z||0)||KINDS[b.k].len*b.sc-KINDS[a.k].len*a.sc);
+const topZ=()=>Math.max(0,...items.map(i=>i.z||0))+1, bottomZ=()=>Math.min(0,...items.map(i=>i.z||0))-1;
+function restack(id,back){
+  const it=items.find(i=>i.id===id);if(!it||state!=='build')return;
+  it.z=back?bottomZ():topZ();it.fresh=true;renderStems();
+  say(back?`Moved the ${KINDS[it.k].name.toLowerCase()} to the back.`:`Moved the ${KINDS[it.k].name.toLowerCase()} to the front.`);
+}
+const layerTails=document.getElementById('tails');
+/* where each drawn stem actually crosses the tie line, and which way it is heading there */
+const probe=el('path',{},document.querySelector('#paper defs'));
+const SE=new Map();
+function stemEnd(k,seed){
+  const key=k+seed;if(SE.has(key))return SE.get(key);
+  draw(k,seed,true);probe.setAttribute('d',STEMD.get(key+'s'));
+  const Ln=probe.getTotalLength();let lo=0,hi=Ln;
+  for(let i=0;i<22;i++){const m=(lo+hi)/2;if(probe.getPointAtLength(m).y>PIVOT)lo=m;else hi=m}
+  const p=probe.getPointAtLength(hi),q=probe.getPointAtLength(Math.max(0,hi-8));
+  const r={x:p.x,y:p.y,dx:q.x-p.x,dy:q.y-p.y};SE.set(key,r);return r;
+}
+function renderTails(){
+  const byRot=[...items].sort((a,b)=>a.rot-b.rot);
+  layerTails.innerHTML=byRot.map((it,i)=>{
+    const e=stemEnd(it.k,it.seed),a=it.rot*(1-.22*pinchP)*Math.PI/180,c=Math.cos(a),s=Math.sin(a),sc=G*it.sc*(1-.04*pinchP);
+    const lx=(e.x-100)*sc,ly=(e.y-PIVOT)*sc;
+    const x0=T.x+neck(it)+lx*c-ly*s,y0=T.y+lx*s+ly*c;
+    let dx=e.dx*c-e.dy*s,dy=e.dx*s+e.dy*c;const dl=Math.hypot(dx,dy)||1;dx/=dl;dy/=dl;
+    const x1=T.x+(i-(byRot.length-1)/2)*2.2+neck(it)*.3,y1=T.y+108+((it.seed%9)-4)*.8;
+    return `<path d="M${f(x0)} ${f(y0)} C${f(x0+dx*30)} ${f(y0+dy*30)} ${f(x1)} ${f(T.y+58)} ${f(x1)} ${f(y1)}"/>`}).join('');
+}
+let tipShown=false;
+function tipOnce(){if(tipShown)return;tipShown=true;say('Tip: click a flower on the paper to bring it forward.')}
+function renderStems(){if(items.some(i=>i.fresh&&i.id>3))tipOnce();layerStems.innerHTML=order().map(it=>stemMarkup(it)).join('');renderTails();items.forEach(i=>i.fresh=false);updateUI()}
+function updateStemTransforms(){layerStems.querySelectorAll('.pl').forEach(g=>{const it=items.find(i=>i.id==g.dataset.id);if(it)g.setAttribute('transform',tf(it))});renderTails()}
+
+/* ---------- paper: a tilted sheet with two creases; the lower corners fold up across the stems ---------- */
+const BASE={TL:[78,70],TR:[520,26],BR:[578,608],BL:[136,652],F1:[104,330],E1:[300,636],F2:[551,340],E2:[360,630]};
+/* the wrapped shape is fitted to the bunch: paper top sits just under the tallest heads,
+   both creases run to one cone tip under the tie, and each folded corner lands where we want it */
+let WR=null;
+function reflect(P,A,B){const ux=B[0]-A[0],uy=B[1]-A[1],Ln=Math.hypot(ux,uy),nx=ux/Ln,ny=uy/Ln;
+  const pr=(P[0]-A[0])*nx+(P[1]-A[1])*ny,px=A[0]+nx*pr,py=A[1]+ny*pr;return [2*px-P[0],2*py-P[1]]}
+function computeWrapped(){
+  const heads=items.map(it=>{const K=KINDS[it.k];const a=(it.rot*.78+K.a0)*Math.PI/180;const d=K.len*G*it.sc*.96;return [T.x+Math.sin(a)*d,T.y-Math.cos(a)*d]});
+  const minY=Math.min(...heads.map(h=>h[1])),minX=Math.min(...heads.map(h=>h[0])),maxX=Math.max(...heads.map(h=>h[0]));
+  const Lx=Math.max(40,Math.min(minX-40,T.x-125)),Rx=Math.min(590,Math.max(maxX+40,T.x+125));
+  const topY=Math.max(30,Math.min(minY+40,T.y-200));
+  const TL=[Lx,topY+12],TR=[Rx,topY-10];
+  const F1=[Lx+26,T.y-34],F2=[Rx-26,T.y-48];
+  const E=[T.x+2,T.y+86];
+  const DL=[T.x+62,T.y-12],DR=[T.x-56,T.y-40];
+  return {TL,TR,F1,F2,E1:E,E2:E,BL:reflect(DL,F1,E),BR:reflect(DR,F2,E)};
+}
+function gat(k,g){const a=BASE[k];if(!WR||g<=0)return a;const b=WR[k];return [a[0]+(b[0]-a[0])*g,a[1]+(b[1]-a[1])*g]}
+function lineX(A,B,y){return A[0]+(B[0]-A[0])*(y-A[1])/(B[1]-A[1])}
+function layoutTwine(){
+  const y=T.y+30,xl=lineX(WR.F1,WR.E1,y)-6,xr=lineX(WR.F2,WR.E2,y)+6,cx=(xl+xr)/2+4;
+  $('#band').setAttribute('d',`M${f(xl)} ${f(y-4)} C${f(xl+40)} ${f(y+8)} ${f(cx-30)} ${f(y+10)} ${f(cx)} ${f(y+5)} C${f(cx+30)} ${f(y)} ${f(xr-40)} ${f(y-6)} ${f(xr)} ${f(y-14)}`);
+  $('#bow').setAttribute('d',`M${f(cx)} ${f(y+2)} C${f(cx-30)} ${f(y-32)} ${f(cx-54)} ${f(y-6)} ${f(cx-34)} ${f(y+6)} C${f(cx-24)} ${f(y+12)} ${f(cx-8)} ${f(y+8)} ${f(cx)} ${f(y+3)} M${f(cx+2)} ${f(y+2)} C${f(cx+30)} ${f(y-34)} ${f(cx+62)} ${f(y-10)} ${f(cx+44)} ${f(y+5)} C${f(cx+34)} ${f(y+13)} ${f(cx+14)} ${f(y+9)} ${f(cx+3)} ${f(y+4)} M${f(cx-1)} ${f(y+5)} C${f(cx-8)} ${f(y+26)} ${f(cx-14)} ${f(y+42)} ${f(cx-28)} ${f(y+62)} M${f(cx+4)} ${f(y+5)} C${f(cx+13)} ${f(y+24)} ${f(cx+20)} ${f(y+38)} ${f(cx+38)} ${f(y+52)}`);
+  const tx=cx+22,ty=y+70;
+  $('#tagString').setAttribute('d',`M${f(cx+2)} ${f(y+5)} C${f(cx+8)} ${f(y+30)} ${f(tx+2)} ${f(ty-20)} ${f(tx+10)} ${f(ty+20)}`);
+  $('#tagBody').setAttribute('transform',`translate(${f(tx)} ${f(ty)}) rotate(9)`);
+  measure();
+}
+const WOB={};
+function edge(a,b,key){const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],Ln=Math.hypot(dx,dy)||1;
+  const k=WOB[key]??(WOB[key]=(Math.random()-.5)*6);return `Q${f(mx-dy/Ln*k)} ${f(my+dx/Ln*k)} ${f(b[0])} ${f(b[1])}`}
+const M=p=>`M${f(p[0])} ${f(p[1])}`, Lt=p=>`L${f(p[0])} ${f(p[1])}`;
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e}
+const sheet=$('#sheet');
+const S={fill:el('path',{fill:'#EDE4D3'},sheet),grain:el('path',{filter:'url(#grain)'},sheet),
+  edge:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round','stroke-linejoin':'round'},sheet),
+  crease:el('path',{fill:'none',stroke:'#CDBFA4','stroke-width':1.2,'stroke-linecap':'round'},sheet)};
+function makeFlap(){const g=el('g',{});return {g,fill:el('path',{},g),grain:el('path',{filter:'url(#grain)'},g),
+  edge:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round','stroke-linejoin':'round'},g),
+  fold:el('path',{fill:'none',stroke:INK,'stroke-width':1.3,'stroke-linecap':'round'},g)}}
+const FL={L:makeFlap(),R:makeFlap()};
+$('#backL').appendChild(FL.L.g);$('#backR').appendChild(FL.R.g);
+function foldPt(F,E,C,th){const ux=E[0]-F[0],uy=E[1]-F[1],Ln=Math.hypot(ux,uy),nx=ux/Ln,ny=uy/Ln;
+  const pr=(C[0]-F[0])*nx+(C[1]-F[1])*ny,px=F[0]+nx*pr,py=F[1]+ny*pr,c=Math.cos(th);
+  return [[px+(C[0]-px)*c,py+(C[1]-py)*c-Math.sin(th)*18],c]}
+function setFlap(fl,F,E,C0,th,k1,k2,side){
+  const [C,c]=foldPt(F,E,C0,th);
+  const d=`${M(F)}${edge(F,C,k1)}${edge(C,E,k2)}${Lt(F)}Z`;
+  fl.fill.setAttribute('d',d);fl.grain.setAttribute('d',d);
+  fl.fill.setAttribute('fill',c<0?PP().back:PP().front);
+  fl.edge.setAttribute('d',`${M(F)}${edge(F,C,k1)}${edge(C,E,k2)}`);
+  fl.fold.setAttribute('d',`${M(F)}${Lt(E)}`);fl.fold.setAttribute('opacity',cl(th/1.2).toFixed(2));
+  const want=th>.001?$(side==='L'?'#frontL':'#frontR'):$(side==='L'?'#backL':'#backR');
+  if(fl.g.parentNode!==want)want.appendChild(fl.g);
+}
+let curPaper=[0,0,0];
+function setPaper(id){
+  paperId=id;const p=PP();
+  svg.style.setProperty('--wrap',p.front);
+  $('#twine').setAttribute('stroke',p.twine);$('#tagString').setAttribute('stroke',p.twine);
+  document.querySelectorAll('.pp').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===id));
+  const pn=document.getElementById('pname');if(pn)pn.textContent=p.name;
+  drawPaper(...curPaper);
+}
+function drawPaper(g,lf,rf){
+  curPaper=[g,lf,rf];S.fill.setAttribute('fill',PP().front);S.crease.setAttribute('stroke',PP().crease);
+  const P={};for(const k in BASE)P[k]=gat(k,g);
+  const hex=`${M(P.TL)}${edge(P.TL,P.TR,'t')}${edge(P.TR,P.F2,'r1')}${Lt(P.E2)}${edge(P.E2,P.E1,'b')}${Lt(P.F1)}${edge(P.F1,P.TL,'l1')}Z`;
+  S.fill.setAttribute('d',hex);S.grain.setAttribute('d',hex);
+  S.edge.setAttribute('d',`${M(P.F1)}${edge(P.F1,P.TL,'l1')}${edge(P.TL,P.TR,'t')}${edge(P.TR,P.F2,'r1')}${M(P.E2)}${edge(P.E2,P.E1,'b')}`);
+  S.crease.setAttribute('d',`${M(P.F1)}${Lt(P.E1)}${M(P.F2)}${Lt(P.E2)}`);
+  setFlap(FL.L,P.F1,P.E1,P.BL,lf*Math.PI,'l2','b2','L');
+  setFlap(FL.R,P.F2,P.E2,P.BR,rf*Math.PI,'r2','b3','R');
+}
+S.crease.setAttribute('stroke','#CDBFA4');
+
+/* twine */
+const band=$('#band'),bow=$('#bow'),twine=$('#twine'),tag=$('#tag');
+let bandL=0,bowL=0;
+function measure(){bandL=band.getTotalLength();bowL=bow.getTotalLength();band.style.strokeDasharray=bandL;bow.style.strokeDasharray=bowL}
+
+/* ---------- wrap timeline (played forward to wrap, backward to unwrap) ---------- */
+const TOTAL=2300;
+function frameAt(t){return{pinch:ez(cl(t/520)),g:ez(cl((t-120)/1250)),lf:ez(cl((t-300)/720)),rf:ez(cl((t-780)/720)),tw:cl((t-1420)/820)}}
+function apply(fr){
+  pinchP=fr.pinch;updateStemTransforms();drawPaper(fr.g,fr.lf,fr.rf);
+  const bp=cl(fr.tw*1.7),wp=cl(fr.tw*1.7-.7);
+  band.style.strokeDashoffset=bandL*(1-bp);bow.style.strokeDashoffset=bowL*(1-wp);
+  twine.setAttribute('opacity',fr.tw>0?1:0);
+}
+function play(forward,done){
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dur=reduce?1:(forward?TOTAL:TOTAL*.55);const t0=performance.now();
+  (function step(now){const p=Math.min(1,(now-t0)/dur);apply(frameAt((forward?p:1-p)*TOTAL));p<1?requestAnimationFrame(step):done()})(t0);
+}
+
+/* ---------- UI state ---------- */
+let msgTimer;
+function say(t,keep){$('#msg').textContent=t;clearTimeout(msgTimer);if(!keep)msgTimer=setTimeout(()=>{$('#msg').textContent=''},3200)}
+const total=()=>items.reduce((s,i)=>s+KINDS[i.k].price,0);
+function updateUI(){
+  const n=items.length;renderShelf();
+  $('#count').textContent=`${n} stem${n===1?'':'s'}`;$('#total').textContent=`$${total()}`;
+  $('#hintText').style.display=(n||state!=='build')?'none':'';
+  $('#ring').style.display=state==='build'?'':'none';
+  svg.classList.toggle('locked',state!=='build');
+  let h='';
+  if(state==='build'){if(n)h+=`<button class="link" id="bClear" type="button">Clear</button>`;h+=`<button class="primary" id="bWrap" type="button" ${n?'':'disabled'}>${n===1?'Wrap stem':'Wrap bouquet'}</button>`}
+  else if(state==='wrapped')h=`<button class="link" id="bUnwrap" type="button">Unwrap</button><button class="primary" id="bOrder" type="button">Order for pickup</button>`;
+  else if(state==='ordered')h=`<button class="link" id="bNew" type="button">Start a new bunch</button>`;
+  else h=`<button class="primary" type="button" disabled>${state==='wrapping'?'Wrapping…':'Unwrapping…'}</button>`;
+  $('#actions').innerHTML=h;
+  $('#bClear')?.addEventListener('click',()=>{items=[];renderStems();say('Paper cleared.')});
+  $('#bWrap')?.addEventListener('click',wrap);
+  $('#bUnwrap')?.addEventListener('click',unwrap);
+  $('#bOrder')?.addEventListener('click',()=>{state='ordered';updateUI();say(`Held at the counter for you. Pick up today between 2 and 7 pm, and pay $${total()} when you collect.`,true)});
+  $('#bNew')?.addEventListener('click',()=>{items=[];tag.classList.remove('on');pinchP=0;apply(frameAt(0));state='build';renderStems();say('')});
+}
+function wrap(){if(!items.length)return;state='wrapping';updateUI();say('');
+  WR=computeWrapped();layoutTwine();
+  const n=items.length;$('#tagText').textContent=`${n} stem${n===1?'':'s'}`;
+  play(true,()=>{state='wrapped';tag.classList.remove('on');void tag.getBBox();tag.classList.add('on');updateUI();setTimeout(()=>$('#bOrder')?.focus({preventScroll:true}),50)})}
+function unwrap(){state='unwrapping';tag.classList.remove('on');updateUI();play(false,()=>{state='build';updateUI();say('Unwrapped. Keep arranging.')})}
+
+/* ---------- drag ---------- */
+let drag=null;
+function svgPt(x,y){const p=svg.createSVGPoint();p.x=x;p.y=y;return p.matrixTransform(svg.getScreenCTM().inverse())}
+function overPaper(x,y){const r=svg.getBoundingClientRect();return x>r.left-12&&x<r.right+12&&y>r.top-12&&y<r.bottom+12}
+function shelfScale(){const s=document.querySelector('.item svg').getBoundingClientRect();return s.width/200}
+function begin(e,src,k,seed,id,capEl){
+  if(state!=='build'||(e.pointerType==='mouse'&&e.button!==0))return false;
+  drag={src,k,seed,id,pid:e.pointerId,sx:e.clientX,sy:e.clientY,started:false,touch:e.pointerType==='touch'};
+  try{capEl.setPointerCapture(e.pointerId)}catch(_){}
+  return true;
+}
+function startDrag(e){
+  drag.started=true;
+  if(drag.src==='paper'){drag.prev=items.find(i=>i.id===drag.id);items=items.filter(i=>i.id!==drag.id);renderStems()}
+  const ss=shelfScale(),K=KINDS[drag.k];
+  const c=document.createElement('div');c.className='float';
+  c.style.width=200*ss+'px';c.style.height=340*ss+'px';c.style.transformOrigin=`${K.hx*ss}px ${K.hy*ss}px`;
+  c.innerHTML=`<svg viewBox="0 0 200 340">${draw(drag.k,drag.seed,false,drag.col)}</svg>`;
+  document.body.appendChild(c);document.body.classList.add('dragging');
+  drag.clone=c;drag.ss=ss;$('#hintText').style.display='none';
+}
+function moveDrag(e){
+  const x=e.clientX,y=e.clientY,K=KINDS[drag.k],ss=drag.ss,c=drag.clone;
+  const r=svg.getBoundingClientRect();
+  const dist=Math.hypot(Math.max(r.left-x,0,x-r.right),Math.max(r.top-y,0,y-r.bottom));
+  const target=svg.getScreenCTM().a*G/ss;const s=1+(target-1)*(1-cl(dist/260));
+  c.style.transform=`translate(${x-K.hx*ss}px,${y-K.hy*ss}px) scale(${s.toFixed(3)}) rotate(${(x-drag.sx)*.02}deg)`;
+  if(overPaper(x,y)){
+    drag.place=placeFor(drag.k,svgPt(x,y));
+    layerGhost.innerHTML=stemMarkup({k:drag.k,seed:drag.seed,col:drag.col,...drag.place},'ghosted');
+    c.style.opacity=0;svg.classList.add('hot');
+  }else{drag.place=null;layerGhost.innerHTML='';c.style.opacity=1;svg.classList.remove('hot')}
+}
+function endDrag(commit){
+  const d=drag;drag=null;
+  layerGhost.innerHTML='';svg.classList.remove('hot');document.body.classList.remove('dragging');
+  if(d.clone){const c=d.clone;c.style.opacity=0;setTimeout(()=>c.remove(),150)}
+  if(commit&&d.place){
+    if(items.length>=MAXN){say(`The paper holds ${MAXN} stems. Wrap it, or drag one off.`)}
+    else if(d.src==='shelf'&&left(d.k)<=0)say(`${KINDS[d.k].name} is sold out today.`);
+    else items.push({id:d.id||nextId++,k:d.k,seed:d.seed,col:d.col,...d.place,z:d.src==='paper'?topZ():0,fresh:true});
+  }else if(d.src==='paper'){
+    if(commit)say(`Took the ${KINDS[d.k].name.toLowerCase()} off the paper.`);else if(d.prev)items.push(d.prev);
+  }
+  renderStems();
+}
+function addAuto(k){
+  if(state!=='build')return;
+  if(items.length>=MAXN){say(`The paper holds ${MAXN} stems. Wrap it, or drag one off.`);return}
+  if(left(k)<=0){say(`${KINDS[k].name} is sold out today.`);return}
+  const p=autoPlace(k);p.rot=nudge(k,p.rot,p.sc);
+  items.push({id:nextId++,k,seed:rand(),col:sel[k],...p,fresh:true});renderStems();
+}
+$('#shelf').addEventListener('pointerdown',e=>{
+  const b=e.target.closest('.pick');if(!b)return;const k=b.dataset.k;
+  if(left(k)<=0){say(`${KINDS[k].name} is sold out today.`);return}
+  if(begin(e,'shelf',k,rand(),null,b)){drag.col=sel[k];if(e.pointerType==='mouse')e.preventDefault()}
+});
+$('#shelf').addEventListener('click',e=>{const b=e.target.closest('.pick');if(b&&e.detail===0)addAuto(b.dataset.k)});
+layerStems.addEventListener('pointerdown',e=>{
+  const g=e.target.closest('.pl');if(!g)return;const it=items.find(i=>i.id==g.dataset.id);if(!it)return;
+  if(begin(e,'paper',it.k,it.seed,it.id,svg)){drag.col=it.col;e.preventDefault()}
+});
+window.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;
+  if(!drag.started){
+    if(drag.src==='shelf'&&drag.touch){
+      if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)){drag=null;return}
+      if(!(dy<-10&&Math.abs(dy)>Math.abs(dx)))return;
+    }else if(Math.hypot(dx,dy)<5)return;
+    startDrag(e);
+  }
+  moveDrag(e);
+});
+window.addEventListener('pointerup',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  if(!drag.started){const d=drag;drag=null;if(d.src==='shelf')addAuto(d.k);else restack(d.id,e.shiftKey);return}
+  endDrag(true);
+});
+window.addEventListener('pointercancel',()=>{if(drag){if(drag.started)endDrag(false);else drag=null}});
+
+/* ---------- start: a small example bunch so the first frame shows what the bench does ---------- */
+$('#ring').setAttribute('cy',T.y);
+drawPaper(0,0,0);measure();
+items=[{id:nextId++,k:'sna',seed:rand(),col:sel.sna,rot:7,sc:1.04},{id:nextId++,k:'rose',seed:rand(),col:sel.rose,rot:-12,sc:.86},{id:nextId++,k:'fre',seed:rand(),col:sel.fre,rot:-52,sc:1.02}];
+renderStems();
+say('A bunch to start from. Drag or click a stem to add more.',true);
+})();
+</script>

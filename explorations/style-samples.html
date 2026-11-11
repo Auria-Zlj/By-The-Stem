@@ -1,0 +1,390 @@
+<title>By the Stem Sketchbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,50..100;1,9..144,300..500,50..100&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+/* Layout: a sketchbook of stems. The shelf as it is now, then a sheet of candidates to choose from, four to a row. */
+:root{
+  --ink:#394038;
+  --sheet:#FFFFFF;
+  --sheet-line:#E6E3DC;
+  --bg:#F6F6F3;
+  --fg:#2B302A;
+  --muted:#6E746C;
+  --rule:#DCDDD6;
+  --chip:#ECEDE7;
+  --accent:#C9706A;
+  --f-display:"Fraunces", "Iowan Old Style", Georgia, serif;
+  --f-ui:"DM Sans", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1C1F1B;--fg:#E9EAE4;--muted:#A3A89F;--rule:#343932;--chip:#2A2E28;--accent:#E9A39D;--sheet-line:#3A3F38;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1C1F1B;--fg:#E9EAE4;--muted:#A3A89F;--rule:#343932;--chip:#2A2E28;--accent:#E9A39D;--sheet-line:#3A3F38;color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+header.top{display:grid;gap:8px;margin-bottom:24px}
+.shop{font-family:var(--f-display);font-weight:400;font-size:clamp(36px,5.4vw,56px);line-height:1;letter-spacing:-.01em;font-variation-settings:"SOFT" 100,"opsz" 144;margin:0}
+.shop em{font-style:italic;font-weight:300}
+.lede{max-width:64ch;color:var(--muted);margin:6px 0 0;text-wrap:pretty}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-block:12px;background:var(--bg);border-bottom:1px solid var(--rule);margin-bottom:8px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.bar .sp{margin-right:auto;color:var(--muted);font-size:13.5px}
+button.tg{font:500 14px/1 var(--f-ui);color:var(--fg);background:var(--chip);border:1px solid transparent;border-radius:999px;padding:9px 14px;cursor:pointer}
+button.tg[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+button.tg:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.group{display:grid;gap:14px;padding-block:24px}
+section.group h2{font-family:var(--f-display);font-weight:400;font-size:26px;margin:0;font-variation-settings:"SOFT" 100}
+section.group h2 small{font-family:var(--f-ui);font-size:13.5px;color:var(--muted);margin-left:10px}
+.table{background:var(--sheet);border:1px solid var(--sheet-line);border-radius:4px;padding:22px 20px 16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px 18px}
+.stem{display:grid;gap:4px;justify-items:center;margin:0}
+.stem svg{width:100%;max-width:170px;height:auto;aspect-ratio:200/340;overflow:visible;transform-origin:50% 97%;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+.stem:hover svg{transform:rotate(-3deg)}
+.stem:nth-child(even):hover svg{transform:rotate(3deg)}
+.stem figcaption{text-align:center;color:#394038;font-size:14px;line-height:1.3}
+.stem figcaption b{display:block;font-weight:500}
+.stem figcaption span{color:#7A8077;font-variant-numeric:tabular-nums}
+.stem figcaption em{display:block;font-style:normal;color:#9A8F7A;font-size:12px;margin-top:2px}
+
+.sil .fg{transform:none!important;mix-blend-mode:normal!important}
+.sil .f{fill:#394038!important;opacity:1!important}
+.sil .l{stroke:#394038!important;stroke-width:4.5px!important}
+
+@media (max-width:760px){.table{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.table{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px 10px;gap:16px 8px}}
+@media (prefers-reduced-motion:reduce){.stem svg{transition:none}.stem:hover svg{transform:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1 class="shop">By the <em>Stem</em></h1>
+    <p class="lede">Stem sketchbook. The shelf as it stands, then sixteen candidates drawn the same way: fine olive line with a misregistered fill. Pick the ones you want on the table. Silhouette checks each stem reads by shape alone; Redraw shows the hand-drawn variation.</p>
+  </header>
+
+  <div class="bar" role="toolbar" aria-label="Sketch controls">
+    <span class="sp">12 on the shelf · 12 candidates</span>
+    <button class="tg" id="silBtn" type="button" aria-pressed="false">Silhouette</button>
+    <button class="tg" id="redrawBtn" type="button">Redraw</button>
+  </div>
+
+  <main id="host">
+    <section class="group" aria-labelledby="g1"><h2 id="g1">On the shelf now<small>12 stems</small></h2><div class="table" id="shelf"></div></section>
+    <section class="group" aria-labelledby="g2"><h2 id="g2">Candidates<small>12 stems</small></h2><div class="table" id="cands"></div></section>
+  </main>
+</div>
+
+<script>
+(function(){
+const INK='#394038';
+const PAL={pink:'#F2B5B0',cream:'#F3E7A0',lav:'#C3ADEA',green:'#A9C89B',sage:'#A9C3B2',
+  white:'#EEE7DA',dark:'#5A6258',mustard:'#E9AE2B',apricot:'#F6A86E',coral:'#F2907C',
+  cosmos:'#F2BED3',pea:'#D6B4E6',oat:'#E6D9BE',
+  peony:'#F4C2C8',dahlia:'#E9A3C0',carn:'#F4B6C6',hyd:'#A9BFEA',allium:'#9F7CC9',scab:'#E3D3EC',
+  rose:'#D9545E',gyp:'#F7F4EE',lavender:'#B4A3DD',delph:'#9EB5E6',lily:'#F4E9DD',pollen:'#C9744F',bud:'#CFE0B8',ery:'#A9BAD4',wax:'#F3D2DC'};
+const SHELF=[
+  {k:'rose',name:'Rose',price:6},{k:'tul',name:'Tulip',price:4},{k:'cal',name:'Calla lily',price:7},{k:'fre',name:'Freesia',price:4},
+  {k:'hyd',name:'Hydrangea',price:8},{k:'car',name:'Carnation',price:3},{k:'sna',name:'Snapdragon',price:5},{k:'all',name:'Allium',price:5},
+  {k:'cra',name:'Craspedia',price:3},{k:'gyp',name:'Baby’s breath',price:3},{k:'bun',name:'Bunny tail',price:2},{k:'euc',name:'Eucalyptus',price:3},
+];
+const CANDS=[
+  {k:'pea',name:'Sweet pea',price:4,note:'off the shelf'},{k:'ane',name:'Anemone',price:5,note:'off the shelf'},{k:'peo',name:'Peony',price:9},{k:'dah',name:'Dahlia',price:6},
+  {k:'dai',name:'Daisy',price:2},{k:'sca',name:'Scabiosa',price:4},{k:'lav',name:'Lavender',price:2},{k:'del',name:'Delphinium',price:6},
+  {k:'ery',name:'Sea holly',price:4},{k:'wax',name:'Waxflower',price:3},{k:'pop',name:'Poppy',price:5},{k:'cos',name:'Cosmos',price:3},
+];
+
+/* helpers */
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f=v=>(Math.round(v*10)/10);
+function smooth(pts,closed){
+  const n=pts.length;const P=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;const segs=closed?n:n-1;
+  for(let i=0;i<segs;i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
+    d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`}
+  return closed?d+'Z':d;
+}
+function xf(ox,oy,ang){const a=ang*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return([x,y])=>[ox+x*c-y*s,oy+x*s+y*c]}
+const rad=d=>d*Math.PI/180;
+function kit(seed,amt){
+  const r=rng(seed);const J=(v,a=amt)=>v+(r()-.5)*2*a;
+  const out={lines:[],fills:[]};
+  const line=d=>out.lines.push(d);const fill=(d,c)=>out.fills.push({d,c});
+  const L=pts=>line(smooth(pts,false));
+  function leaf(ox,oy,ang,len,w,c='green'){
+    const T=xf(ox,oy,J(ang,4));const Ln=J(len,len*.06),W=J(w,w*.1);
+    const p=[[0,0],[W,-Ln*.45],[J(0,1),-Ln],[-W,-Ln*.52]].map(T);
+    const d=`M${f(p[0][0])} ${f(p[0][1])}Q${f(p[1][0])} ${f(p[1][1])} ${f(p[2][0])} ${f(p[2][1])}Q${f(p[3][0])} ${f(p[3][1])} ${f(p[0][0])} ${f(p[0][1])}Z`;
+    line(d);fill(d,c);L([[0,0],[J(W*.08,.6),-Ln*.5],[0,-Ln*.82]].map(T));
+  }
+  function ell(cx,cy,rx,ry,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;pts.push([cx+Math.cos(t)*(rx+J(0,wob)),cy+Math.sin(t)*(ry+J(0,wob))])}return smooth(pts,true)}
+  const blob=(cx,cy,R,n,wob)=>ell(cx,cy,R,R,n,wob);
+  function arc(cx,cy,R,a0,span,scal){const pts=[];const steps=Math.max(4,Math.round(span/26));const ph=r()*6;for(let i=0;i<=steps;i++){const t=(a0+span*i/steps)*Math.PI/180;const rr=R*(1+scal*Math.sin(6*t+ph))+J(0,amt*.8);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,false)}
+  function shape(local,T,c){const d=smooth(local.map(([x,y])=>T([J(x,amt*.6),J(y,amt*.6)])),true);line(d);if(c)fill(d,c);return d}
+  function fern(ox,oy,ang,len){const T=xf(ox,oy,J(ang,5));L([[0,0],[J(2,1),-len*.5],[J(0,2),-len]].map(T));
+    for(let i=1;i<=4;i++){const t=i/5,y=-len*t,s=len*.24*(1-t*.5);L([[0,y],[-s,y-len*.13+J(0,1)]].map(T));L([[0,y],[s,y-len*.13+J(0,1)]].map(T))}}
+  return {r,J,out,line,L,fill,leaf,ell,blob,arc,shape,fern,amt};
+}
+
+/* stems: 200 × 340 box, stem base at 100,332 */
+const GEN={
+  /* ---- on the shelf ---- */
+  ran(K){const{J,L,fill,leaf,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(98),192],[J(100),134]]);
+    leaf(100,256,-50,36,13);leaf(100,222,44,30,11);
+    const cx=J(100,1.5),cy=J(92,1.5);
+    fill(blob(cx,cy,40,11,3.2),'pink');
+    [[5,330,0],[13,300,0],[22,290,.03],[31,300,.05],[41,315,.06]].forEach(([R,sp,sc])=>K.line(arc(cx+J(0,1.8),cy+J(0,1.8),R,r()*360,sp-40+r()*40,sc)));
+    L([[100,134],[J(93),129],[J(88,1),126]]);L([[100,134],[J(107),129],[J(112,1),126]]);
+  },
+  tul(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(103),252],[J(98),172],[J(101),130]]);
+    leaf(100,322,-16,118,19);leaf(100,304,20,92,15);
+    const T=xf(J(101,1),131,J(0,5));
+    shape([[0,0],[-17,-8],[-21,-26],[-18,-47],[-8,-38],[0,-53],[8,-38],[18,-47],[21,-26],[17,-8]],T,'apricot');
+    L([[-2,-6],[-8,-24],[-8,-38]].map(T));L([[3,-6],[9,-26],[8,-38]].map(T));
+  },
+  ane(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(98),260],[J(102),190],[J(100),130]]);
+    leaf(100,160,-62,26,8);leaf(100,160,58,24,8);leaf(100,162,-14,20,6);
+    const cx=J(100,1),cy=J(94,1),o=J(0,15);
+    for(let k=0;k<6;k++)shape([[-9,0],[-17,-16],[-13,-31],[0,-37],[13,-31],[17,-16],[9,0]],xf(cx,cy,o+k*60+J(0,6)),'white');
+    const d=blob(cx,cy,10,8,.8);line(d);fill(d,'dark');
+    for(let i=0;i<16;i++){const t=i/16*6.283,a=12,b=J(17,1.5);L([[cx+Math.cos(t)*a,cy+Math.sin(t)*a],[cx+Math.cos(t)*b,cy+Math.sin(t)*b]])}
+  },
+  fre(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),262],[J(101),198],[J(105),164],[J(122),136],[J(146),116],[J(172,1),100]]);
+    leaf(100,322,-10,128,9);
+    const OPEN=[[-.1,0],[-.15,-.42],[-.48,-.76],[-.42,-.98],[-.17,-.9],[0,-1.06],[.17,-.9],[.42,-.98],[.48,-.76],[.15,-.42],[.1,0]];
+    const BUD=[[-.1,0],[-.24,-.5],[0,-1],[.24,-.5],[.1,0]];
+    [[104,168,-24,36,'o'],[115,146,-8,33,'o'],[130,128,8,26,'h'],[148,115,20,18,'h'],[162,106,32,12,'b'],[173,100,46,8,'b']].forEach(([x,y,a,s,t])=>{
+      const T=xf(J(x,1),J(y,1),J(a,5));
+      const sh=t==='o'?OPEN:t==='h'?OPEN.map(([u,v])=>[u*.62,v]):BUD;
+      shape(sh.map(([u,v])=>[u*s,v*s]),T,'cream');
+      if(t==='o')L([[0,-.25*s],[J(0,.6),-.55*s],[0,-.78*s]].map(T));
+    });
+  },
+  pea(K){const{J,L,line,fill,leaf,blob,shape,r}=K;
+    L([[100,332],[J(96),262],[J(103),196],[J(99),136],[J(103),94]]);
+    leaf(100,248,-58,28,10);leaf(100,248,56,26,10);
+    const sp=[[100,214],[112,208]];const ccx=J(124,1),ccy=J(198,1);
+    for(let i=0;i<=12;i++){const th=Math.PI*1.15+i/12*1.8*6.283,rr=9*(1-i/14);sp.push([ccx+Math.cos(th)*rr,ccy+Math.sin(th)*rr])}
+    L(sp);
+    [[101,116,1,15],[100,142,-1,16],[101,170,1,14]].forEach(([x,y,side,R])=>{
+      const fx=x+side*J(20,2),fy=y-J(14,2);
+      L([[x,y],[x+side*10,y-5],[fx-side*6,fy+6]]);
+      const ph=r()*6,loc=[];for(let i=0;i<14;i++){const t=i/14*6.283,rr=R*(1+.1*Math.sin(7*t+ph));loc.push([Math.cos(t)*rr,Math.sin(t)*rr*.9])}
+      shape(loc,xf(fx,fy,0),'pea');
+      shape([[-7,0],[-3,6],[5,5],[8,-1],[0,2]],xf(fx,fy+R*.75,-side*20),'pea');
+    });
+    const b=blob(103,90,4,6,.5);line(b);fill(b,'green');
+  },
+  sna(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),34]]);
+    leaf(100,292,-30,36,7);leaf(100,266,32,33,7);leaf(100,240,-26,28,6);
+    const FL=[[0,0],[.32,-.46],[.78,-.52],[1.06,-.16],[.98,.24],[.62,.36],[.28,.16]];
+    for(let i=0;i<10;i++){const y=214-i*17.5,s=23-i*1.55,side=i%2?1:-1;
+      if(i<7){const T=xf(100+side*1.5,J(y,1.2),-side*J(16,5));shape(FL.map(([u,v])=>[u*s*side,v*s]),T,'lav');
+        L([[.52*s*side,-.02*s],[.78*s*side,-.1*s],[1.0*s*side,-.06*s]].map(T));}
+      else{const d=blob(100+side*s*.32,y-s*.1,s*.32,7,.7);line(d);fill(d,'lav')}}
+    const d=blob(J(101,.5),34,3.4,6,.5);line(d);fill(d,'lav');
+  },
+  cra(K){const{J,L,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(100),250],[J(101),170],[J(100),80]]);
+    const cx=J(100,1),cy=62;const d=blob(cx,cy,18,12,1);line(d);fill(d,'mustard');
+    [[-8,-8],[0,-11],[8,-8],[-12,0],[-4,-2],[4,-1],[12,1],[-8,7],[0,6],[8,8],[-2,13]].forEach(([dx,dy])=>line(arc(cx+dx+J(0,.8),cy+dy+J(0,.8),2.6,r()*360,210,0)));
+  },
+  euc(K){const{J,L,line,fill,blob}=K;
+    const base=[[100,332],[105,278],[97,214],[104,150],[98,92],[101,46]];
+    L(base.map(([x,y],i)=>i?[J(x),y]:[x,y]));
+    const sx=y=>{for(let i=0;i<base.length-1;i++){const[a,b]=base[i],[c,d]=base[i+1];if(y<=b&&y>=d){const t=(b-y)/(b-d);return a+(c-a)*t}}return 101};
+    [[298,-1,17],[278,1,16.5],[254,-1,15.5],[232,1,15],[210,-1,14],[188,1,13],[167,-1,12],[147,1,11],[128,-1,10],[110,1,9],[93,-1,8],[77,1,7],[62,-1,5.8],[50,1,4.6]]
+    .forEach(([y,side,R])=>{const x=sx(y);const rr=J(R,R*.08);const cx=x+side*(rr+J(4,1.2)),cy=J(y-rr*.35,1.5);
+      const d=blob(cx,cy,rr,10,rr*.07+.4);line(d);fill(d,'sage');L([[x,y],[x+side*3,y-1],[cx-side*rr*.35,cy]]);});
+  },
+
+  /* ---- new candidates ---- */
+  gyp(K){const{J,L,line,fill,blob}=K;
+    L([[100,332],[J(100),262],[J(101),196],[100,186]]);
+    const tips=[];
+    (function br(x,y,ang,len,dep){
+      const a=rad(ang),ex=x+Math.sin(a)*len,ey=y-Math.cos(a)*len;
+      L([[x,y],[(x+ex)/2+J(0,2.5),(y+ey)/2],[ex,ey]]);
+      if(dep<3){br(ex,ey,ang-J(24,6),len*.76,dep+1);br(ex,ey,ang+J(24,6),len*.76,dep+1);if(dep===1)tips.push([ex,ey])}
+      else tips.push([ex,ey]);
+    })(100,186,J(0,4),56,0);
+    tips.forEach(([tx,ty])=>{for(let q=0;q<4;q++){const fx=tx+J(0,7),fy=ty+J(0,6)-2;const d=blob(fx,fy,J(2.6,.5),6,.3);line(d);fill(d,'gyp')}});
+  },
+  rose(K){const{J,L,leaf,shape,fill,ell,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),128]]);
+    leaf(100,238,-55,26,10);leaf(100,238,50,24,9);leaf(100,198,-48,22,8);
+    [[284,1],[256,-1],[176,1]].forEach(([y,s])=>L([[100,y],[100+s*4,y-4]]));
+    const cx=J(100,1),cy=J(94,1);
+    fill(ell(cx,cy-2,33,30,11,2),'rose');
+    L([[cx-30,cy-4],[cx-24,cy-24],[cx-8,cy-32],[cx+6,cy-28],[cx+20,cy-33],[cx+31,cy-16],[cx+30,cy-4]].map(([x,y])=>[J(x,1),J(y,1)]));
+    shape([[0,30],[-20,25],[-32,6],[-29,-12],[-15,-6],[-5,10]],xf(cx,cy,0),null);
+    shape([[2,30],[22,24],[33,4],[28,-14],[14,-8],[6,8]],xf(cx,cy,0),null);
+    const sp=[];for(let i=0;i<=14;i++){const t=i/14*2.6*Math.PI+r()*.2,rr=3+i*1.05;sp.push([cx+Math.cos(t)*rr,cy-10+Math.sin(t)*rr*.7])}L(sp);
+    [140,180,220].forEach(a=>shape([[-2.4,0],[0,-13],[2.4,0]],xf(cx,cy+30,a+J(0,6)),'green'));
+  },
+  peo(K){const{J,L,leaf,shape,fill,ell,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),134]]);
+    leaf(100,252,-52,40,15);leaf(100,234,-20,34,11);leaf(100,214,50,40,14);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy-2,42,36,12,2.5),'peony');
+    [-72,-36,0,36,72].forEach(a=>shape([[-12,0],[-21,-16],[-15,-34],[0,-39],[15,-34],[21,-16],[12,0]],xf(cx,cy+22,J(a,5)),null));
+    [-30,0,30].forEach(a=>shape([[-9,0],[-15,-12],[-11,-25],[0,-29],[11,-25],[15,-12],[9,0]],xf(cx,cy-2,J(a,6)),null));
+    for(let i=0;i<3;i++)K.line(arc(cx+J(0,5),cy-12+J(0,3),J(6+i*3,1.5),r()*360,200,.12));
+  },
+  dah(K){const{J,L,leaf,shape,fill,blob,line}=K;
+    L([[100,332],[J(99),262],[J(102),196],[J(100),136]]);
+    leaf(100,246,-55,34,12);leaf(100,246,55,32,12);
+    const cx=J(100,1),cy=J(96,1);
+    fill(blob(cx,cy,43,14,1.5),'dahlia');
+    [[30,14,1],[21,11,.8],[12,8,.62]].forEach(([R,n,s],ri)=>{const o=ri*13+J(0,8);
+      for(let i=0;i<n;i++){const a=o+i*360/n;shape([[-6,0],[-7,-9],[0,-14],[7,-9],[6,0]].map(([x,y])=>[x*s,y*s]),xf(cx+Math.sin(rad(a))*R,cy-Math.cos(rad(a))*R,a),null)}});
+    line(blob(cx,cy,5,6,.5));
+  },
+  car(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(100),262],[J(101),196],[J(100),128]]);
+    leaf(100,262,-38,30,4);leaf(100,262,40,30,4);leaf(100,200,-42,26,3.5);leaf(100,200,44,26,3.5);
+    const T=xf(J(100,1),128,J(0,4));
+    shape([[-6,0],[-8,-22],[8,-22],[6,0]],T,'green');
+    const pts=[[-9,-22]];const n=17;
+    for(let i=0;i<=n;i++){const t=Math.PI+i/n*Math.PI,rr=(i%2?30:23)+J(0,2.5);pts.push([Math.cos(t)*rr*1.05,-24+Math.sin(t)*rr*.95])}
+    pts.push([9,-22]);shape(pts,T,'carn');
+    L([[-14,-30],[-4,-40],[2,-33]].map(T));L([[5,-44],[13,-35]].map(T));L([[-6,-24],[0,-30],[7,-25]].map(T));
+  },
+  dai(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(98),262],[J(102),190],[J(101),116]]);
+    leaf(100,262,-40,30,7);leaf(100,226,42,26,6);
+    const cx=J(101,1),cy=J(96,1),o=J(0,10);
+    for(let i=0;i<16;i++){const a=o+i*22.5;shape([[-3,0],[-4.5,-13],[0,-21],[4.5,-13],[3,0]],xf(cx+Math.sin(rad(a))*9,cy-Math.cos(rad(a))*9,a+J(0,4)),'white')}
+    const d=blob(cx,cy,9,9,.6);line(d);fill(d,'mustard');
+    for(let i=0;i<7;i++){const a=i*2.4,rr=Math.sqrt(i+1)*2.2;line(blob(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,.8,4,.1))}
+  },
+  hyd(K){const{J,L,leaf,fill,ell,blob,line,r}=K;
+    L([[99,332],[J(100),262],[J(98),196],[J(99),142]]);L([[102,332],[J(103),262],[J(101),196],[J(102),142]]);
+    leaf(100,236,-52,50,20);leaf(100,254,50,44,18);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy,50,38,12,2.5),'hyd');
+    for(let i=0;i<22;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/22),fx=cx+Math.cos(a)*rr*42,fy=cy+Math.sin(a)*rr*31,s=J(4.4,.6),o=r()*1.6;
+      for(let p=0;p<4;p++){const t=o+p*Math.PI/2;line(blob(fx+Math.cos(t)*s,fy+Math.sin(t)*s,s*.75,5,.3))}}
+  },
+  all(K){const{J,L,fill,blob}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),92]]);
+    const cx=J(100,1),cy=62;fill(blob(cx,cy,30,12,1.2),'allium');
+    for(let i=0;i<32;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/32)*27,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      for(let p=0;p<3;p++){const t=p*Math.PI/3+a;L([[x-Math.cos(t)*2.7,y-Math.sin(t)*2.7],[x+Math.cos(t)*2.7,y+Math.sin(t)*2.7]])}}
+    for(let i=0;i<5;i++){const a=rad(-50+i*25);L([[cx,92],[cx+Math.sin(a)*14,cy+22-Math.cos(a)*6]])}
+  },
+  sca(K){const{J,L,fern,shape,ell,blob,line,fill}=K;
+    L([[100,332],[J(98),252],[J(104),170],[J(108),100]]);
+    fern(99,270,-32,40);fern(102,214,34,32);
+    const cx=J(109,1),cy=J(88,1);
+    const pts=[];for(let i=0;i<22;i++){const t=i/22*6.283,rr=i%2?1:.86;pts.push([Math.cos(t)*30*rr,Math.sin(t)*15*rr])}
+    shape(pts,xf(cx,cy,J(-6,3)),'scab');
+    const d=ell(cx,cy-4,13,9,8,.6);line(d);fill(d,'cream');
+    for(let i=0;i<9;i++){const a=i*2.39996,rr=Math.sqrt(i+.5)*2.6;line(blob(cx+Math.cos(a)*rr*1.3,cy-4+Math.sin(a)*rr*.8,1,4,.1))}
+  },
+  lav(K){const{J,L,leaf,blob,line,fill}=K;
+    L([[100,332],[J(99),250],[J(101),160],[J(100),44]]);
+    leaf(100,306,-18,46,3.2);leaf(100,294,20,40,3);
+    let y=152;for(let w=0;w<10;w++){const s=4-w*.2;
+      [-1,1].forEach(side=>{const d=blob(100+side*s*1.15,y,s,6,.4);line(d);fill(d,'lavender')});
+      const d=blob(100,y-s*.7,s*.9,6,.3);line(d);fill(d,'lavender');
+      y-=(w===1||w===4)?17:10;}
+  },
+  del(K){const{J,L,leaf,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),30]]);
+    leaf(100,292,-36,32,10);leaf(100,272,38,30,10);leaf(100,252,-30,26,8);
+    for(let i=0;i<12;i++){const y=214-i*15.5,s=13-i*.8,side=[0,-1,1][i%3],fx=100+side*s*.95,fy=J(y,1.5);
+      if(i<9){for(let p=0;p<5;p++){const t=rad(p*72+J(0,8));const d=blob(fx+Math.cos(t)*s*.55,fy+Math.sin(t)*s*.55,s*.45,6,.4);line(d);fill(d,'delph')}
+        line(blob(fx,fy,s*.18,5,.1))}
+      else{const d=blob(fx,fy,s*.42,6,.3);line(d);fill(d,'delph')}}
+  },
+  lis(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(100),262],[J(99),196],[J(101),150],[J(105),126]]);
+    [[292,-1],[264,1],[238,-1],[214,1],[192,-1]].forEach(([y,s],i)=>leaf(100,y,s*J(30,5),40-i*3,5));
+    L([[101,160],[J(86),142],[J(78,1.5),124]]);shape([[-5,0],[-7,-14],[0,-34],[7,-14],[5,0]],xf(78,124,J(-18,4)),'bud');
+    const T=xf(J(106,1),126,J(24,4));
+    shape([[-4,0],[-8,-18],[-16,-38],[-31,-45],[-20,-48],[-9,-52],[0,-61],[9,-52],[20,-48],[31,-45],[16,-38],[8,-18],[4,0]],T,'lily');
+    L([[0,-4],[-6,-24],[-12,-42]].map(T));L([[0,-4],[5,-24],[11,-42]].map(T));
+    [[-7,-58],[0,-63],[7,-58]].forEach(([x,y])=>{const p=[[0,-28],[x*.6,-44],[x,y]].map(T);L(p);const e=p[2];const d=blob(e[0],e[1],2.6,6,.4);line(d);fill(d,'pollen')});
+  },
+  ery(K){const{J,L,shape,ell,line,fill}=K;
+    L([[100,332],[J(100),250],[J(101),170],[J(100),98]]);
+    L([[100,194],[J(86),152],[J(72,1.5),126]]);L([[101,168],[J(116),140],[J(128,1.5),118]]);
+    [[100,82,1],[72,110,.78],[128,102,.74]].forEach(([x,y,s])=>{
+      for(let i=0;i<9;i++){const a=-148+i*37+J(0,6);shape([[-1.9,0],[0,-18*s],[1.9,0]],xf(x,y+8*s,a),'ery')}
+      const d=ell(x,y,7*s,11*s,8,.4);line(d);fill(d,'ery');
+      for(let k=0;k<5;k++)L([[x-5*s,y-8*s+k*4*s],[x+5*s,y-6*s+k*4*s]]);
+    });
+  },
+  wax(K){const{J,L,blob,line,fill,r}=K;
+    L([[100,332],[J(101),250],[J(99),170],[J(101),90],[J(100),62]]);
+    const tips=[[100,58]];
+    [[200,-1,70,140],[166,1,134,112],[128,-1,78,84],[100,1,122,70]].forEach(([y,s,tx,ty])=>{
+      L([[100,y],[(100+tx)/2+J(0,4),(y+ty)/2-6],[tx,ty]]);tips.push([tx,ty]);
+      for(let k=1;k<4;k++){const t=k/4,bx=100+(tx-100)*t,by=y+(ty-y)*t;L([[bx,by],[bx+J(0,3)-s*2,by-6]])}});
+    tips.forEach(([tx,ty])=>{for(let q=0;q<4;q++){const fx=tx+J(0,10),fy=ty+J(0,8)-3;
+      const d=blob(fx,fy,J(5,.6),7,.6);line(d);fill(d,'wax');line(blob(fx,fy,1,4,.1))}});
+  },
+
+  /* ---- from the first sketches ---- */
+  pop(K){const{J,L,shape}=K;
+    L([[100,332],[J(103),262],[J(97),196],[J(104),134],[J(100),104]]);
+    L([[99,208],[J(114),190],[J(127),166],[J(133,1.5),142],[J(129,1),126],[121,123],[116,130]]);
+    shape([[-6,0],[-7,9],[0,16],[7,9],[6,0]],xf(116,130,15),'sage');
+    const T=xf(J(100,1),105,J(0,5));
+    shape([[-6,0],[-22,-6],[-30,-21],[-22,-36],[-9,-29],[0,-37],[10,-30],[22,-37],[30,-22],[23,-6],[6,0]].map(([x,y])=>[J(x*1.25,1.8),J(y*1.25,1.8)]),T,'coral');
+    L([[-4,-3],[-11,-18],[-9,-29]].map(T));L([[4,-3],[11,-18],[10,-30]].map(T));L([[-5,-7],[0,-10],[5,-7]].map(T));
+  },
+  cos(K){const{J,L,line,fill,blob,shape,fern}=K;
+    L([[100,332],[J(97),262],[J(104),192],[J(108),132],[J(112),98]]);
+    fern(99,262,-35,44);fern(103,216,38,38);fern(106,160,-30,30);
+    L([[104,194],[J(118),170],[J(130,1.5),148]]);const b=blob(131,142,5,7,.6);line(b);fill(b,'green');
+    const cx=J(113,1),cy=J(76,1),o=J(0,20);
+    for(let k=0;k<8;k++)shape([[-4,0],[-9,-14],[-7,-24],[-3,-21],[0,-25],[3,-21],[7,-24],[9,-14],[4,0]],xf(cx,cy,o+k*45+J(0,5)),'cosmos');
+    const d=blob(cx,cy,6,7,.6);line(d);fill(d,'mustard');
+  },
+  cal(K){const{J,L,shape}=K;
+    L([[100,332],[J(101),250],[J(99),170],[J(102),122]]);
+    const T=xf(102,124,J(8,4));
+    shape([[0,0],[-9,-18],[-17,-42],[-14,-58],[-2,-64],[16,-74],[13,-52],[10,-22]],T,'white');
+    L([[-15,-54],[-4,-51],[8,-55],[15,-68]].map(T));
+    shape([[-2,-16],[-3,-34],[0,-43],[3,-34],[2,-16]],T,'mustard');
+  },
+  bun(K){const{J,L,line,fill,leaf,ell}=K;
+    L([[100,332],[J(98),252],[J(103),172],[J(100),112]]);
+    leaf(100,304,-16,76,5);leaf(100,286,18,58,4);
+    const cx=J(100,1),cy=88;fill(ell(cx,cy,11,23,12,1),'oat');
+    line(ell(cx,cy,10,22,12,.8));
+    for(let i=0;i<26;i++){const t=i/26*6.283;const x0=cx+Math.cos(t)*10,y0=cy+Math.sin(t)*22;const k=J(4,1.4);L([[x0,y0],[x0+Math.cos(t)*k,y0+Math.sin(t)*k*1.4]])}
+  },
+};
+
+/* Style A: fine line, misregistered fill */
+const P=(d,a)=>`<path d="${d}" ${a}/>`;
+function draw(k,s){
+  const g=(seed,amt)=>{const K=kit(seed,amt);GEN[k](K);return K.out};
+  const A=g(s,1.1),B=g(s+97,2.4);
+  return `<g class="fg" transform="translate(2.6 -1.8)" style="mix-blend-mode:multiply" opacity=".92">${B.fills.map(p=>P(p.d,`class="f" fill="${PAL[p.c]}"`)).join('')}</g>`+
+    A.lines.map(d=>P(d,`class="l" fill="none" stroke="${INK}" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"`)).join('');
+}
+
+let seed=Math.floor(Math.random()*1e6);
+function fig(m,i){return `<figure class="stem">
+  <svg viewBox="0 0 200 340" role="img" aria-label="${m.name}">${draw(m.k,seed+i*101)}</svg>
+  <figcaption><b>${m.name}</b><span>$${m.price} / stem</span>${m.note?`<em>${m.note}</em>`:''}</figcaption></figure>`}
+function render(){
+  document.getElementById('shelf').innerHTML=SHELF.map(fig).join('');
+  document.getElementById('cands').innerHTML=CANDS.map((m,i)=>fig(m,i+40)).join('');
+}
+render();
+document.getElementById('redrawBtn').addEventListener('click',()=>{seed=Math.floor(Math.random()*1e6);render()});
+const sb=document.getElementById('silBtn'),host=document.getElementById('host');
+sb.addEventListener('click',()=>{const on=sb.getAttribute('aria-pressed')!=='true';sb.setAttribute('aria-pressed',on);host.classList.toggle('sil',on)});
+})();
+</script>

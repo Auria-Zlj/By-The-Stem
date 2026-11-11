@@ -1,0 +1,355 @@
+<title>By the Stem Papers and Cards</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: a reference sheet. Textured wrapping papers four to a row, then card styles four to a row. Ink on paper, one light look. */
+:root{--ink:#394038;--muted:#7A8077;--bg:#F5F4EF;--sheet:#FCFCFA;--twine:#B4593F;
+  --f-hand:"Nanum Pen Script","Bradley Hand",cursive;--f-ui:"Patrick Hand","Comic Neue",cursive}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:18px;line-height:1.35}
+.wrap{max-width:1360px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:32px 72px}
+h1{font:400 56px/1 var(--f-hand);margin:0}
+h2{font:400 40px/1 var(--f-hand);margin:44px 0 6px}
+.lede{margin:8px 0 0;color:var(--muted);max-width:72ch}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px 22px;margin-top:18px}
+#papers{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:1000px){#papers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+figure{margin:0;display:grid;gap:8px}
+figure svg{width:100%;height:auto;display:block;background:var(--sheet);border:1px solid #E3E2DB;border-radius:4px}
+figcaption{display:grid;gap:2px}
+figcaption b{font:400 28px/1 var(--f-hand)}
+figcaption span{color:var(--muted);font-size:16px}
+.h{font-family:var(--f-hand)}.u{font-family:var(--f-ui)}
+.under path{fill:#FAF6EE}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+
+<div class="wrap">
+  <h1>Papers and cards</h1>
+  <p class="lede">Reference options in the same rough, hand-drawn line as the stems. Pick the papers you want on the bench (any number) and one card style for the picture people save.</p>
+  <h2>Wrapping papers with texture</h2>
+  <div class="grid" id="papers"></div>
+  <h2>Card styles</h2>
+  <div class="grid" id="cards"></div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="pats"></defs></svg>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const INK='#394038';
+const PAL={pink:'#F2B5B0',cream:'#F3E7A0',lav:'#C3ADEA',green:'#A9C89B',sage:'#A9C3B2',mustard:'#E9AE2B',apricot:'#F6A86E',
+  white:'#EEE7DA',dark:'#5A6258',pea:'#D6B4E6',lily:'#F4E9DD',pollen:'#C9744F',bud:'#CFE0B8',carn:'#F4B6C6',rose:'#D9545E',hyd:'#A9BFEA',allium:'#9F7CC9',oat:'#E6D9BE',gyp:'#F7F4EE',delph:'#9EB5E6',peony:'#F4C2C8',dahlia:'#E28AB4',zinc:'#DCE2DE',enamel:'#EFE7D6',sage2:'#D9E4D3',rim:'#C8D0CA'};
+
+/* ---------- drawing kit (style A: fine line, misregistered fill) ---------- */
+function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f=v=>(Math.round(v*10)/10);
+function smooth(pts,closed){
+  const n=pts.length;const P=i=>closed?pts[(i+n)%n]:pts[Math.max(0,Math.min(n-1,i))];
+  let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;const segs=closed?n:n-1;
+  for(let i=0;i<segs;i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
+    d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`}
+  return closed?d+'Z':d;
+}
+const rad=d=>d*Math.PI/180;
+function xf(ox,oy,ang){const a=ang*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return([x,y])=>[ox+x*c-y*s,oy+x*s+y*c]}
+const STRIP=212; /* in a bouquet, leaves below this line are stripped, like a florist would */
+function kit(seed,amt,strip){
+  const r=rng(seed);const J=(v,a=amt)=>v+(r()-.5)*2*a;
+  const out={lines:[],fills:[]};
+  const line=d=>out.lines.push(d);const fill=(d,c)=>out.fills.push({d,c});
+  const L=pts=>line(smooth(pts,false));
+  function leaf(ox,oy,ang,len,w,c='green'){
+    const T=xf(ox,oy,J(ang,4));if(strip&&oy>STRIP)return;const Ln=J(len,len*.06),W=J(w,w*.1);
+    const p=[[0,0],[W,-Ln*.45],[J(0,1),-Ln],[-W,-Ln*.52]].map(T);
+    const d=`M${f(p[0][0])} ${f(p[0][1])}Q${f(p[1][0])} ${f(p[1][1])} ${f(p[2][0])} ${f(p[2][1])}Q${f(p[3][0])} ${f(p[3][1])} ${f(p[0][0])} ${f(p[0][1])}Z`;
+    line(d);fill(d,c);L([[0,0],[J(W*.08,.6),-Ln*.5],[0,-Ln*.82]].map(T));
+  }
+  function blob(cx,cy,R,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;const rr=R+J(0,wob);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,true)}
+  function ell(cx,cy,rx,ry,n,wob){const pts=[];const ph=r()*6.28;for(let i=0;i<n;i++){const t=ph+i/n*6.283;pts.push([cx+Math.cos(t)*(rx+J(0,wob)),cy+Math.sin(t)*(ry+J(0,wob))])}return smooth(pts,true)}
+  function arc(cx,cy,R,a0,span,scal){const pts=[];const steps=Math.max(4,Math.round(span/26));const ph=r()*6;for(let i=0;i<=steps;i++){const t=(a0+span*i/steps)*Math.PI/180;const rr=R*(1+scal*Math.sin(6*t+ph))+J(0,amt*.8);pts.push([cx+Math.cos(t)*rr,cy+Math.sin(t)*rr])}return smooth(pts,false)}
+  function shape(local,T,c){const d=smooth(local.map(([x,y])=>T([J(x,amt*.6),J(y,amt*.6)])),true);line(d);if(c)fill(d,c);return d}
+  return {r,J,out,line,L,fill,leaf,blob,ell,arc,shape,strip};
+}
+const GEN={
+  ran(K){const{J,L,fill,leaf,blob,arc,r}=K;
+    L([[100,332],[J(101),262],[J(98),192],[J(100),134]]);
+    leaf(100,256,-50,36,13);leaf(100,222,44,30,11);
+    const cx=J(100,1.5),cy=J(92,1.5);
+    fill(blob(cx,cy,40,11,3.2),'pink');
+    [[5,330,0],[13,300,0],[22,290,.03],[31,300,.05],[41,315,.06]].forEach(([R,sp,sc])=>K.line(arc(cx+J(0,1.8),cy+J(0,1.8),R,r()*360,sp-40+r()*40,sc)));
+    L([[100,134],[J(93),129],[J(88,1),126]]);L([[100,134],[J(107),129],[J(112,1),126]]);
+  },
+  lil(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(101),262],[J(99),190],[J(101),126]]);
+    [[296,-1],[278,1],[258,-1],[238,1],[218,-1],[198,1],[180,-1]].forEach(([y,s],i)=>leaf(100,y,s*J(36,6),34-i*1.6,5));
+    L([[100,170],[J(112),148],[J(123,1.5),131]]);
+    shape([[-5,0],[-7,-14],[0,-32],[7,-14],[5,0]],xf(123,131,J(26,4)),'bud');
+    const cx=J(100,1),cy=J(94,1),o=J(-8,8);
+    for(let k=0;k<6;k++){const s=k%2?.84:1,T=xf(cx,cy,o+k*60+J(0,5));
+      shape([[-7,0],[-13,-18],[-10,-34],[J(0,1.5),-48],[10,-34],[13,-18],[7,0]].map(([x,y])=>[x*s,y*s]),T,'lily');
+      L([[0,-7],[J(0,1),-22*s],[0,-38*s]].map(T));}
+    for(let i=0;i<6;i++){const a=(o+30+i*60+J(0,10))*Math.PI/180,len=J(25,3),ex=cx+Math.sin(a)*len,ey=cy-Math.cos(a)*len;
+      L([[cx,cy],[cx+Math.sin(a)*len*.5+J(0,1.5),cy-Math.cos(a)*len*.5],[ex,ey]]);const d=blob(ex,ey,2.8,6,.4);line(d);fill(d,'pollen')}
+  },
+  ane(K){const{J,L,line,fill,leaf,blob,shape}=K;
+    L([[100,332],[J(98),260],[J(102),190],[J(100),130]]);
+    leaf(100,160,-62,26,8);leaf(100,160,58,24,8);leaf(100,162,-14,20,6);
+    const cx=J(100,1),cy=J(94,1),o=J(0,15);
+    for(let k=0;k<6;k++)shape([[-9,0],[-17,-16],[-13,-31],[0,-37],[13,-31],[17,-16],[9,0]],xf(cx,cy,o+k*60+J(0,6)),'white');
+    const d=blob(cx,cy,10,8,.8);line(d);fill(d,'dark');
+    for(let i=0;i<16;i++){const t=i/16*6.283,a=12,b=J(17,1.5);L([[cx+Math.cos(t)*a,cy+Math.sin(t)*a],[cx+Math.cos(t)*b,cy+Math.sin(t)*b]])}
+  },
+  pea(K){const{J,L,line,fill,leaf,blob,shape,r}=K;
+    L([[100,332],[J(96),262],[J(103),196],[J(99),136],[J(103),94]]);
+    leaf(100,248,-58,28,10);leaf(100,248,56,26,10);
+    const sp=[[100,214],[112,208]];const ccx=J(124,1),ccy=J(198,1);
+    for(let i=0;i<=12;i++){const th=Math.PI*1.15+i/12*1.8*6.283,rr=9*(1-i/14);sp.push([ccx+Math.cos(th)*rr,ccy+Math.sin(th)*rr])}
+    L(sp);
+    [[101,116,1,15],[100,142,-1,16],[101,170,1,14]].forEach(([x,y,side,R])=>{
+      const fx=x+side*J(20,2),fy=y-J(14,2);
+      L([[x,y],[x+side*10,y-5],[fx-side*6,fy+6]]);
+      const ph=r()*6,loc=[];for(let i=0;i<14;i++){const t=i/14*6.283,rr=R*(1+.1*Math.sin(7*t+ph));loc.push([Math.cos(t)*rr,Math.sin(t)*rr*.9])}
+      shape(loc,xf(fx,fy,0),'pea');
+      shape([[-7,0],[-3,6],[5,5],[8,-1],[0,2]],xf(fx,fy+R*.75,-side*20),'pea');
+    });
+    const b=blob(103,90,4,6,.5);line(b);fill(b,'green');
+  },
+  cal(K){const{J,L,shape}=K;
+    L([[100,332],[J(101),250],[J(99),170],[J(102),122]]);
+    const T=xf(102,124,J(8,4));
+    shape([[0,0],[-9,-18],[-17,-42],[-14,-58],[-2,-64],[16,-74],[13,-52],[10,-22]],T,'white');
+    L([[-15,-54],[-4,-51],[8,-55],[15,-68]].map(T));
+    shape([[-2,-16],[-3,-34],[0,-43],[3,-34],[2,-16]],T,'mustard');
+  },
+  car(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(100),262],[J(101),196],[J(100),128]]);
+    leaf(100,262,-38,30,4);leaf(100,262,40,30,4);leaf(100,200,-42,26,3.5);leaf(100,200,44,26,3.5);
+    const T=xf(J(100,1),128,J(0,4));
+    shape([[-6,0],[-8,-22],[8,-22],[6,0]],T,'green');
+    const pts=[[-9,-22]];const n=17;
+    for(let i=0;i<=n;i++){const t=Math.PI+i/n*Math.PI,rr=(i%2?30:23)+J(0,2.5);pts.push([Math.cos(t)*rr*1.05,-24+Math.sin(t)*rr*.95])}
+    pts.push([9,-22]);shape(pts,T,'carn');
+    L([[-14,-30],[-4,-40],[2,-33]].map(T));L([[5,-44],[13,-35]].map(T));L([[-6,-24],[0,-30],[7,-25]].map(T));
+  },
+  peo(K){const{J,L,leaf,shape,fill,ell,arc,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),134]]);
+    leaf(100,252,-52,40,15);leaf(100,234,-20,34,11);leaf(100,214,50,40,14);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy-2,42,36,12,2.5),'peony');
+    [-72,-36,0,36,72].forEach(a=>shape([[-12,0],[-21,-16],[-15,-34],[0,-39],[15,-34],[21,-16],[12,0]],xf(cx,cy+22,J(a,5)),null));
+    [-30,0,30].forEach(a=>shape([[-9,0],[-15,-12],[-11,-25],[0,-29],[11,-25],[15,-12],[9,0]],xf(cx,cy-2,J(a,6)),null));
+    for(let i=0;i<3;i++)K.line(arc(cx+J(0,5),cy-12+J(0,3),J(6+i*3,1.5),r()*360,200,.12));
+  },
+  dah(K){const{J,L,leaf,shape,fill,blob,line}=K;
+    L([[100,332],[J(99),262],[J(102),196],[J(100),136]]);
+    leaf(100,246,-55,34,12);leaf(100,246,55,32,12);
+    const cx=J(100,1),cy=J(96,1);
+    fill(blob(cx,cy,43,14,1.5),'dahlia');
+    [[30,14,1],[21,11,.8],[12,8,.62]].forEach(([R,n,s],ri)=>{const o=ri*13+J(0,8);
+      for(let i=0;i<n;i++){const a=o+i*360/n;shape([[-6,0],[-7,-9],[0,-14],[7,-9],[6,0]].map(([x,y])=>[x*s,y*s]),xf(cx+Math.sin(rad(a))*R,cy-Math.cos(rad(a))*R,a),null)}});
+    line(blob(cx,cy,5,6,.5));
+  },
+  del(K){const{J,L,leaf,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),30]]);
+    leaf(100,292,-36,32,10);leaf(100,272,38,30,10);leaf(100,252,-30,26,8);
+    for(let i=0;i<12;i++){const y=214-i*15.5,s=13-i*.8,side=[0,-1,1][i%3],fx=100+side*s*.95,fy=J(y,1.5);
+      if(i<9){for(let p=0;p<5;p++){const t=rad(p*72+J(0,8));const d=blob(fx+Math.cos(t)*s*.55,fy+Math.sin(t)*s*.55,s*.45,6,.4);line(d);fill(d,'delph')}
+        line(blob(fx,fy,s*.18,5,.1))}
+      else{const d=blob(fx,fy,s*.42,6,.3);line(d);fill(d,'delph')}}
+  },
+  gyp(K){const{J,L,line,fill,blob}=K;
+    L([[100,332],[J(100),262],[J(101),196],[100,186]]);
+    const tips=[];
+    (function br(x,y,ang,len,dep){
+      const a=rad(ang),ex=x+Math.sin(a)*len,ey=y-Math.cos(a)*len;
+      L([[x,y],[(x+ex)/2+J(0,2.5),(y+ey)/2],[ex,ey]]);
+      if(dep<3){br(ex,ey,ang-J(24,6),len*.76,dep+1);br(ex,ey,ang+J(24,6),len*.76,dep+1);if(dep===1)tips.push([ex,ey])}
+      else tips.push([ex,ey]);
+    })(100,186,J(0,4),56,0);
+    tips.forEach(([tx,ty])=>{for(let q=0;q<4;q++){const fx=tx+J(0,7),fy=ty+J(0,6)-2;const d=blob(fx,fy,J(2.6,.5),6,.3);line(d);fill(d,'gyp')}});
+  },
+  hyd(K){const{J,L,leaf,fill,ell,blob,line,r}=K;
+    L([[99,332],[J(100),262],[J(98),196],[J(99),142]]);L([[102,332],[J(103),262],[J(101),196],[J(102),142]]);
+    leaf(100,236,-52,50,20);leaf(100,254,50,44,18);
+    const cx=J(100,1),cy=J(100,1);
+    fill(ell(cx,cy,50,38,12,2.5),'hyd');
+    for(let i=0;i<22;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/22),fx=cx+Math.cos(a)*rr*42,fy=cy+Math.sin(a)*rr*31,s=J(4.4,.6),o=r()*1.6;
+      for(let p=0;p<4;p++){const t=o+p*Math.PI/2;line(blob(fx+Math.cos(t)*s,fy+Math.sin(t)*s,s*.75,5,.3))}}
+  },
+  all(K){const{J,L,fill,blob}=K;
+    L([[100,332],[J(100),250],[J(101),160],[J(100),92]]);
+    const cx=J(100,1),cy=62;fill(blob(cx,cy,30,12,1.2),'allium');
+    for(let i=0;i<32;i++){const a=i*2.39996,rr=Math.sqrt((i+.5)/32)*27,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;
+      for(let p=0;p<3;p++){const t=p*Math.PI/3+a;L([[x-Math.cos(t)*2.7,y-Math.sin(t)*2.7],[x+Math.cos(t)*2.7,y+Math.sin(t)*2.7]])}}
+    for(let i=0;i<5;i++){const a=rad(-50+i*25);L([[cx,92],[cx+Math.sin(a)*14,cy+22-Math.cos(a)*6]])}
+  },
+  bun(K){const{J,L,line,fill,leaf,ell}=K;
+    L([[100,332],[J(98),252],[J(103),172],[J(100),112]]);
+    leaf(100,304,-16,76,5);leaf(100,286,18,58,4);
+    const cx=J(100,1),cy=88;fill(ell(cx,cy,11,23,12,1),'oat');
+    line(ell(cx,cy,10,22,12,.8));
+    for(let i=0;i<26;i++){const t=i/26*6.283;const x0=cx+Math.cos(t)*10,y0=cy+Math.sin(t)*22;const k=J(4,1.4);L([[x0,y0],[x0+Math.cos(t)*k,y0+Math.sin(t)*k*1.4]])}
+  },
+  rose(K){const{J,L,leaf,shape,fill,r}=K;
+    L([[100,332],[J(101),262],[J(99),196],[J(100),128]]);
+    leaf(100,238,-55,26,10);leaf(100,238,50,24,9);leaf(100,198,-48,22,8);
+    [[284,1],[256,-1],[176,1]].forEach(([y,s])=>L([[100,y],[100+s*4,y-4]]));
+    const cx=J(100,1),cy=J(94,1);
+    const ep=[];const ph=r()*6.28;for(let i=0;i<11;i++){const t=ph+i/11*6.283;ep.push([cx+Math.cos(t)*J(33,2),cy-2+Math.sin(t)*J(30,2)])}
+    fill(smooth(ep,true),'rose');
+    L([[cx-30,cy-4],[cx-24,cy-24],[cx-8,cy-32],[cx+6,cy-28],[cx+20,cy-33],[cx+31,cy-16],[cx+30,cy-4]].map(([x,y])=>[J(x,1),J(y,1)]));
+    shape([[0,30],[-20,25],[-32,6],[-29,-12],[-15,-6],[-5,10]],xf(cx,cy,0),null);
+    shape([[2,30],[22,24],[33,4],[28,-14],[14,-8],[6,8]],xf(cx,cy,0),null);
+    const sp=[];for(let i=0;i<=14;i++){const t=i/14*2.6*Math.PI+r()*.2,rr=3+i*1.05;sp.push([cx+Math.cos(t)*rr,cy-10+Math.sin(t)*rr*.7])}L(sp);
+    [140,180,220].forEach(a=>shape([[-2.4,0],[0,-13],[2.4,0]],xf(cx,cy+30,a+J(0,6)),'green'));
+  },
+  tul(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(103),252],[J(98),172],[J(101),130]]);
+    leaf(100,322,-16,118,19);leaf(100,304,20,92,15);
+    const T=xf(J(101,1),131,J(0,5));
+    shape([[0,0],[-17,-8],[-21,-26],[-18,-47],[-8,-38],[0,-53],[8,-38],[18,-47],[21,-26],[17,-8]],T,'apricot');
+    L([[-2,-6],[-8,-24],[-8,-38]].map(T));L([[3,-6],[9,-26],[8,-38]].map(T));
+  },
+  fre(K){const{J,L,leaf,shape}=K;
+    L([[100,332],[J(99),262],[J(101),198],[J(105),164],[J(122),136],[J(146),116],[J(172,1),100]]);
+    leaf(100,322,-10,128,9);
+    const OPEN=[[-.1,0],[-.15,-.42],[-.48,-.76],[-.42,-.98],[-.17,-.9],[0,-1.06],[.17,-.9],[.42,-.98],[.48,-.76],[.15,-.42],[.1,0]];
+    const BUD=[[-.1,0],[-.24,-.5],[0,-1],[.24,-.5],[.1,0]];
+    [[104,168,-24,36,'o'],[115,146,-8,33,'o'],[130,128,8,26,'h'],[148,115,20,18,'h'],[162,106,32,12,'b'],[173,100,46,8,'b']].forEach(([x,y,a,s,t])=>{
+      const T=xf(J(x,1),J(y,1),J(a,5));
+      const sh=t==='o'?OPEN:t==='h'?OPEN.map(([u,v])=>[u*.62,v]):BUD;
+      shape(sh.map(([u,v])=>[u*s,v*s]),T,'cream');
+      if(t==='o')L([[0,-.25*s],[J(0,.6),-.55*s],[0,-.78*s]].map(T));
+    });
+  },
+  sna(K){const{J,L,leaf,shape,blob,line,fill}=K;
+    L([[100,332],[J(99),262],[J(101),186],[J(100),110],[J(101),34]]);
+    leaf(100,292,-30,36,7);leaf(100,266,32,33,7);leaf(100,240,-26,28,6);
+    const FL=[[0,0],[.32,-.46],[.78,-.52],[1.06,-.16],[.98,.24],[.62,.36],[.28,.16]];
+    for(let i=0;i<10;i++){const y=214-i*17.5,s=23-i*1.55,side=i%2?1:-1;
+      if(i<7){const T=xf(100+side*1.5,J(y,1.2),-side*J(16,5));shape(FL.map(([u,v])=>[u*s*side,v*s]),T,'lav');
+        L([[.52*s*side,-.02*s],[.78*s*side,-.1*s],[1.0*s*side,-.06*s]].map(T));}
+      else{const d=blob(100+side*s*.32,y-s*.1,s*.32,7,.7);line(d);fill(d,'lav')}}
+    const d=blob(J(101,.5),34,3.4,6,.5);line(d);fill(d,'lav');
+  },
+  cra(K){const{J,L,line,fill,blob,arc,r}=K;
+    L([[100,332],[J(100),250],[J(101),170],[J(100),80]]);
+    const cx=J(100,1),cy=62;const d=blob(cx,cy,18,12,1);line(d);fill(d,'mustard');
+    [[-8,-8],[0,-11],[8,-8],[-12,0],[-4,-2],[4,-1],[12,1],[-8,7],[0,6],[8,8],[-2,13]].forEach(([dx,dy])=>line(arc(cx+dx+J(0,.8),cy+dy+J(0,.8),2.6,r()*360,210,0)));
+  },
+  euc(K){const{J,L,line,fill,blob}=K;
+    const base=[[100,332],[105,278],[97,214],[104,150],[98,92],[101,46]];
+    L(base.map(([x,y],i)=>i?[J(x),y]:[x,y]));
+    const sx=y=>{for(let i=0;i<base.length-1;i++){const[a,b]=base[i],[c,d]=base[i+1];if(y<=b&&y>=d){const t=(b-y)/(b-d);return a+(c-a)*t}}return 101};
+    [[298,-1,17],[278,1,16.5],[254,-1,15.5],[232,1,15],[210,-1,14],[188,1,13],[167,-1,12],[147,1,11],[128,-1,10],[110,1,9],[93,-1,8],[77,1,7],[62,-1,5.8],[50,1,4.6]]
+    .forEach(([y,side,R])=>{if(K.strip&&y>STRIP)return;const x=sx(y);const rr=J(R,R*.08);const cx=x+side*(rr+J(4,1.2)),cy=J(y-rr*.35,1.5);
+      const d=blob(cx,cy,rr,10,rr*.07+.4);line(d);fill(d,'sage');L([[x,y],[x+side*3,y-1],[cx-side*rr*.35,cy]]);});
+  },
+};
+const CACHE=new Map(),STEMD=new Map();
+/* a zinc florist's bucket, drawn in the same hand; on the shelf it hides the bottom of each stem */
+function bucket(seed,i){
+  const K=kit(seed,.7),{J,L,line,fill}=K;const top=292,bot=344,wt=J(35,1.2),wb=J(27,1);
+  const body=`M${f(100-wt)} ${top} C${f(100-wt+2)} ${top+30} ${f(100-wb-1)} ${bot-22} ${f(100-wb)} ${bot} C88 ${bot+2} 112 ${bot+1} ${f(100+wb)} ${bot} C${f(100+wb+1)} ${bot-22} ${f(100+wt-2)} ${top+30} ${f(100+wt)} ${top} Z`;
+  const tint=['zinc','enamel','zinc','sage2'][i%4];
+  fill(body,tint);line(body);
+  const rim=K.ell(100,top,wt,5.5,10,.4);fill(rim,'rim');line(rim);
+  L([[100-wt+4,top+16],[100,top+18],[100+wt-5,top+15.5]]);
+  L([[100-wb-2,bot-10],[100,bot-8.5],[100+wb+1,bot-10.5]]);
+  L([[100+wt-10,top+22],[100+wt-11,top+38]]);
+  const o=K.out;
+  return `<g>${o.fills.map(p=>`<path d="${p.d}" fill="#FCFCFA"/>`).join('')}</g>`+
+    `<g transform="translate(2 -1.5)" opacity=".92" style="mix-blend-mode:multiply">${o.fills.map(p=>`<path d="${p.d}" fill="${PAL[p.c]}"/>`).join('')}</g>`+
+    o.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+}
+const MAIN={ran:'pink',tul:'apricot',fre:'cream',sna:'lav',lil:'lily',ane:'white',pea:'pea',cal:'white',car:'carn',rose:'rose',hyd:'hyd',all:'allium',bun:'oat',gyp:'gyp',del:'delph',peo:'peony',dah:'dahlia'};
+function draw(k,s,strip,col){
+  const key=k+s+(strip?'s':'')+(col||'');if(CACHE.has(key))return CACHE.get(key);
+  const g=(seed,amt)=>{const K=kit(seed,amt,strip);GEN[k](K);return K.out};
+  const A=g(s,1.1),B=g(s+97,2.4);STEMD.set(k+s+(strip?'s':''),A.lines[0]);
+  const fc=c=>(col&&c===MAIN[k])?col:PAL[c];
+  /* in the bouquet, each stem gets an underlay in the paper's colour so the flower in front covers the one behind */
+  const under=strip?`<g class="under">${A.fills.map(p=>`<path d="${p.d}"/>`).join('')}</g>`:'';
+  const out=under+`<g transform="translate(2.6 -1.8)" opacity=".92" style="mix-blend-mode:multiply">${B.fills.map(p=>`<path d="${p.d}" fill="${fc(p.c)}"/>`).join('')}</g>`+
+    A.lines.map(d=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  CACHE.set(key,out);return out;
+}
+
+
+
+/* ---------- helpers ---------- */
+let SEED=11;const R=()=>{SEED=(SEED*9301+49297)%233280;return SEED/233280};const jit=(v,a)=>v+(R()-.5)*2*a;
+function wob(pts,closed=true,j=1.2){const p=pts.map(([x,y])=>[jit(x,j),jit(y,j)]);let d=`M${f(p[0][0])} ${f(p[0][1])}`;
+  const n=closed?p.length:p.length-1;for(let i=0;i<n;i++){const a=p[i],b=p[(i+1)%p.length];d+=`Q${f((a[0]+b[0])/2+jit(0,j*1.4))} ${f((a[1]+b[1])/2+jit(0,j*1.4))} ${f(b[0])} ${f(b[1])}`}return closed?d+'Z':d}
+const rectP=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+const ln=(pts,o='')=>`<path d="${wob(pts,false,.8)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" ${o}/>`;
+const box=(x,y,w,h,fill='none',o='')=>`<path d="${wob(rectP(x,y,w,h))}" fill="${fill}" stroke="${INK}" stroke-width="1.4" stroke-linejoin="round" ${o}/>`;
+const T=(x,y,s,size,cls='u',anchor='start',rot=0,fill=INK)=>`<text x="${x}" y="${y}" class="${cls}" font-size="${size}" text-anchor="${anchor}" fill="${fill}" transform="rotate(${rot} ${x} ${y})">${s}</text>`;
+/* a small tied bunch with its tie at (tx,ty) */
+function bunch(tx,ty,h,seed=1){let o='';const u=h/340;
+  [['sna',8,1.05],['rose',-14,.86],['fre',-46,1],['euc',30,.82]].forEach(([k,a,sc],i)=>{const s=u*sc;
+    o+=`<g transform="translate(${f(tx)} ${f(ty)}) rotate(${a}) translate(${f(-100*s)} ${f(-250*s)})"><svg width="${f(200*s)}" height="${f(250*s)}" viewBox="0 0 200 250" overflow="hidden">${draw(k,seed*10+i,true)}</svg></g>`});
+  for(let i=0;i<4;i++)o+=ln([[tx+(i-1.5)*1.4,ty],[tx+(i-1.5)*2,ty+h*.22]]);
+  o+=`<path d="M${tx-14} ${ty+8} C${tx-4} ${ty+12} ${tx+6} ${ty+12} ${tx+14} ${ty+6} M${tx} ${ty+9} C${tx-12} ${ty-6} ${tx-20} ${ty+6} ${tx-2} ${ty+10} M${tx+1} ${ty+9} C${tx+12} ${ty-6} ${tx+22} ${ty+6} ${tx+3} ${ty+10}" fill="none" stroke="${TWINE}" stroke-width="1.6" stroke-linecap="round"/>`;
+  return o}
+const TWINE='#B4593F';
+
+/* ---------- textured papers: each is an SVG pattern drawn with rough strokes ---------- */
+const PAT=[];function pat(id,w,h,base,inner){PAT.push(`<pattern id="${id}" width="${w}" height="${h}" patternUnits="userSpaceOnUse"><rect width="${w}" height="${h}" fill="${base}"/>${inner}</pattern>`)}
+const strokes=(n,fn)=>Array.from({length:n},fn).join('');
+SEED=3;
+/* textures stay quiet: wide spacing, colours close to the base, never louder than the stems' ink line */
+/* kraft: light caramel with scattered, irregular flecks (paper inclusions), never a regular grid */
+pat('p-kraft',200,200,'#E2CBA4',strokes(26,()=>{const x=R()*200,y=R()*200,s=.8+R()*1.8,dark=R()>.3;return `<path d="M${f(x)} ${f(y)} q${f(s)} ${f(jit(0,s))} ${f(s*1.6)} ${f(jit(0,s*.6))} q${f(-s*.4)} ${f(s)} ${f(-s*1.4)} ${f(s*.4)}z" fill="${dark?'#A88A5E':'#F2E3C8'}" opacity="${dark?.55:.9}"/>`}));
+pat('p-news',200,120,'#EFEBE3',strokes(3,(_,i)=>{let o='',x=10;const y=22+i*34;while(x<185){const w=10+R()*26;o+=`<path d="M${f(x)} ${f(y+jit(0,.8))} L${f(x+w)} ${f(y+jit(0,.8))}" stroke="#B4B5AE" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>`;x+=w+8+R()*8}return o}));
+pat('p-gingham',84,84,'#FCF3F0',`<path d="M0 ${f(21+jit(0,1))} C28 ${f(20+jit(0,1.6))} 56 ${f(22+jit(0,1.6))} 84 21" stroke="#F0B9B4" stroke-width="16" opacity=".28" fill="none"/><path d="M${f(21+jit(0,1))} 0 C${f(20+jit(0,1.6))} 28 ${f(22+jit(0,1.6))} 56 21 84" stroke="#F0B9B4" stroke-width="16" opacity=".28" fill="none"/>`);
+pat('p-dots',76,76,'#E6EDDF',`<path d="${wob([[14,14],[20,13],[21,19],[15,21]],true,.8)}" fill="#B3CABB"/><path d="${wob([[52,52],[58,51],[59,57],[53,59]],true,.8)}" fill="#B3CABB"/>`);
+pat('p-stripes',56,160,'#F3F0F8',`<path d="M14 0 C11 40 17 80 14 120 S12 150 14 160" stroke="#CFC4EA" stroke-width="10" fill="none" opacity=".45"/>`);
+pat('p-tissue',240,240,'#F0ECF6',strokes(5,()=>{const x=R()*240,y=R()*240,l=40+R()*70,a=R()*6.28;return `<path d="M${f(x)} ${f(y)} q${f(Math.cos(a+.6)*l*.5)} ${f(Math.sin(a+.6)*l*.5)} ${f(Math.cos(a)*l)} ${f(Math.sin(a)*l)}" stroke="${R()>.4?'#FFFFFF':'#DCD3EA'}" stroke-width="${f(1.2+R()*1.2)}" fill="none" stroke-linecap="round" opacity=".85"/>`}));
+pat('p-hatch',52,52,'#EEE6D6',`<path d="M-6 ${f(18+jit(0,1))} L${f(18+jit(0,1))} -6 M28 58 L58 28" stroke="#D3C6AA" stroke-width="1.1" stroke-linecap="round" fill="none"/>`);
+pat('p-sprigs',160,160,'#FFFCF5',`<g fill="#C9DBBC" stroke="#8FA888" stroke-width=".8"><path d="M30 46 q6 -10 14 -6 q-6 9 -14 6z"/><path d="M30 46 q-4 -11 3 -15 q4 9 -3 15z"/><path d="M110 120 q6 -10 14 -6 q-6 9 -14 6z"/><path d="M110 120 q-4 -11 3 -15 q4 9 -3 15z"/></g><path d="M30 46 l-4 8 M110 120 l-4 8" stroke="#8FA888" stroke-width=".8"/>`);
+document.getElementById('pats').innerHTML=PAT.join('');
+
+const PAPERS=[
+  ['Kraft','p-kraft','Light caramel kraft with scattered flecks, like real paper.'],
+  ['Newsprint','p-news','Lines of scribbled “text”, the old newspaper wrap.'],
+  ['Gingham','p-gingham','A hand-drawn blush check, a little uneven.'],
+  ['Dots','p-dots','Sage paper with wobbly dots.'],
+  ['Stripes','p-stripes','Soft lavender stripes that wander slightly.'],
+];
+const fr=(w,h,inner)=>`<svg viewBox="0 0 ${w} ${h}" role="img">${inner}</svg>`;
+document.getElementById('papers').innerHTML=PAPERS.map(([n,id,d],i)=>{SEED=20+i;
+  const sheet=`<g transform="rotate(${i%2?5:-5} 160 170)">${box(70,40,180,250,`url(#${id})`)}<path d="M74 150 L156 286 M246 156 L168 284" stroke="#00000022" stroke-width="1" fill="none"/></g>`;
+  return `<figure>${fr(320,330,sheet+bunch(160,212,190,i+2))}<figcaption><b>${n}</b><span>${d}</span></figcaption></figure>`}).join('');
+
+/* ---------- card styles ---------- */
+const NAMES='snapdragon, rose & freesia';
+function cardA(){SEED=41;let o=`<rect x="22" y="18" width="276" height="364" fill="#F4C9A6" opacity=".55"/>`+box(16,24,276,364,'#FFFDF7');
+  o+=T(154,72,'By the Stem',30,'h','middle')+ln([[106,80],[204,78]],`stroke="${TWINE}"`)+T(154,96,'flowers by the stem',11,'u','middle',0,'#7A8077');
+  o+=`<path d="${wob([[154,130],[234,170],[240,250],[154,298],[72,250],[78,170]],true,5)}" fill="#F4DFD8"/>`+bunch(154,250,170,7);
+  o+=T(154,334,NAMES,19,'h','middle')+T(154,352,'3 stems · blush paper · Nov 9',10,'u','middle',0,'#7A8077');return fr(310,400,o)}
+function cardB(){SEED=42;let o=`<g transform="rotate(-2 155 200)">`+box(30,30,250,330,'#FFFFFF')+`<rect x="48" y="48" width="214" height="230" fill="url(#p-gingham)"/>`+box(48,48,214,230)+bunch(155,215,175,8)+
+  T(155,318,'my bunch, nov 9',24,'h','middle')+T(155,340,'By the Stem',12,'u','middle',0,'#7A8077')+`</g>`+
+  `<rect x="118" y="16" width="74" height="22" fill="#F4C9A6" opacity=".8" transform="rotate(-4 155 27)"/>`;return fr(310,400,o)}
+function cardC(){SEED=43;let o=box(14,20,282,362,'#FBF7EC')+box(26,32,258,338,'none','stroke-width="0.8" opacity=".5"')+bunch(118,230,200,9);
+  o+=box(150,256,130,96,'#FFFDF7')+T(158,276,'By the Stem',15,'h')+ln([[158,282],[272,282]],'opacity=".5"')+
+    T(158,298,'no. 0412',11,'u','start',0,'#7A8077')+ln([[158,304],[272,304]],'opacity=".35"')+T(158,320,'snapdragon, rose,',12,'h')+T(158,334,'freesia',12,'h')+ln([[158,340],[272,340]],'opacity=".35"')+
+    T(158,353,'picked Nov 9',10,'u','start',0,'#7A8077');
+  o+=T(40,62,'specimen',22,'h','start',-4,TWINE);return fr(310,400,o)}
+function cardD(){SEED=44;let o=`<path d="${wob([[70,40],[240,40],[290,90],[290,380],[20,380],[20,90]],true,1.4)}" fill="#F4E9DA" stroke="${INK}" stroke-width="1.4"/>`;
+  o+=`<circle cx="155" cy="74" r="10" fill="#FCFCFA" stroke="${INK}" stroke-width="1.3"/><path d="M155 64 C140 30 120 14 100 4 M155 64 C172 32 196 16 214 6" stroke="${TWINE}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+  o+=bunch(155,262,180,10)+T(155,322,'By the Stem',28,'h','middle')+ln([[110,330],[200,328]],`stroke="${TWINE}"`)+T(155,352,NAMES,14,'h','middle',0,'#7A8077');return fr(310,400,o)}
+const CARDS=[
+  ['As it is now','Cream card, a wash of the paper colour behind the bunch, shop name on top.',cardA],
+  ['Polaroid','A white instant-photo frame, the bunch on its paper inside, a caption written underneath and a strip of tape.',cardB],
+  ['Specimen card','Like a botanical study: the bunch drawn on the left and a ruled label with a number, the stems and the date.',cardC],
+  ['Gift tag','The card is cut like a florist’s tag, with a hole and a loop of twine, the shop name under the bunch.',cardD],
+];
+document.getElementById('cards').innerHTML=CARDS.map(([n,d,fn])=>`<figure>${fn()}<figcaption><b>${n}</b><span>${d}</span></figcaption></figure>`).join('');
+})();
+</script>
