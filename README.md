@@ -50,4 +50,4 @@ Designed for desktop and laptop screens.
 
 ## Credits
 
-Concept and design by Auria Zhang. All flowers, papers, cards and the florist bird are drawn in code as SVG and canvas.
+Designed by Auria Zhang. All flowers, papers, cards and the florist bird are drawn in code as SVG and canvas.
